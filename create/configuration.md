@@ -1,0 +1,595 @@
+# Nice Configuration Packages
+
+This document outlines the architecture and patterns for configuration packages in the Nice ecosystem.
+
+---
+
+## Package Categories
+
+The Nice ecosystem has three types of configuration packages:
+
+| Category | Package | Purpose |
+|----------|---------|---------|
+| **Shareable Configs** | nice-configuration | TypeScript, Rollup, Jest configurations |
+| **CLI Tools** | nice-npm-link | Local package linking and conflict resolution |
+| **Build Plugins** | nice-vite-symlink-watcher | Vite plugin for linked package hot-reload |
+
+---
+
+## nice-configuration
+
+Central repository for shared build tool configurations. All nice-react-* packages extend these configs.
+
+### Structure
+
+```
+nice-configuration/
+├── src/
+│   ├── rollup/
+│   │   ├── config.js           # createConfiguration(), isNiceExternal, createExternals
+│   │   └── index.js            # Re-exports
+│   ├── typescript/
+│   │   ├── base.json           # Base TypeScript config
+│   │   └── react.json          # Extends base with JSX support
+│   └── jest/
+│       ├── react.js            # React/TypeScript Jest config
+│       └── css-mock.js         # CSS import mock
+├── package.json
+└── README.md
+```
+
+### Subpath Exports
+
+```json
+{
+  "exports": {
+    "./rollup": "./src/rollup/index.js",
+    "./typescript/base": "./src/typescript/base.json",
+    "./typescript/react": "./src/typescript/react.json",
+    "./jest/react": "./src/jest/react.js",
+    "./jest/css-mock": "./src/jest/css-mock.js"
+  }
+}
+```
+
+### TypeScript Configs
+
+Extend via standard `extends` field:
+
+```json
+// tsconfig.json
+{
+  "extends": "nice-configuration/typescript/react",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declarationDir": "dist/types"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
+```
+
+**Configurations:**
+- `typescript/base` - ES2020, ESNext modules, bundler resolution, strict mode
+- `typescript/react` - Extends base with `jsx: react-jsx`
+
+### Rollup Config
+
+Factory function pattern with sensible defaults:
+
+```js
+// rollup.config.js
+import { createConfiguration } from "nice-configuration/rollup"
+
+export default createConfiguration()
+
+// With options
+export default createConfiguration({
+  input: "src/index.ts",
+  additionalExternals: ["lodash"],
+  bundlePackages: ["nice-icons"],
+})
+```
+
+**Options:**
+| Option | Default | Description |
+|--------|---------|-------------|
+| `input` | `'src/index.ts'` | Entry point |
+| `tsconfig` | `'./tsconfig.json'` | Path to tsconfig |
+| `output` | `{}` | Custom output config (merged) |
+| `plugins` | `null` | Override default plugins |
+| `additionalExternals` | `[]` | Extra packages to externalize |
+| `bundlePackages` | `[]` | nice-* packages to bundle |
+| `dts` | `true` | Generate declaration bundle |
+| `dtsInput` | `'dist/types/index.d.ts'` | Declaration input path |
+
+**Default Plugins:**
+- `rollup-plugin-peer-deps-external`
+- `@rollup/plugin-node-resolve` (browser: true)
+- `@rollup/plugin-commonjs`
+- `@rollup/plugin-typescript`
+- `rollup-plugin-dts` (declaration bundling)
+
+**Watch Mode Settings:**
+
+The configuration includes optimized watch settings to prevent file caching issues:
+
+```js
+{
+  cache: false,
+  watch: {
+    buildDelay: 200,
+    clearScreen: false,
+    chokidar: {
+      awaitWriteFinish: {
+        stabilityThreshold: 150,
+        pollInterval: 50
+      },
+      usePolling: true,
+      interval: 100
+    }
+  }
+}
+```
+
+These settings prevent the "off by one" caching bug where changes appear one save behind.
+
+**Exported Functions:**
+- `createConfiguration(options)` - Full config factory
+- `isNiceExternal(id)` - Pattern-based external detection
+- `createExternals({ additional, bundle })` - Custom external function
+
+### Jest Config
+
+Re-export pattern for Jest:
+
+```js
+// jest.config.js
+export { default } from "nice-configuration/jest/react"
+```
+
+**Included Settings:**
+- `preset: ts-jest`
+- `testEnvironment: jsdom`
+- ESM support with `useESM: true`
+- Transforms nice-* packages
+- CSS mock via `moduleNameMapper`
+- Testing Library setup
+
+---
+
+## nice-npm-link
+
+CLI tool for managing local package links and resolving dependency conflicts.
+
+### Structure
+
+```
+nice-npm-link/
+├── nice-npm-link.js            # Main CLI script
+├── package.json
+└── README.md
+```
+
+### Package.json Configuration
+
+```json
+{
+  "bin": {
+    "nice-npm-link": "./nice-npm-link.js",
+    "nnl": "./nice-npm-link.js"
+  }
+}
+```
+
+### Key Commands
+
+| Command | Description |
+|---------|-------------|
+| `nnl --clean-all` | Clean all file: linked packages recursively |
+| `nnl --dev` | Run dev scripts in all linked packages |
+| `nnl --watch` | Watch dist folders and trigger recompilation |
+| `nnl --dev --watch` | Combined (recommended for CRA/webpack) |
+| `nnl --unlink` | Restore packages to npm versions |
+| `nnl --clean-only <path>` | Clean specific package without linking |
+
+### Default Excluded Packages
+
+Removes these singletons from linked packages:
+- `react`
+- `react-dom`
+- `styled-components`
+- `@types/react`
+- `@types/react-dom`
+
+---
+
+## nice-vite-symlink-watcher
+
+Vite plugin for hot-reloading linked packages.
+
+### Structure
+
+```
+nice-vite-symlink-watcher/
+├── src/
+│   ├── symlinkWatcher.ts       # Main plugin function
+│   ├── getSourceAliases.ts     # Resolve alias generator
+│   └── index.ts                # Re-exports
+├── dist/
+├── package.json
+└── README.md
+```
+
+### Exports
+
+```ts
+import { symlinkWatcher, getSourceAliases } from "nice-vite-symlink-watcher"
+```
+
+**symlinkWatcher(options):**
+- `packages` - Package name → local path mapping
+- `watchDir` - Subdirectory to watch (default: `'dist'`)
+- `verbose` - Log changes (default: `false`)
+- `debounce` - Debounce delay in ms (default: `300`)
+
+**getSourceAliases(packages, aliasable, entry):**
+- Generates Vite resolve aliases to package source files
+- For packages without special build transforms (SVGR, PostCSS)
+- Enables true HMR with state preservation
+
+### Vite vs Webpack Strategy
+
+| Project Type | Tool | Usage |
+|--------------|------|-------|
+| Vite/Storybook | nice-vite-symlink-watcher | Plugin in vite.config.ts |
+| CRA/webpack | nice-npm-link --dev --watch | CLI in separate terminal |
+
+---
+
+## Storybook Documentation
+
+Configuration packages are documented in `nice-storybook/stories/Configuration/`.
+
+### Structure
+
+```
+stories/Configuration/
+├── TypeScript.stories.tsx
+├── Rollup.stories.tsx
+├── Jest.stories.tsx
+├── NpmLink.stories.tsx
+└── ViteSymlinkWatcher.stories.tsx
+```
+
+### Story Pattern
+
+Configuration stories use a simplified pattern compared to component stories:
+
+```tsx
+import type { Meta, StoryObj } from "@storybook/react"
+import Typography from "nice-react-typography"
+import Flex from "nice-react-flex"
+import { getToken } from "nice-styles"
+import { generateDescriptionString } from "../../src/services"
+
+// Empty demo component (no visual component to render)
+const ConfigDemo = () => <></>
+
+const meta = {
+  title: "Configuration/{ConfigName}",
+  component: ConfigDemo,
+  parameters: {
+    layout: "padded",
+    previewTabs: {
+      canvas: { hidden: true },  // Hide canvas for docs-only
+    },
+    viewMode: "docs",
+    docs: {
+      description: {
+        component: generateDescriptionString("nice-package-name", {
+          setup: [
+            { value: "// config.js", code: true, newLine: true },
+            { value: 'import { fn } from "nice-package"', code: true, newLine: true },
+          ],
+          usage: [
+            { value: "export default fn()", code: true, newLine: true },
+          ],
+        }),
+      },
+    },
+  },
+  tags: ["autodocs"],
+} satisfies Meta<typeof ConfigDemo>
+
+export default meta
+type Story = StoryObj<typeof meta>
+
+// Shared story parameters
+const storyParameters = {
+  docs: {
+    source: { code: null },
+    canvas: { sourceState: "none" },
+  },
+}
+
+// Reusable code block component
+const CodeBlock = ({ children }: { children: string }) => (
+  <Typography
+    code
+    style={{
+      display: "block",
+      backgroundColor: getToken("backgroundColor", "alternate").var,
+      padding: getToken("gap", "base").var,
+      borderRadius: getToken("borderRadius", "base").var,
+      whiteSpace: "pre",
+      overflow: "auto",
+    }}
+  >
+    {children}
+  </Typography>
+)
+
+export const FeatureName: Story = {
+  name: "featureName",
+  parameters: storyParameters,
+  render: () => (
+    <Flex direction="column" gap="large">
+      <Typography as="h3">Feature Title</Typography>
+      <Typography color="medium">
+        Description of the feature.
+      </Typography>
+      <CodeBlock>
+        {`// Example code
+export default config`}
+      </CodeBlock>
+    </Flex>
+  ),
+}
+```
+
+### Key Differences from Component Stories
+
+| Aspect | Component Stories | Configuration Stories |
+|--------|-------------------|----------------------|
+| Demo component | Actual component | Empty fragment `<></>` |
+| Canvas tab | Visible | Hidden (`previewTabs.canvas.hidden`) |
+| Story structure | Uses `<Story>` component | Direct JSX with `<Flex>` + `<Typography>` |
+| Code display | `code` prop on Story variables | `<CodeBlock>` helper component |
+| File organization | Separate story files in `stories/` | Single file with all stories |
+
+---
+
+## Creating a New Configuration Package
+
+### 1. Shareable Config
+
+For configs that other packages extend:
+
+```
+my-config/
+├── src/
+│   ├── {tool}/
+│   │   ├── base.{ext}
+│   │   └── variant.{ext}
+│   └── index.{ext}
+├── package.json
+└── README.md
+```
+
+Package.json:
+```json
+{
+  "name": "my-config",
+  "exports": {
+    "./{tool}/base": "./src/{tool}/base.{ext}",
+    "./{tool}/variant": "./src/{tool}/variant.{ext}"
+  }
+}
+```
+
+### 2. CLI Tool
+
+For command-line utilities:
+
+```
+my-cli/
+├── my-cli.js                   # Main script with shebang
+├── package.json
+└── README.md
+```
+
+Package.json:
+```json
+{
+  "name": "my-cli",
+  "bin": {
+    "my-cli": "./my-cli.js",
+    "mc": "./my-cli.js"         // Short alias
+  }
+}
+```
+
+Script shebang:
+```js
+#!/usr/bin/env node
+// CLI implementation
+```
+
+### 3. Build Plugin
+
+For bundler/tooling plugins:
+
+```
+my-plugin/
+├── src/
+│   ├── plugin.ts               # Main plugin function
+│   ├── helpers.ts              # Helper utilities
+│   └── index.ts                # Re-exports
+├── dist/
+├── package.json
+└── README.md
+```
+
+Package.json:
+```json
+{
+  "name": "my-plugin",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts"
+}
+```
+
+---
+
+## Local Development
+
+All configuration packages use `file:` references for interdependencies. After modifying dependencies, run:
+
+```bash
+node ../nice-npm-link/nice-npm-link --clean-all
+```
+
+This removes duplicate React/styled-components from linked packages, preventing "Invalid hook call" errors.
+
+---
+
+## Configuration Standards
+
+All `nice-react-*` packages must follow these canonical patterns. Deviations require documented justification.
+
+### Canonical rollup.config.js
+
+**Standard:**
+
+```js
+import { createConfiguration } from 'nice-configuration/rollup'
+
+export default createConfiguration()
+```
+
+**With bundled packages:**
+
+```js
+import { createConfiguration } from 'nice-configuration/rollup'
+
+export default createConfiguration({
+  bundlePackages: ['nice-icons']
+})
+```
+
+**With custom plugins (escape hatch only):**
+
+```js
+import { createConfiguration } from 'nice-configuration/rollup'
+import svgr from '@svgr/rollup'
+// ... other imports
+
+export default createConfiguration({
+  plugins: [
+    peerDepsExternal(),
+    svgr(),
+    resolve({ browser: true, extensions: ['.js', '.ts', '.tsx', '.svg'] }),
+    commonjs(),
+    json(),
+    typescript({ tsconfig: './tsconfig.json', declaration: true, declarationDir: 'dist' })
+  ],
+  bundlePackages: ['nice-icons']
+})
+```
+
+**Never use raw rollup config arrays.**
+
+---
+
+### Canonical tsconfig.json
+
+```json
+{
+  "extends": "nice-configuration/typescript/react",
+  "compilerOptions": {
+    "outDir": "dist",
+    "declarationDir": "dist/types"
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
+}
+```
+
+**Base config provides:**
+
+| Option | Value |
+|--------|-------|
+| target | ES2020 |
+| module | ESNext |
+| lib | ES2020, DOM, DOM.Iterable |
+| moduleResolution | bundler |
+| jsx | react-jsx |
+| declaration | true |
+| declarationMap | true |
+| strict | true |
+
+**Deprecated patterns to avoid:**
+
+- `target: "es5"` — use ES2020
+- `jsx: "react"` — use react-jsx
+- `moduleResolution: "node"` — use bundler
+- `noEmit: true` — conflicts with declaration generation
+- Custom strict options (noUnusedLocals, etc.) — already in base
+
+---
+
+### Canonical jest.config.js
+
+```js
+export { default } from "nice-configuration/jest/react"
+```
+
+---
+
+## Deviation Audit
+
+### Packages Using Non-Standard Rollup Config
+
+| Package | Issue |
+|---------|-------|
+| nice-react-styles | Raw config array, manual plugin setup |
+| nice-react-device-detector | Raw config array, manual plugin setup |
+
+**Normalization:** Replace with `createConfiguration()`.
+
+### Packages Using Non-Standard TypeScript Config
+
+| Package | Issues |
+|---------|--------|
+| nice-react-icon | `target: es5`, `jsx: react`, `noEmit: true`, `moduleResolution: node` |
+| nice-react-flex | `target: ES2018`, `jsx: react`, `moduleResolution: node`, redundant strict options |
+| nice-react-styles | Non-standard output dirs (`dist/esm`), missing test excludes |
+| nice-react-device-detector | `target: es5`, `noEmit: true`, missing excludes |
+
+**Normalization:** Extend `nice-configuration/typescript/react`, use standard output paths.
+
+### Packages Missing Jest Config
+
+| Package | Status |
+|---------|--------|
+| nice-react-typography | No jest.config.js |
+| nice-react-flex | No jest.config.js |
+| nice-react-tile | No jest.config.js |
+| nice-react-styles | No jest.config.js |
+| nice-react-scroll | No jest.config.js |
+| nice-react-slider | No jest.config.js |
+| nice-react-device-detector | No jest.config.js |
+
+**Action:** Add jest.config.js if tests exist or are planned.
+
+---
+
+## Justified Exceptions
+
+| Package | Exception | Justification |
+|---------|-----------|---------------|
+| nice-react-icon | Custom rollup plugins | SVGR required to transform SVG imports from nice-icons into React components |
+
+Add exceptions to this table with clear justification. If no justification exists, normalize the package.

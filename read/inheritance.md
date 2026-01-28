@@ -1,0 +1,477 @@
+# Nice Ecosystem Inheritance Tree
+
+This document maps the complete inheritance and dependency relationships across all Nice Prototypes packages.
+
+---
+
+## Layered Architecture Overview
+
+The Nice ecosystem follows a strict layered architecture where each layer builds upon the one below it.
+
+```
+┌───────────────────────────────────────┐
+│  APPLICATION LAYER                    │
+│───────────────────────────────────────│
+│  nice-storybook                       │
+│  nice-website-2025                    │
+└───────────────────────────────────────┘
+                  ▼
+┌───────────────────────────────────────┐
+│  FEATURE LAYER                        │
+│───────────────────────────────────────│
+│  nice-react-button (feature)          │
+│  └─ nice-react-icon (utility)         │
+│     └─ nice-icons (foundation)        │
+│     └─ nice-react-styles (context)    │
+│        └─ nice-styles (foundation)    │
+└───────────────────────────────────────┘
+                  ▼
+┌───────────────────────────────────────┐
+│  UTILITY LAYER                        │
+│───────────────────────────────────────│
+│  nice-react-icon                      │
+│  nice-react-flex                      │
+│  nice-react-typography                │
+│  nice-react-tile                      │
+│  nice-react-scroll                    │
+│  nice-react-slider                    │
+│  nice-react-device-detector           │
+└───────────────────────────────────────┘
+                  ▼
+┌───────────────────────────────────────┐
+│  CONTEXT LAYER                        │
+│───────────────────────────────────────│
+│  nice-react-styles                    │
+│  └─ StylesProvider                    │
+│  └─ getToken                          │
+│  └─ createTokens                      │
+└───────────────────────────────────────┘
+                  ▼
+┌───────────────────────────────────────┐
+│  FOUNDATION LAYER                     │
+│───────────────────────────────────────│
+│  nice-styles                          │
+│  nice-icons                           │
+│  nice-configuration                   │
+│  nice-npm-link                        │
+│  nice-vite-symlink-watcher            │
+└───────────────────────────────────────┘
+```
+
+---
+
+## Foundation Layer
+
+### nice-styles (v4.1.5)
+
+**Role:** Core design token system - the root of all styling inheritance
+
+**Dependencies:** None (zero dependencies)
+
+**Exports:**
+- Constants: `FONT_SIZE_BASE`, `FOREGROUND_COLOR_LINK`, etc. (SCREAMING_SNAKE_CASE)
+- Functions: `getToken()`, `getTokenFromMap()`, `getCssConstant()`
+- Types: `TokenResult`, `TokenDefinition`, `TokenMap`, `AnimationDurationType`, `BorderRadiusType`, `FontSizeType`, etc.
+- CSS Files: `index.css`, `variables.css`, `deprecated.css`
+
+**Inheritors:** All nice-react-* component packages
+
+---
+
+### nice-icons (v1.1.0)
+
+**Role:** SVG icon asset library
+
+**Dependencies:** None
+
+**Exports:**
+- 30 SVG icons with stroke/fill variants
+- `iconNames` constant array
+
+**Inheritors:** `nice-react-icon`
+
+---
+
+### nice-configuration (v1.0.0)
+
+**Role:** Shared build tool configuration
+
+**Exports:**
+- Rollup configuration: `./rollup`
+- TypeScript configs: `./typescript/base`, `./typescript/react`
+- Jest configs: `./jest/react`, `./jest/css-mock`
+
+**Inheritors:** All nice-react-* packages (devDependency)
+
+---
+
+### nice-npm-link (v2.1.0)
+
+**Role:** Development utility for local package linking and conflict resolution
+
+**Exports:** CLI commands `nice-npm-link`, `nnl`
+
+**Key Commands:**
+- `--clean-all`: Recursively clean all file: linked packages (removes duplicate React/styled-components)
+- `--dev`: Run dev scripts in all linked packages concurrently
+- `--unlink`: Restore packages to npm versions
+
+---
+
+### nice-vite-symlink-watcher (v0.2.0)
+
+**Role:** Vite plugin for hot-reloading linked packages
+
+**Exports:** Vite plugin function
+
+**Inheritors:** `nice-storybook`, `nice-website-*` projects
+
+---
+
+## Context Layer
+
+### nice-react-styles (v3.0.0)
+
+**Role:** Bridge between nice-styles tokens and React components
+
+**Dependencies:**
+- `nice-styles` (4.1.5)
+
+**Peer Dependencies:**
+- `react` (>=19.2.0)
+- `react-dom` (>=19.2.0)
+- `styled-components` (>=6.1.18)
+
+**Exports:**
+- Component: `StylesProvider`
+- Function: `createTokens()` - generates `GlobalStyles` component and `getComponentToken()` function
+- Re-exports: `getToken`, `getTokenFromMap` from nice-styles
+- Types: `ComponentTokens`, `StylesProviderProps`
+
+**Inheritors:** `nice-react-typography`, `nice-react-icon`, `nice-react-button`
+
+---
+
+## Utility Layer
+
+### nice-react-flex (v1.2.0)
+
+**Role:** Responsive flexbox layout component
+
+**Dependencies:**
+- `nice-styles`
+
+**Peer Dependencies:**
+- `react`, `react-dom`, `styled-components`
+
+**Exports:**
+- Component: `Flex`
+- Services: `getBreakpointValue()`, `getGapSize()`, `getSpacingValue()`, `isResponsiveObject()`, `styleSpacing()`, `styleFlex()`
+- Types: `FlexTypes.*`
+
+**Inheritors:** `nice-react-tile`, `nice-react-button` (peer dependency)
+
+---
+
+### nice-react-typography (v4.1.1)
+
+**Role:** Semantic typography component
+
+**Dependencies:**
+- `nice-styles`
+- `nice-react-styles`
+
+**Peer Dependencies:**
+- `react`, `react-dom`, `styled-components`
+
+**Exports:**
+- Component: `Typography`
+- Tokens: `TypographyStyles`, `TypographyTokenMap`, `getTypographyToken()`
+- Types: `TypographyProps`, `AsType`, `AlignType`
+
+**Inheritors:** `nice-react-button`
+
+---
+
+### nice-react-tile (v3.2.0)
+
+**Role:** Responsive grid/tile layout component
+
+**Dependencies:** None (runtime)
+
+**Peer Dependencies:**
+- `nice-react-flex` (>=1.0.0)
+- `react`, `react-dom`, `styled-components`
+
+**Exports:**
+- Component: `Tile`
+- Types: All tile-related types
+
+---
+
+### nice-react-scroll (v2.1.0)
+
+**Role:** Performance-optimized scroll management
+
+**Dependencies:** None (runtime)
+
+**Peer Dependencies:**
+- `react`, `react-dom`, `styled-components`
+
+**Exports:**
+- Provider: `ScrollProvider`, `ScrollContext`
+- Hook: `useScroll()`
+- Components: `Sticky`, `StickyProvider`, `FadeOnScroll`, `StickySectionLinks`, `StickySection`
+
+---
+
+### nice-react-slider (v0.1.0)
+
+**Role:** Animated vertical slider component
+
+**Dependencies:** None (runtime)
+
+**Peer Dependencies:**
+- `react`, `styled-components`
+
+**Exports:**
+- Component: `Slider`
+- Types: `SliderProps`, `SliderChildrenType`, etc.
+
+---
+
+### nice-react-device-detector (v1.2.0)
+
+**Role:** Mobile device detection utility
+
+**Dependencies:** None (runtime)
+
+**Peer Dependencies:**
+- `react`, `react-dom`
+
+**Exports:**
+- Hook: `useDeviceDetector()`
+- Provider: `DeviceProvider`
+- Hook: `useDevice()`
+
+---
+
+## Feature Layer
+
+### nice-react-icon (v2.1.2)
+
+**Role:** Flexible icon component with built-in icons
+
+**Dependencies:**
+- `nice-icons` (^1.1.0)
+- `nice-react-styles`
+- `nice-styles`
+
+**Peer Dependencies:**
+- `react`, `react-dom`, `styled-components`
+
+**Exports:**
+- Component: `Icon`
+- Service: `getIcon()`
+- Constants: `iconNames`
+- Tokens: `IconStyles`, `IconTokenMap`, `getIconToken()`
+- Types: `IconProps`, `IconNameType`, `IconSizeType`, `IconColorType`
+
+**Inheritors:** `nice-react-button` (peer dependency)
+
+---
+
+### nice-react-button (v3.2.5)
+
+**Role:** Accessible, themable button component
+
+**Dependencies:**
+- `nice-react-styles`
+- `nice-react-typography` (>=4.0.0)
+- `nice-styles`
+
+**Peer Dependencies:**
+- `nice-react-flex` (>=1.0.0)
+- `nice-react-icon` (>=2.0.0)
+- `nice-react-typography` (>=4.0.0)
+- `react`, `react-dom`, `styled-components`
+
+**Exports:**
+- Component: `Button`
+- Tokens: `ButtonStyles`, `ButtonTokenMap`, `getButtonToken()`
+- Types: `ButtonProps`, `ButtonBorderRadiusType`, `ButtonStatusType`, `ButtonStateType`
+
+---
+
+## Token Inheritance Chain
+
+Components inherit design tokens through a specific chain:
+
+```
+nice-styles (CSS custom properties)
+    │
+    │  Defines: --core--gap--*, --core--border-radius--*, --core--foreground-color--*, etc.
+    │
+    ▼
+{Component}TokenMap.ts
+    │
+    │  Selects tokens from nice-styles
+    │  Optionally overrides values
+    │  Example: ButtonTokenMap.ts
+    │
+    ▼
+createTokens() from nice-react-styles
+    │
+    │  Generates:
+    │  • GlobalStyles component (CSS injection)
+    │  • getComponentToken() function
+    │
+    ▼
+get{Component}Token.ts
+    │
+    │  Exports token getter function
+    │  Example: getButtonToken("borderRadius")
+    │
+    ▼
+{Component}.tsx
+    │
+    │  Consumes token values
+    │  Uses styled-components for styling
+    │
+    ▼
+Application (nice-storybook, nice-website-*)
+```
+
+---
+
+## Dependency Graph
+
+### Direct Dependencies
+
+All nice-* interdependencies use `file:` references for local development.
+
+| Package | Runtime Dependencies | Peer Dependencies |
+|---------|---------------------|-------------------|
+| nice-styles | (none) | (none) |
+| nice-icons | (none) | (none) |
+| nice-configuration | rollup plugins | (none) |
+| nice-react-styles | nice-styles | react, styled-components |
+| nice-react-flex | nice-styles | react, styled-components |
+| nice-react-typography | nice-styles, nice-react-styles | react, styled-components |
+| nice-react-tile | (none) | nice-react-flex, react, styled-components |
+| nice-react-scroll | (none) | react, styled-components |
+| nice-react-slider | (none) | react, styled-components |
+| nice-react-device-detector | (none) | react |
+| nice-react-icon | nice-icons, nice-react-styles, nice-styles | react, styled-components |
+| nice-react-button | nice-react-styles, nice-react-typography, nice-styles | nice-react-flex, nice-react-icon, react, styled-components |
+
+### Transitive Dependencies
+
+```
+nice-react-button
+├── nice-react-styles
+│   └── nice-styles
+├── nice-react-typography
+│   ├── nice-styles
+│   └── nice-react-styles
+│       └── nice-styles
+├── nice-styles
+├── nice-react-flex (peer)
+│   └── nice-styles
+└── nice-react-icon (peer)
+    ├── nice-icons
+    ├── nice-react-styles
+    │   └── nice-styles
+    └── nice-styles
+```
+
+---
+
+## File Organization Patterns
+
+Each Nice component package follows this structure:
+
+```
+src/
+├── components/
+│   └── {Component}/
+│       ├── {Component}.tsx          # Component implementation (default export)
+│       ├── {Component}.types.ts     # Types with namespace pattern
+│       ├── {Component}.test.tsx     # Co-located tests
+│       └── index.ts                 # Re-exports
+├── tokens/
+│   ├── {Component}TokenMap.ts       # Token definitions
+│   └── get{Component}Token.ts       # Token getter (uses createTokens)
+├── services/                        # Public functions (exported)
+│   └── index.ts
+├── helpers/                         # Internal functions (not exported)
+├── constants.ts                     # Static values
+├── styles.ts                        # Styled components (not exported)
+└── index.ts                         # Package entry point
+```
+
+---
+
+## Type Inheritance Pattern
+
+Types follow a declaration merging namespace pattern:
+
+```typescript
+// {Component}.types.ts
+export type ComponentSizeType = "small" | "base" | "large"
+export interface ComponentProps { /* ... */ }
+
+const ComponentTypes = {} as const
+namespace ComponentTypes {
+  export type Size = ComponentSizeType
+  export type Props = ComponentProps
+}
+export default ComponentTypes
+```
+
+**Usage:**
+```typescript
+import ComponentTypes from "nice-react-component"
+
+const props: ComponentTypes.Props = { /* ... */ }
+const size: ComponentTypes.Size = "base"
+```
+
+---
+
+## Build Configuration Inheritance
+
+All packages extend shared build configuration from `nice-configuration`:
+
+**TypeScript:**
+```json
+{
+  "extends": "nice-configuration/typescript/react"
+}
+```
+
+**Rollup:**
+```javascript
+import { createConfiguration } from "nice-configuration/rollup"
+
+export default createConfiguration({
+  input: "./src/index.ts",
+  bundlePackages: ["nice-styles"]
+})
+```
+
+---
+
+## Package Categories Summary
+
+| Category | Packages | Purpose |
+|----------|----------|---------|
+| **Foundation** | nice-styles, nice-icons, nice-configuration | Zero-dependency base assets |
+| **Dev Tools** | nice-npm-link, nice-vite-symlink-watcher | Development utilities |
+| **Context** | nice-react-styles | React/styled-components bridge |
+| **Layout** | nice-react-flex, nice-react-tile | Flexbox/grid layout |
+| **Content** | nice-react-typography | Text rendering |
+| **Interaction** | nice-react-button, nice-react-scroll, nice-react-slider | User interactions |
+| **Assets** | nice-react-icon | Icon rendering |
+| **Detection** | nice-react-device-detector | Device/environment detection |
+| **Applications** | nice-storybook, nice-website-* | Consumer applications |
