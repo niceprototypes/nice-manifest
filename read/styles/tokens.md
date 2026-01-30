@@ -203,3 +203,48 @@ createTokens(tokenMap: TokenMap, prefix?: string): ComponentTokens
 
 - `tokenMap`: Object mapping token names to variant → value objects
 - `prefix`: Prefix for custom tokens (default: `"app"`). Core token overrides always use `"core"`.
+
+---
+
+## Registry Utilities
+
+### registerTokens - Manual Registration
+
+Directly register tokens without generating CSS. Useful for dynamic token registration.
+
+```ts
+import { registerTokens } from "nice-react-styles"
+
+registerTokens({ brandColor: { primary: "#f00" } }, "app")
+```
+
+**Merge behavior:** When registering tokens that already exist, variants are **merged** rather than replaced. This allows partial overrides:
+
+```ts
+// Core lineHeight has: condensed, base, expanded
+
+// Override only "base" - other variants preserved
+registerTokens({ lineHeight: { base: "1.75" } })
+
+// Result: condensed (1.25), base (1.75), expanded (1.75)
+getToken("lineHeight", "condensed") // ✓ Still works
+```
+
+### hasToken - Check Existence
+
+```ts
+import { hasToken } from "nice-react-styles"
+
+hasToken("fontSize")    // true (core token)
+hasToken("brandColor")  // true (after registration)
+hasToken("unknown")     // false
+```
+
+### getTokenNames - List All Tokens
+
+```ts
+import { getTokenNames } from "nice-react-styles"
+
+getTokenNames()
+// ["fontSize", "foregroundColor", "gap", "brandColor", ...]
+```
