@@ -75,8 +75,8 @@ Token files are split into three separate files for clarity and maintainability:
 #### src/tokens/{Component}TokenMap.ts
 
 - Named export of token map object
-- Serves as a layer for `getToken` (nice-styles) values so that they may be overridden
-- May include static values
+- Flat structure: token key → variant → value (no `name`/`items` wrapper)
+- CSS name auto-derived from key via camelToKebab (e.g., `borderRadius` → `border-radius`)
 - Also exports the internal `{component}Tokens` object created by `createTokens`
 
 ```ts
@@ -85,17 +85,18 @@ import { getToken as getStylesToken } from "nice-styles"
 
 export const ButtonTokenMap = {
   size: {
-    name: "size",
-    items: {
-      small: getStylesToken("cellHeight", "small").var,
-      base: getStylesToken("cellHeight").var,
-      large: getStylesToken("cellHeight", "large").var,
-    },
+    small: getStylesToken("cellHeight", "small").var,
+    base: getStylesToken("cellHeight").var,
+    large: getStylesToken("cellHeight", "large").var,
   },
-  // ... more token definitions
+  borderRadius: {
+    small: getStylesToken("borderRadius", "small").var,
+    base: getStylesToken("borderRadius", "base").var,
+    large: getStylesToken("borderRadius", "large").var,
+  },
 } as const
 
-export const buttonTokens: ComponentTokens<typeof ButtonTokenMap> = createTokens("button", ButtonTokenMap)
+export const buttonTokens: ComponentTokens<typeof ButtonTokenMap> = createTokens(ButtonTokenMap, "button")
 ```
 
 #### src/tokens/{Component}Styles.ts
