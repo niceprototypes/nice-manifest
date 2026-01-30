@@ -79,24 +79,57 @@ Token files are split into three separate files for clarity and maintainability:
 - CSS name auto-derived from key via camelToKebab (e.g., `borderRadius` → `border-radius`)
 - Also exports the internal `{component}Tokens` object created by `createTokens`
 
+**Core Token Mapping Pattern (Required)**
+
+Components MUST declare their own tokens that reference core tokens using `.var`. This creates component-level CSS variables that:
+
+1. **Enable component isolation**: Override `--button--size--base` without affecting `--core--cell-height--base`
+2. **Cascade from core**: Core token changes automatically update components unless overridden
+3. **Support per-component theming**: Different components can derive from the same core token differently
+
 ```ts
 import { createTokens, getToken, type ComponentTokens } from "nice-react-styles"
 
 export const ButtonTokenMap = {
+  // Map ALL relevant core tokens to component tokens using .var
   size: {
+    smaller: getToken("cellHeight", "smaller").var,
     small: getToken("cellHeight", "small").var,
     base: getToken("cellHeight").var,
     large: getToken("cellHeight", "large").var,
+    larger: getToken("cellHeight", "larger").var,
   },
   borderRadius: {
     small: getToken("borderRadius", "small").var,
     base: getToken("borderRadius", "base").var,
     large: getToken("borderRadius", "large").var,
   },
+  // Component-specific tokens (no core equivalent) use literal values
+  customToken: {
+    base: "some-value",
+  },
 } as const
 
 export const buttonTokens: ComponentTokens<typeof ButtonTokenMap> = createTokens(ButtonTokenMap, "button")
 ```
+
+**CRITICAL**: Always use `.var` (not `.value`) when referencing core tokens.
+
+```ts
+// ✓ CORRECT - creates: --button--size--base: var(--core--cell-height--base)
+size: { base: getToken("cellHeight").var }
+
+// ✗ WRONG - creates: --button--size--base: 48px (disconnected from core)
+size: { base: getToken("cellHeight").value }
+```
+
+**Core tokens to map by component type:**
+
+| Component | Core Tokens |
+|-----------|-------------|
+| Button | cellHeight, borderRadius, foregroundColor, gap |
+| Typography | fontSize, fontFamily, fontWeight, lineHeight, letterSpacing, foregroundColor |
+| Icon | fontSize, foregroundColor, borderWidth, animationDuration |
 
 #### src/tokens/{Component}Styles.ts
 
