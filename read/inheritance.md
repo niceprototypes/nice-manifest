@@ -144,8 +144,10 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 **Exports:**
 - Component: `StylesProvider`
-- Function: `createTokens()` - generates `GlobalStyles` component and `getToken()` function
-- Re-exports: `getToken`, `getTokenFromMap` from nice-styles
+- Function: `createTokens()` - registers tokens and generates `GlobalStyles` component
+- Function: `getToken()` - unified token accessor (registry-based)
+- Functions: `registerTokens()`, `hasToken()`, `getTokenNames()` - registry utilities
+- Re-exports: `getTokenFromMap` from nice-styles
 - Types: `ComponentTokens`, `StylesProviderProps`
 
 **Inheritors:** `nice-react-typography`, `nice-react-icon`, `nice-react-button`

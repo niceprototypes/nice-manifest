@@ -80,19 +80,18 @@ Token files are split into three separate files for clarity and maintainability:
 - Also exports the internal `{component}Tokens` object created by `createTokens`
 
 ```ts
-import { createTokens, type ComponentTokens } from "nice-react-styles"
-import { getToken as getStylesToken } from "nice-styles"
+import { createTokens, getToken, type ComponentTokens } from "nice-react-styles"
 
 export const ButtonTokenMap = {
   size: {
-    small: getStylesToken("cellHeight", "small").var,
-    base: getStylesToken("cellHeight").var,
-    large: getStylesToken("cellHeight", "large").var,
+    small: getToken("cellHeight", "small").var,
+    base: getToken("cellHeight").var,
+    large: getToken("cellHeight", "large").var,
   },
   borderRadius: {
-    small: getStylesToken("borderRadius", "small").var,
-    base: getStylesToken("borderRadius", "base").var,
-    large: getStylesToken("borderRadius", "large").var,
+    small: getToken("borderRadius", "small").var,
+    base: getToken("borderRadius", "base").var,
+    large: getToken("borderRadius", "large").var,
   },
 } as const
 

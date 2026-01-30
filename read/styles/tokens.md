@@ -133,14 +133,66 @@ getCssConstant("button", "statusPrimaryBase", "backgroundColor")
 
 ---
 
-## createTokens (nice-react-styles)
+## Token Registry (nice-react-styles)
 
-Creates CSS custom properties with a GlobalStyles component and typed getter function.
+Unified token system with global registry. Core tokens are available immediately; custom tokens are registered via `createTokens()`.
 
 ```ts
-import { createTokens } from "nice-react-styles"
+import { createTokens, getToken } from "nice-react-styles"
+```
 
-const { GlobalStyles, getToken } = createTokens(tokenMap, prefix?)
+### getToken - Unified Token Accessor
+
+Works immediately with core tokens. Custom tokens available after `createTokens()`:
+
+```ts
+import { getToken } from "nice-react-styles"
+
+// Core tokens (always available)
+getToken("fontSize", "base")      // → --core--font-size--base
+getToken("foregroundColor")       // → --core--foreground-color--base
+
+// Custom tokens (after registration)
+getToken("brandColor", "primary") // → --app--brand-color--primary
+```
+
+### createTokens - Register + Generate CSS
+
+Registers tokens in the unified registry and returns a GlobalStyles component:
+
+```ts
+import { createTokens, getToken } from "nice-react-styles"
+
+const AppTokenMap = {
+  // Override core tokens → uses "core" prefix
+  fontSize: { base: "20px", larger: "40px" },
+
+  // Custom tokens → uses "app" prefix (or custom)
+  brandColor: { primary: "#dc0000" },
+} as const
+
+export const { GlobalStyles: AppStyles } = createTokens(AppTokenMap)
+export { getToken }  // Re-export for app-wide use
+```
+
+**Generated CSS:**
+```css
+--core--font-size--base: 20px;      /* override */
+--core--font-size--larger: 40px;    /* override */
+--app--brand-color--primary: #dc0000; /* custom */
+```
+
+### Namespaced Component Tokens
+
+Use an explicit prefix for isolated component tokens:
+
+```ts
+const ButtonTokenMap = {
+  height: { small: "32px", base: "48px" },
+} as const
+
+export const { GlobalStyles: ButtonStyles } = createTokens(ButtonTokenMap, "button")
+// → --button--height--small, --button--height--base
 ```
 
 ### Signature
@@ -150,53 +202,4 @@ createTokens(tokenMap: TokenMap, prefix?: string): ComponentTokens
 ```
 
 - `tokenMap`: Object mapping token names to variant → value objects
-- `prefix`: Optional CSS variable prefix (defaults to `"core"`)
-
-### Global Theme Customization
-
-With default `"core"` prefix, tokens extend or override the core namespace:
-
-```ts
-const AppTokenMap = {
-  // Override tokens (exist in core)
-  fontSize: { base: "20px", larger: "40px" },
-  gap: { base: "32px", larger: "120px" },
-
-  // Custom tokens (extend core namespace)
-  brandColor: { primary: "#dc0000" },
-  gradient: { light: "linear-gradient(...)" },
-} as const
-
-const { GlobalStyles, getToken } = createTokens(AppTokenMap)
-// Generates:
-// --core--font-size--base: 20px
-// --core--gap--larger: 120px
-// --core--brand-color--primary: #dc0000
-```
-
-### Namespaced Component Tokens
-
-Use an explicit prefix for isolated component tokens:
-
-```ts
-const ButtonTokenMap = {
-  size: { small: "32px", base: "48px" },
-  borderRadius: { base: "8px" },  // Isolated, won't affect core
-} as const
-
-const { GlobalStyles, getToken } = createTokens(ButtonTokenMap, "button")
-// Generates:
-// --button--size--small: 32px
-// --button--border-radius--base: 8px
-```
-
-### Core Token Fallback
-
-The returned `getToken` function first checks the custom token map, then falls back to core tokens:
-
-```ts
-const { getToken } = createTokens({ brandColor: { primary: "#f00" } })
-
-getToken("brandColor", "primary")  // from custom map
-getToken("fontSize", "base")       // falls back to core
-```
+- `prefix`: Prefix for custom tokens (default: `"app"`). Core token overrides always use `"core"`.
