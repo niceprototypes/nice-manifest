@@ -144,7 +144,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 **Exports:**
 - Component: `StylesProvider`
-- Function: `createTokens()` - generates `GlobalStyles` component and `getComponentToken()` function
+- Function: `createTokens()` - generates `GlobalStyles` component and `getToken()` function
 - Re-exports: `getToken`, `getTokenFromMap` from nice-styles
 - Types: `ComponentTokens`, `StylesProviderProps`
 
@@ -324,7 +324,7 @@ createTokens() from nice-react-styles
     │
     │  Generates:
     │  • GlobalStyles component (CSS injection)
-    │  • getComponentToken() function
+    │  • getToken() function (with core fallback)
     │
     ▼
 get{Component}Token.ts

@@ -119,7 +119,7 @@ export const ButtonStyles: ComponentType = buttonTokens.GlobalStyles
 ```ts
 import { buttonTokens } from "./ButtonTokenMap"
 
-export const getButtonToken = buttonTokens.getComponentToken
+export const getButtonToken = buttonTokens.getToken
 ```
 
 #### src/tokens/index.ts

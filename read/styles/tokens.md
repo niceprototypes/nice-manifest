@@ -140,7 +140,7 @@ Creates CSS custom properties with a GlobalStyles component and typed getter fun
 ```ts
 import { createTokens } from "nice-react-styles"
 
-const { GlobalStyles, getComponentToken } = createTokens(tokenMap, prefix?)
+const { GlobalStyles, getToken } = createTokens(tokenMap, prefix?)
 ```
 
 ### Signature
@@ -150,42 +150,53 @@ createTokens(tokenMap: TokenMap, prefix?: string): ComponentTokens
 ```
 
 - `tokenMap`: Object mapping token names to variant → value objects
-- `prefix`: Optional CSS variable prefix (defaults to `"app"`)
+- `prefix`: Optional CSS variable prefix (defaults to `"core"`)
 
-### Auto-Override Detection
+### Global Theme Customization
 
-When using the default `"app"` prefix, tokens that match core nice-styles token names are automatically treated as overrides:
+With default `"core"` prefix, tokens extend or override the core namespace:
 
 ```ts
 const AppTokenMap = {
-  // Override tokens (exist in core) → use "core" prefix
+  // Override tokens (exist in core)
   fontSize: { base: "20px", larger: "40px" },
   gap: { base: "32px", larger: "120px" },
 
-  // Custom tokens (not in core) → use "app" prefix
+  // Custom tokens (extend core namespace)
   brandColor: { primary: "#dc0000" },
   gradient: { light: "linear-gradient(...)" },
 } as const
 
-const { GlobalStyles } = createTokens(AppTokenMap)
+const { GlobalStyles, getToken } = createTokens(AppTokenMap)
 // Generates:
 // --core--font-size--base: 20px
 // --core--gap--larger: 120px
-// --app--brand-color--primary: #dc0000
+// --core--brand-color--primary: #dc0000
 ```
 
-### Component Tokens
+### Namespaced Component Tokens
 
-When a specific prefix is provided, all tokens use that prefix (no auto-override):
+Use an explicit prefix for isolated component tokens:
 
 ```ts
 const ButtonTokenMap = {
   size: { small: "32px", base: "48px" },
-  borderRadius: { base: "8px" },  // Won't override core borderRadius
+  borderRadius: { base: "8px" },  // Isolated, won't affect core
 } as const
 
-const { GlobalStyles, getComponentToken } = createTokens(ButtonTokenMap, "button")
+const { GlobalStyles, getToken } = createTokens(ButtonTokenMap, "button")
 // Generates:
 // --button--size--small: 32px
 // --button--border-radius--base: 8px
+```
+
+### Core Token Fallback
+
+The returned `getToken` function first checks the custom token map, then falls back to core tokens:
+
+```ts
+const { getToken } = createTokens({ brandColor: { primary: "#f00" } })
+
+getToken("brandColor", "primary")  // from custom map
+getToken("fontSize", "base")       // falls back to core
 ```
