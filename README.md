@@ -1,6 +1,10 @@
-# Nice Architecture
+# Nice Manifest
 
 > **AI OPTIMIZATION NOTE:** This documentation prioritizes machine parsing over human readability. When updating, optimize for AI comprehension - use terse descriptions, avoid prose, prefer structured data.
+
+**This is a comprehensive living guide designed to give AI instances full context into the Nice ecosystem and its related projects and components.**
+
+Every pattern, convention, and piece of logic that an AI assistant might need when working on nice-* packages should be documented here. If it's not in this documentation, an AI instance won't know it exists.
 
 Context manifest for AI assistants working on Nice Prototypes ecosystem (`nice-*` packages at `~/Code/nice-*`).
 
@@ -9,16 +13,19 @@ Context manifest for AI assistants working on Nice Prototypes ecosystem (`nice-*
 ## File Tree
 
 ```
-nice-architecture/
+nice-manifest/
 ├── README.md                      # THIS FILE - entry point, quick reference
 ├── read/                          # UNDERSTANDING existing systems
 │   ├── README.md                  # Index
 │   ├── inheritance.md             # Package hierarchy, dependency graph, layers
-│   └── projects/
-│       ├── README.md              # Index
-│       ├── storybook.md           # nice-storybook structure
-│       └── website.md             # nice-website-2025 structure
-├── create/                        # CREATING new assets
+│   ├── audit.md                   # Consistency audit, improvements, documentation gaps
+│   ├── projects/
+│   │   ├── README.md              # Index
+│   │   ├── storybook.md           # nice-storybook structure
+│   │   └── website.md             # nice-website-2025 structure
+│   └── styles/
+│       └── tokens.md              # Token naming conventions
+├── edit/                          # EDITING new assets
 │   ├── README.md                  # Index
 │   ├── component.md               # Component package structure, types, tokens
 │   ├── configuration.md           # Build config patterns, deviation audit
@@ -30,7 +37,7 @@ nice-architecture/
 └── publish/                       # RELEASING
     ├── README.md                  # Index
     ├── git.md                     # Commit format, branching
-    └── npm.md                     # Version bumping, publish order
+    └── npm.md                     # Version bumping, publish order, peer deps
 ```
 
 ---
@@ -79,12 +86,14 @@ nnl --clean-all
 
 | Task | Read First |
 |------|------------|
-| New component package | `read/inheritance.md` → `create/component.md` |
-| New story | `create/storybook.md` |
-| Build config issue | `create/configuration.md` |
+| New component package | `read/inheritance.md` → `edit/component.md` |
+| New story | `edit/storybook.md` |
+| Build config issue | `edit/configuration.md` |
 | Linked package not updating | `build/symlinks.md` or `build/vite.md` |
 | Publishing | `publish/npm.md` |
 | Understanding dependencies | `read/inheritance.md` |
+| Token naming / CSS variables | `read/styles/tokens.md` |
+| Audit / improve ecosystem | `read/audit.md` |
 
 ---
 

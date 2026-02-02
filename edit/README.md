@@ -1,4 +1,4 @@
-# Create
+# Edit
 
 Standards for creating new assets in the Nice ecosystem.
 
