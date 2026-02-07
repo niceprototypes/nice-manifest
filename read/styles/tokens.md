@@ -115,21 +115,24 @@ const StyledDiv = styled.div`
 
 ---
 
-## getCssConstant
+## getConstant
 
-For component-scoped tokens:
+For constructing CSS variable strings with optional mode support:
 
 ```ts
-import { getCssConstant } from "nice-styles"
+import { getConstant } from "nice-styles"
 
-getCssConstant("button", "height", "small")
+getConstant("button", "height", "small")
 // { key: "--button--height--small", var: "var(--button--height--small)" }
 
-getCssConstant("button", "statusPrimaryBase", "backgroundColor")
-// { key: "--button--status-primary-base--background-color", var: "var(--button--status-primary-base--background-color)" }
+getConstant("core", "backgroundColor", "base", "light")
+// { key: "--core--background-color--base--light", var: "var(--core--background-color--base--light)" }
+
+getConstant("core", "foregroundColor", "base", "dark")
+// { key: "--core--foreground-color--base--dark", var: "var(--core--foreground-color--base--dark)" }
 ```
 
-**Always use getCssConstant for CSS variable strings. Never construct manually.**
+**Always use getConstant for CSS variable strings. Never construct manually.**
 
 ---
 
@@ -203,6 +206,37 @@ createTokens(tokenMap: TokenMap, prefix?: string): ComponentTokens
 
 - `tokenMap`: Object mapping token names to variant → value objects
 - `prefix`: Prefix for custom tokens (default: `"app"`). Core token overrides always use `"core"`.
+
+---
+
+## mapCoreToken - Auto-Map Core Variants
+
+Maps all variants of a core token to `var()` references for use in component token maps. Reads the registry to discover variants automatically.
+
+```ts
+import { mapCoreToken } from "nice-react-styles"
+
+mapCoreToken("backgroundColor")
+// → { base: "var(--core--background-color--base)", alternate: "var(--core--background-color--alternate)" }
+
+mapCoreToken("foregroundColor")
+// → { lighter: "var(--core--foreground-color--lighter)", light: "var(...)", ..., error: "var(...)" }
+```
+
+**Use in component token maps:**
+
+```ts
+import { createTokens, mapCoreToken, type ComponentTokens } from "nice-react-styles"
+
+export const TileTokenMap = {
+  backgroundColor: mapCoreToken("backgroundColor"),
+  foregroundColor: mapCoreToken("foregroundColor"),
+} as const
+
+export const tileTokens: ComponentTokens<typeof TileTokenMap> = createTokens(TileTokenMap, "tile")
+```
+
+Use `mapCoreToken` for 1:1 core mappings. Use `getToken().var` per variant when renaming or subsetting.
 
 ---
 

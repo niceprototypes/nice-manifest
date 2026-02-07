@@ -30,7 +30,7 @@ nice-react-{component}
     ├── services (optional)
     │   ├── {service1}.ts
     │   └── index.ts
-    ├── tokens (if component has design tokens)
+    ├── tokens
     │   ├── {Component}TokenMap.ts
     │   ├── {Component}Styles.ts
     │   ├── get{Component}Token.ts
@@ -43,8 +43,7 @@ nice-react-{component}
 1. **Components live in `src/components/{Component}/`** - never at the src root level
 2. **Each component folder contains**: the component file, types, styles, tests, and index
 3. **Helpers vs Services**: helpers are internal utilities, services are exported for consumers
-4. **Tokens folder**: only required for components with design tokens (e.g., Button, Icon, Typography)
-5. **Components without tokens** (e.g., Flex, Tile) use global `--core--*` tokens directly
+4. **Tokens folder**: required for all components — every nice-react-* component has a component token layer that maps core tokens to component-scoped CSS variables (e.g., `--tile--*`, `--button--*`)
 
 ## src
 
@@ -81,17 +80,39 @@ Token files are split into three separate files for clarity and maintainability:
 
 **Core Token Mapping Pattern (Required)**
 
-Components MUST declare their own tokens that reference core tokens using `.var`. This creates component-level CSS variables that:
+Components MUST declare their own tokens that reference core tokens. This creates component-level CSS variables that:
 
 1. **Enable component isolation**: Override `--button--size--base` without affecting `--core--cell-height--base`
-2. **Cascade from core**: Core token changes automatically update components unless overridden
+2. **Cascade from core**: Core token changes (including dark mode) automatically update components unless overridden
 3. **Support per-component theming**: Different components can derive from the same core token differently
 
-```ts
-import { createTokens, getToken, type ComponentTokens } from "nice-react-styles"
+**Use `mapCoreToken` to auto-map all variants from a core token:**
 
+```ts
+import { createTokens, mapCoreToken, getToken, type ComponentTokens } from "nice-react-styles"
+
+export const TileTokenMap = {
+  // Auto-map all variants from core tokens
+  backgroundColor: mapCoreToken("backgroundColor"),
+  foregroundColor: mapCoreToken("foregroundColor"),
+} as const
+
+export const tileTokens: ComponentTokens<typeof TileTokenMap> = createTokens(TileTokenMap, "tile")
+```
+
+`mapCoreToken("backgroundColor")` reads the registry and generates:
+```ts
+{
+  base: "var(--core--background-color--base)",
+  alternate: "var(--core--background-color--alternate)",
+}
+```
+
+**Use `getToken().var` for selective or renamed mappings:**
+
+```ts
 export const ButtonTokenMap = {
-  // Map ALL relevant core tokens to component tokens using .var
+  // Rename core token to component-specific name
   size: {
     smaller: getToken("cellHeight", "smaller").var,
     small: getToken("cellHeight", "small").var,
@@ -99,6 +120,7 @@ export const ButtonTokenMap = {
     large: getToken("cellHeight", "large").var,
     larger: getToken("cellHeight", "larger").var,
   },
+  // Subset of core variants
   borderRadius: {
     small: getToken("borderRadius", "small").var,
     base: getToken("borderRadius", "base").var,
@@ -123,13 +145,14 @@ size: { base: getToken("cellHeight").var }
 size: { base: getToken("cellHeight").value }
 ```
 
-**Core tokens to map by component type:**
+**When to use `mapCoreToken` vs `getToken().var`:**
 
-| Component | Core Tokens |
-|-----------|-------------|
-| Button | cellHeight, borderRadius, foregroundColor, gap |
-| Typography | fontSize, fontFamily, fontWeight, lineHeight, letterSpacing, foregroundColor |
-| Icon | fontSize, foregroundColor, borderWidth, animationDuration |
+| Scenario | Use |
+|----------|-----|
+| 1:1 mapping of all variants from a core token | `mapCoreToken("tokenName")` |
+| Renaming a core token (e.g., cellHeight → size) | `getToken().var` per variant |
+| Subsetting variants (only some from core) | `getToken().var` per variant |
+| Component-specific values (no core equivalent) | Literal values |
 
 #### src/tokens/{Component}Styles.ts
 
@@ -184,12 +207,7 @@ const Button: React.FC<ButtonProps> = (props) => {
 - `styled-components` automatically deduplicates - only one `<style>` tag per component type regardless of instance count
 - CSS variables are injected into `:root` when the component first mounts
 
-**Components with self-injecting styles:**
-- nice-react-button → `ButtonStyles`
-- nice-react-typography → `TypographyStyles`
-- nice-react-icon → `IconStyles`
-
-**Components without tokens** (e.g., Flex, Tile) use global `--core--*` tokens directly and don't require style injection.
+**All nice-react-* components self-inject their styles.** Every component has a token layer and renders its `{Component}Styles` on mount.
 
 ### src/constants.ts
 
