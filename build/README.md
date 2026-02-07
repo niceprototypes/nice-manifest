@@ -7,4 +7,4 @@ Local development build processes for the Nice ecosystem.
 | File | Contents |
 |------|----------|
 | `symlinks.md` | npm link, file: references, nice-npm-link usage |
-| `vite.md` | Vite configuration for nice-storybook, nice-vite-symlink-watcher |
+| `vite.md` | Vite configuration for nice-storybook, nice-vite-watcher |

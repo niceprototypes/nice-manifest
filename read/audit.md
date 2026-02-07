@@ -44,7 +44,7 @@ Review all nice-* packages and verify alignment with manifest documentation.
 
 | Layer | Packages |
 |-------|----------|
-| Foundation | nice-styles, nice-icons, nice-configuration, nice-npm-link, nice-vite-symlink-watcher |
+| Foundation | nice-styles, nice-icons, nice-configuration, nice-npm-link, nice-vite-watcher |
 | Context | nice-react-styles |
 | Utility | nice-react-flex, nice-react-typography, nice-react-tile, nice-react-scroll, nice-react-slider, nice-react-device-detector |
 | Feature | nice-react-icon, nice-react-button |
@@ -121,7 +121,7 @@ The following logic exists in packages but may be underdocumented or missing fro
 - Watch trigger file pattern: `.symlink-trigger.js`
 - Peer dependency enforcement: moves react/react-dom/styled-components to peerDependencies
 
-#### nice-vite-symlink-watcher
+#### nice-vite-watcher
 - `getSourceAliases()` for direct source imports (bypasses dist)
 - Source-aliasable packages pattern for true HMR
 - Module graph invalidation strategy

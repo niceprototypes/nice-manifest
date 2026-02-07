@@ -54,7 +54,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 │  nice-icons                           │
 │  nice-configuration                   │
 │  nice-npm-link                        │
-│  nice-vite-symlink-watcher            │
+│  nice-vite-watcher                    │
 └───────────────────────────────────────┘
 ```
 
@@ -70,7 +70,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 **Exports:**
 - Constants: `FONT_SIZE_BASE`, `FOREGROUND_COLOR_LINK`, etc. (SCREAMING_SNAKE_CASE)
-- Functions: `getToken()`, `getTokenFromMap()`, `getCssConstant()`
+- Functions: `getToken()`, `getTokenFromMap()`, `getConstant()`
 - Types: `TokenResult`, `TokenDefinition`, `TokenMap`, `AnimationDurationType`, `BorderRadiusType`, `FontSizeType`, etc.
 - CSS Files: `index.css`, `variables.css`, `deprecated.css`
 
@@ -118,7 +118,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 ---
 
-### nice-vite-symlink-watcher (v0.2.0)
+### nice-vite-watcher (v0.1.0)
 
 **Role:** Vite plugin for hot-reloading linked packages
 
@@ -469,7 +469,7 @@ export default createConfiguration({
 | Category | Packages | Purpose |
 |----------|----------|---------|
 | **Foundation** | nice-styles, nice-icons, nice-configuration | Zero-dependency base assets |
-| **Dev Tools** | nice-npm-link, nice-vite-symlink-watcher | Development utilities |
+| **Dev Tools** | nice-npm-link, nice-vite-watcher | Development utilities |
 | **Context** | nice-react-styles | React/styled-components bridge |
 | **Layout** | nice-react-flex, nice-react-tile | Flexbox/grid layout |
 | **Content** | nice-react-typography | Text rendering |

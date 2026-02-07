@@ -1,23 +1,23 @@
 # Vite Configuration
 
-## nice-vite-symlink-watcher
+## nice-vite-watcher
 
 Vite plugin for hot-reloading linked packages. Use this instead of nice-npm-link --watch for Vite projects.
 
 ### Installation
 
 ```bash
-npm install -D nice-vite-symlink-watcher
+npm install -D nice-vite-watcher
 ```
 
 ### Basic Usage
 
 ```ts
-import { symlinkWatcher } from 'nice-vite-symlink-watcher'
+import { viteWatcher } from 'nice-vite-watcher'
 
 export default defineConfig({
   plugins: [
-    symlinkWatcher({
+    viteWatcher({
       packages: {
         'nice-react-button': '/path/to/nice-react-button',
       },
@@ -43,7 +43,7 @@ export default defineConfig({
 For packages without special build transforms (SVGR, PostCSS), use source aliases for true HMR:
 
 ```ts
-import { getSourceAliases } from 'nice-vite-symlink-watcher'
+import { getSourceAliases } from 'nice-vite-watcher'
 
 const linkedPackages = {
   'nice-react-button': '/path/to/nice-react-button',
@@ -69,7 +69,7 @@ export default defineConfig({
 ## Combined Strategy
 
 ```ts
-import { symlinkWatcher, getSourceAliases } from 'nice-vite-symlink-watcher'
+import { viteWatcher, getSourceAliases } from 'nice-vite-watcher'
 
 const linkedPackages = {
   'nice-react-button': '../nice-react-button',
@@ -82,7 +82,7 @@ const sourceAliasable = ['nice-react-button', 'nice-react-flex']
 
 export default defineConfig({
   plugins: [
-    symlinkWatcher({
+    viteWatcher({
       packages: linkedPackages,
       verbose: true,
     }),
@@ -111,7 +111,7 @@ export default defineConfig({
 
 ```ts
 // .storybook/main.ts
-import { symlinkWatcher, getSourceAliases } from 'nice-vite-symlink-watcher'
+import { viteWatcher, getSourceAliases } from 'nice-vite-watcher'
 
 const linkedPackages = {
   'nice-react-button': '../nice-react-button',
@@ -122,7 +122,7 @@ const config: StorybookConfig = {
   viteFinal: async (config) => {
     config.plugins = [
       ...(config.plugins || []),
-      symlinkWatcher({
+      viteWatcher({
         packages: linkedPackages,
         verbose: true,
       }),

@@ -4,7 +4,7 @@ Storybook 9, Vite, React 19, styled-components 6.
 
 ## Key Paths
 
-- `.storybook/main.ts` - Vite config with nice-vite-symlink-watcher
+- `.storybook/main.ts` - Vite config with nice-vite-watcher
 - `stories/Components/` - component stories
 - `stories/Configuration/` - build tool docs
 - `src/components/Story/` - shared Story display component

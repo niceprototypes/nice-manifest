@@ -33,7 +33,7 @@ nice-manifest/
 ├── build/                         # LOCAL DEVELOPMENT
 │   ├── README.md                  # Index
 │   ├── symlinks.md                # file: references, nice-npm-link commands
-│   └── vite.md                    # nice-vite-symlink-watcher usage
+│   └── vite.md                    # nice-vite-watcher usage
 └── publish/                       # RELEASING
     ├── README.md                  # Index
     ├── git.md                     # Commit format, branching

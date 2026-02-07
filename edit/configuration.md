@@ -12,7 +12,7 @@ The Nice ecosystem has three types of configuration packages:
 |----------|---------|---------|
 | **Shareable Configs** | nice-configuration | TypeScript, Rollup, Jest configurations |
 | **CLI Tools** | nice-npm-link | Local package linking and conflict resolution |
-| **Build Plugins** | nice-vite-symlink-watcher | Vite plugin for linked package hot-reload |
+| **Build Plugins** | nice-vite-watcher | Vite plugin for linked package hot-reload |
 
 ---
 
@@ -204,16 +204,16 @@ Removes these singletons from linked packages:
 
 ---
 
-## nice-vite-symlink-watcher
+## nice-vite-watcher
 
 Vite plugin for hot-reloading linked packages.
 
 ### Structure
 
 ```
-nice-vite-symlink-watcher/
+nice-vite-watcher/
 ├── src/
-│   ├── symlinkWatcher.ts       # Main plugin function
+│   ├── viteWatcher.ts          # Main plugin function
 │   ├── getSourceAliases.ts     # Resolve alias generator
 │   └── index.ts                # Re-exports
 ├── dist/
@@ -224,10 +224,10 @@ nice-vite-symlink-watcher/
 ### Exports
 
 ```ts
-import { symlinkWatcher, getSourceAliases } from "nice-vite-symlink-watcher"
+import { viteWatcher, getSourceAliases } from "nice-vite-watcher"
 ```
 
-**symlinkWatcher(options):**
+**viteWatcher(options):**
 - `packages` - Package name → local path mapping
 - `watchDir` - Subdirectory to watch (default: `'dist'`)
 - `verbose` - Log changes (default: `false`)
@@ -242,7 +242,7 @@ import { symlinkWatcher, getSourceAliases } from "nice-vite-symlink-watcher"
 
 | Project Type | Tool | Usage |
 |--------------|------|-------|
-| Vite/Storybook | nice-vite-symlink-watcher | Plugin in vite.config.ts |
+| Vite/Storybook | nice-vite-watcher | Plugin in vite.config.ts |
 | CRA/webpack | nice-npm-link --dev --watch | CLI in separate terminal |
 
 ---
@@ -259,7 +259,7 @@ stories/Configuration/
 ├── Rollup.stories.tsx
 ├── Jest.stories.tsx
 ├── NpmLink.stories.tsx
-└── ViteSymlinkWatcher.stories.tsx
+└── ViteWatcher.stories.tsx
 ```
 
 ### Story Pattern

@@ -91,7 +91,7 @@ nnl --dev --watch
 
 ### Developing with Vite
 
-Vite uses `nice-vite-symlink-watcher` instead. See `vite.md`.
+Vite uses `nice-vite-watcher` instead. See `vite.md`.
 
 ---
 
