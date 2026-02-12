@@ -101,5 +101,5 @@ nnl --clean-all
 
 1. New pattern discovered → add to relevant file
 2. Documentation contradicts code → fix documentation
-3. New file needed → place in `read/` (understanding) or `create/` (making) or `build/` (developing) or `publish/` (releasing)
+3. New file needed → place in `read/` (understanding) or `edit/` (making) or `build/` (developing) or `publish/` (releasing)
 4. Keep entries terse - tables and code blocks, not prose

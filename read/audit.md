@@ -97,10 +97,13 @@ The following logic exists in packages but may be underdocumented or missing fro
 
 #### nice-styles
 - `getBreakpoint()` service with media query generation
-- `camelToKebab()` and `camelToScreaming()` utilities
+- `camelToKebab()` and `camelToScreaming()` in `src/utilities/`
+- `getTokenFromMap()` engine in `src/utilities/` (used by getToken and getComponentToken)
+- `formatError()` in `src/utilities/` for structured error messages
 - Layout types: `SpacingType`, `SpacingShorthandType`, `SpacingDefinitionType`, `SpacingResponsiveType`
 - Breakpoint system: mobile (640px), tablet (641px), desktop (1280px)
-- Auto-generated files: `types.ts`, `tokensData.ts` from `tokens.json`
+- Auto-generated files in `src/generated/`: `types.ts`, `tokensData.ts`, `componentTokensData.ts` from `src/tokens/` JSON
+- Build scripts: `scripts/generateTokens.ts`, `scripts/generateTypes.ts`, `scripts/generateCss.ts`, `scripts/postBuild.ts`
 
 #### nice-icons
 - Auto-generated `index.js` via `scripts/generateIndex.js`
@@ -131,9 +134,11 @@ The following logic exists in packages but may be underdocumented or missing fro
 
 #### nice-react-styles
 - `createTokens()` auto-override detection for "app" prefix
-- Font loading utilities: `parseGoogleFontsUrl()`, `getWeightAxis()`, `supportsVariableWeight()`
-- `FontFaceStyles` component for @font-face generation
+- Font loading utilities in `src/utilities/`: `parseGoogleFontsUrl()`, `getWeightAxis()`, `supportsVariableWeight()`
+- `tokenStyleSheet.ts` utility for runtime CSS injection via shared `<style data-nice-tokens>` element
 - Token resolution fallback: custom tokens → core Theme tokens
+- Re-exports `getComponentToken` and `ComponentPrefix` from nice-styles
+- Shared types in `src/types.ts`: `GoogleFontsConfig`, `LinkAttributes`, `GoogleFontMetadata`, `FontAxis`
 
 ### Utility Layer
 
@@ -147,7 +152,6 @@ The following logic exists in packages but may be underdocumented or missing fro
 - Smart defaults based on element type (h1-h4 vs p/span)
 - Font family selection: code → heading → base
 - Antialiasing and legibility optimization CSS
-- Duplicate file structure: root-level AND component-level (needs cleanup?)
 
 #### nice-react-tile
 - `TileLayout` and `TileSlot` internal components

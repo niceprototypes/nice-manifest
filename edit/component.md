@@ -24,14 +24,12 @@ nice-react-{component}
     │       ├── index.ts
     │       ├── styles.ts
     │       └── types.ts
-    ├── helpers (optional)
-    │   ├── {helper1}.ts
-    │   └── index.ts
+    ├── utilities (optional)
+    │   └── {utility1}.ts
     ├── services (optional)
     │   ├── {service1}.ts
     │   └── index.ts
     ├── tokens
-    │   ├── {Component}TokenMap.ts
     │   ├── {Component}Styles.ts
     │   ├── get{Component}Token.ts
     │   └── index.ts
@@ -42,19 +40,19 @@ nice-react-{component}
 
 1. **Components live in `src/components/{Component}/`** - never at the src root level
 2. **Each component folder contains**: the component file, types, styles, tests, and index
-3. **Helpers vs Services**: helpers are internal utilities, services are exported for consumers
-4. **Tokens folder**: required for all components — every nice-react-* component has a component token layer that maps core tokens to component-scoped CSS variables (e.g., `--tile--*`, `--button--*`)
+3. **Utilities vs Services**: utilities are internal functions, services are exported for consumers
+4. **Tokens folder**: required for all components — token values live as JSON in nice-styles (`src/tokens/component/{name}/index.json`), and each component package provides a thin `get{Component}Token()` wrapper around `getComponentToken()` from nice-styles
 
 ## src
 
 ### src/scripts
 - Config files for webpack, jest, etc.
 
-### src/helpers
+### src/utilities
 
 - Functions only used within the project and not exported for consumption
 - Each function has a separate file
-- No index.ts file, helpers are imported directly
+- No index.ts file, utilities are imported directly
 
 ### src/services
 
@@ -69,145 +67,69 @@ export { formatDate } from "./formatDate"
 
 ### src/tokens
 
-Token files are split into three separate files for clarity and maintainability:
+Component tokens are defined as JSON in nice-styles (`src/tokens/component/{name}/index.json`) and compiled into `dist/variables.css` at build time. Each React component package provides a thin accessor wrapper and a backward-compatible Styles export.
 
-#### src/tokens/{Component}TokenMap.ts
+#### Token Values (in nice-styles)
 
-- Named export of token map object
-- Flat structure: token key → variant → value (no `name`/`items` wrapper)
-- CSS name auto-derived from key via camelToKebab (e.g., `borderRadius` → `border-radius`)
-- Also exports the internal `{component}Tokens` object created by `createTokens`
+Token values live in `nice-styles/src/tokens/component/{name}/index.json`. Values are raw CSS strings; cross-references use `var()`:
 
-**Core Token Mapping Pattern (Required)**
-
-Components MUST declare their own tokens that reference core tokens. This creates component-level CSS variables that:
-
-1. **Enable component isolation**: Override `--button--size--base` without affecting `--core--cell-height--base`
-2. **Cascade from core**: Core token changes (including dark mode) automatically update components unless overridden
-3. **Support per-component theming**: Different components can derive from the same core token differently
-
-**Use `mapCoreToken` to auto-map all variants from a core token:**
-
-```ts
-import { createTokens, mapCoreToken, getToken, type ComponentTokens } from "nice-react-styles"
-
-export const TileTokenMap = {
-  // Auto-map all variants from core tokens
-  backgroundColor: mapCoreToken("backgroundColor"),
-  foregroundColor: mapCoreToken("foregroundColor"),
-} as const
-
-export const tileTokens: ComponentTokens<typeof TileTokenMap> = createTokens(TileTokenMap, "tile")
-```
-
-`mapCoreToken("backgroundColor")` reads the registry and generates:
-```ts
+```json
 {
-  base: "var(--core--background-color--base)",
-  alternate: "var(--core--background-color--alternate)",
+  "size": {
+    "smaller": "var(--np--cell-height--smaller)",
+    "small": "var(--np--cell-height--small)",
+    "base": "var(--np--cell-height--base)",
+    "large": "var(--np--cell-height--large)",
+    "larger": "var(--np--cell-height--larger)"
+  },
+  "borderRadius": {
+    "small": "var(--np--border-radius--small)",
+    "base": "var(--np--border-radius--base)",
+    "large": "var(--np--border-radius--large)"
+  }
 }
 ```
 
-**Use `getToken().var` for selective or renamed mappings:**
-
-```ts
-export const ButtonTokenMap = {
-  // Rename core token to component-specific name
-  size: {
-    smaller: getToken("cellHeight", "smaller").var,
-    small: getToken("cellHeight", "small").var,
-    base: getToken("cellHeight").var,
-    large: getToken("cellHeight", "large").var,
-    larger: getToken("cellHeight", "larger").var,
-  },
-  // Subset of core variants
-  borderRadius: {
-    small: getToken("borderRadius", "small").var,
-    base: getToken("borderRadius", "base").var,
-    large: getToken("borderRadius", "large").var,
-  },
-  // Component-specific tokens (no core equivalent) use literal values
-  customToken: {
-    base: "some-value",
-  },
-} as const
-
-export const buttonTokens: ComponentTokens<typeof ButtonTokenMap> = createTokens(ButtonTokenMap, "button")
-```
-
-**CRITICAL**: Always use `.var` (not `.value`) when referencing core tokens.
-
-```ts
-// ✓ CORRECT - creates: --button--size--base: var(--core--cell-height--base)
-size: { base: getToken("cellHeight").var }
-
-// ✗ WRONG - creates: --button--size--base: 48px (disconnected from core)
-size: { base: getToken("cellHeight").value }
-```
-
-**When to use `mapCoreToken` vs `getToken().var`:**
-
-| Scenario | Use |
-|----------|-----|
-| 1:1 mapping of all variants from a core token | `mapCoreToken("tokenName")` |
-| Renaming a core token (e.g., cellHeight → size) | `getToken().var` per variant |
-| Subsetting variants (only some from core) | `getToken().var` per variant |
-| Component-specific values (no core equivalent) | Literal values |
-
-#### src/tokens/{Component}Styles.ts
-
-- Exports the `{Component}Styles` GlobalStyles component
-- Imports from the TokenMap file
-
-```ts
-import type { ComponentType } from "react"
-import { buttonTokens } from "./ButtonTokenMap"
-
-export const ButtonStyles: ComponentType = buttonTokens.GlobalStyles
+These become CSS custom properties in `dist/variables.css`:
+```css
+--np--button--size--base: var(--np--cell-height--base);
+--np--button--border-radius--small: var(--np--border-radius--small);
 ```
 
 #### src/tokens/get{Component}Token.ts
 
-- Exports the `get{Component}Token` function
-- Imports from the TokenMap file
+Thin wrapper around `getComponentToken` from nice-styles:
 
 ```ts
-import { buttonTokens } from "./ButtonTokenMap"
+import { getComponentToken, type TokenResult } from "nice-styles"
 
-export const getButtonToken = buttonTokens.getToken
+export function getButtonToken(name: string, variant?: string, mode?: string): TokenResult {
+  return getComponentToken("button", name, variant, mode)
+}
+```
+
+#### src/tokens/{Component}Styles.ts
+
+No-op component kept for backward compatibility. CSS custom properties are generated at nice-styles build time in `dist/variables.css`.
+
+```ts
+import type { ComponentType } from "react"
+
+export const ButtonStyles: ComponentType = () => null
 ```
 
 #### src/tokens/index.ts
 
-- Re-exports from the individual token files
+Re-exports from the individual token files:
 
 ```ts
 export { ButtonStyles } from "./ButtonStyles"
 export { getButtonToken } from "./getButtonToken"
 ```
 
-#### Self-Injecting Component Styles
+#### Component Styles in Applications
 
-Components with tokens automatically inject their `{Component}Styles` on render. Consumers do not need to explicitly include component styles in `StylesProvider`.
-
-```tsx
-// Component internally renders its styles
-const Button: React.FC<ButtonProps> = (props) => {
-  return (
-    <>
-      <ButtonStyles />
-      <StyledButton {...props} />
-    </>
-  )
-}
-```
-
-**How it works:**
-- Each component renders its `{Component}Styles` (a `createGlobalStyle` component)
-- `styled-components` automatically deduplicates - only one `<style>` tag per component type regardless of instance count
-- CSS variables are injected into `:root` when the component first mounts
-
-**All nice-react-* components self-inject their styles.** Every component has a token layer and renders its `{Component}Styles` on mount.
+Component CSS custom properties are included automatically via `nice-styles/variables.css` (loaded by `StylesProvider`). The `{Component}Styles` exports are no-ops — they exist only for backward compatibility and can be safely omitted from `componentStyles` in `StylesProvider`.
 
 ### src/constants.ts
 

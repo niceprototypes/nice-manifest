@@ -7,25 +7,36 @@ Design token naming patterns in nice-styles.
 ## CSS Variable Pattern
 
 ```
---{prefix}--{group}--{item}
+--np--{group}--{item}
+--np--{prefix}--{group}--{item}
 ```
 
 | Segment | Format | Examples |
 |---------|--------|----------|
-| prefix | kebab-case | `core`, `button`, `icon` |
+| np | fixed namespace | always `np` |
+| prefix | kebab-case (component only) | `button`, `icon`, `tile`, `typography` |
 | group | kebab-case | `font-size`, `foreground-color`, `border-radius` |
 | item | kebab-case | `base`, `large`, `primary-hover` |
 
 **Double dashes (`--`) separate segments. Single dashes within segments for compound words.**
 
-### Examples
+### Core Token Examples
 
 ```
---core--font-size--base
---core--foreground-color--link
---core--border-radius--larger
---button--height--small
---button--status-primary-base--background-color
+--np--font-size--base
+--np--foreground-color--link
+--np--border-radius--larger
+--np--background-color--base--light     (mode primitive)
+--np--foreground-color--base--night     (mode primitive)
+```
+
+### Component Token Examples
+
+```
+--np--button--size--base
+--np--button--status-primary-base--background-color
+--np--icon--color--error
+--np--typography--font-size--larger
 ```
 
 ---
@@ -54,6 +65,7 @@ getToken("foregroundColor", "link")
 FontSizeType        // "smaller" | "small" | "base" | "large" | "larger"
 ForegroundColorType // "lighter" | "light" | "medium" | ... | "error"
 BorderRadiusType    // "smaller" | "small" | "base" | "large" | "larger"
+ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated)
 ```
 
 ---
@@ -91,12 +103,68 @@ Used by: `borderRadius`, `cellHeight`, `fontSize`, `gap`
 
 ---
 
-## getToken Return Shape
+## Token Source Files
+
+### Core Tokens
+
+```
+nice-styles/src/tokens/core/
+├── default/index.json    ← light/default values
+└── night/index.json      ← night mode overrides
+```
+
+### Component Tokens
+
+```
+nice-styles/src/tokens/component/
+├── button/index.json
+├── icon/index.json
+├── tile/index.json
+└── typography/index.json
+```
+
+Component token values are raw CSS strings. Cross-references use `var()`:
+
+```json
+{
+  "size": {
+    "smaller": "var(--np--cell-height--smaller)",
+    "small": "var(--np--cell-height--small)",
+    "base": "var(--np--cell-height--base)"
+  }
+}
+```
+
+### Auto-Generated Files
+
+Build scripts (`scripts/generate*.ts`) read the JSON sources and output:
+
+```
+nice-styles/src/generated/
+├── types.ts                  ← token type unions, ComponentPrefix
+├── tokensData.ts             ← core token values as TS object
+└── componentTokensData.ts    ← component token values as TS object
+```
+
+---
+
+## getToken (nice-styles)
+
+Static token accessor. Returns CSS variable name and raw value from core token data.
+
+```ts
+import { getToken } from "nice-styles"
+
+getToken("fontSize", "base")
+// → { key: "--np--font-size--base", var: "var(--np--font-size--base)", value: "16px" }
+```
+
+### Return Shape
 
 ```ts
 interface TokenResult {
-  key: string   // "--core--font-size--base"
-  var: string   // "var(--core--font-size--base)"
+  key: string   // "--np--font-size--base"
+  var: string   // "var(--np--font-size--base)"
   value: string // "16px"
 }
 ```
@@ -106,7 +174,6 @@ interface TokenResult {
 ```ts
 import { getToken } from "nice-styles"
 
-// In styled-components
 const StyledDiv = styled.div`
   font-size: ${getToken("fontSize", "large").var};
   color: ${getToken("foregroundColor", "medium").var};
@@ -115,136 +182,139 @@ const StyledDiv = styled.div`
 
 ---
 
-## getConstant
+## getConstant (nice-styles)
 
-For constructing CSS variable strings with optional mode support:
+Constructs CSS variable strings following the `--np--` convention. Does not look up values.
+
+### Signature
+
+```ts
+getConstant(token: string, param: string, options?: { mode?: string; pkg?: string }): CssConstantResult
+```
+
+### Examples
 
 ```ts
 import { getConstant } from "nice-styles"
 
-getConstant("button", "height", "small")
-// { key: "--button--height--small", var: "var(--button--height--small)" }
+// Core token
+getConstant("backgroundColor", "base")
+// → { key: "--np--background-color--base", var: "var(--np--background-color--base)" }
 
-getConstant("core", "backgroundColor", "base", "light")
-// { key: "--core--background-color--base--light", var: "var(--core--background-color--base--light)" }
+// Force light mode primitive
+getConstant("backgroundColor", "base", { mode: "light" })
+// → { key: "--np--background-color--base--light", var: "var(--np--background-color--base--light)" }
 
-getConstant("core", "foregroundColor", "base", "dark")
-// { key: "--core--foreground-color--base--dark", var: "var(--core--foreground-color--base--dark)" }
+// Force night mode primitive
+getConstant("foregroundColor", "base", { mode: "night" })
+// → { key: "--np--foreground-color--base--night", var: "var(--np--foreground-color--base--night)" }
+
+// Component token
+getConstant("height", "small", { pkg: "button" })
+// → { key: "--np--button--height--small", var: "var(--np--button--height--small)" }
 ```
 
 **Always use getConstant for CSS variable strings. Never construct manually.**
 
 ---
 
-## Token Registry (nice-react-styles)
+## getComponentToken (nice-styles)
 
-Unified token system with global registry. Core tokens are available immediately; custom tokens are registered via `createTokens()`.
+Component-scoped token accessor. Reads from auto-generated component token data.
+
+### Signature
 
 ```ts
-import { createTokens, getToken } from "nice-react-styles"
+getComponentToken(
+  prefix: ComponentPrefix,  // "button" | "icon" | "tile" | "typography"
+  tokenName: string,
+  variant?: string,         // defaults to "base"
+  mode?: string
+): TokenResult
 ```
 
-### getToken - Unified Token Accessor
+### Examples
 
-Works immediately with core tokens. Custom tokens available after `createTokens()`:
+```ts
+import { getComponentToken } from "nice-styles"
+
+getComponentToken("button", "size", "base")
+// → { key: "--np--button--size--base", var: "var(--np--button--size--base)", value: "var(--np--cell-height--base)" }
+
+getComponentToken("icon", "color", "error")
+// → { key: "--np--icon--color--error", var: "var(--np--icon--color--error)", value: "var(--np--foreground-color--error)" }
+```
+
+TypeScript enforces valid prefixes via `ComponentPrefix` (auto-generated from `src/tokens/component/` folder names).
+
+---
+
+## Token Registry (nice-react-styles)
+
+Runtime token registry that extends nice-styles' static tokens. Core tokens are available immediately; custom tokens are registered via `createTokens()` or `registerTokens()`.
+
+### getToken (nice-react-styles) — Unified Token Accessor
+
+Queries the runtime registry. Core tokens work immediately. Custom tokens available after registration.
 
 ```ts
 import { getToken } from "nice-react-styles"
 
 // Core tokens (always available)
-getToken("fontSize", "base")      // → --core--font-size--base
-getToken("foregroundColor")       // → --core--foreground-color--base
+getToken("fontSize", "base")          // → --np--font-size--base
+getToken("foregroundColor", "link")   // → --np--foreground-color--link
+
+// Mode-specific primitives
+getToken("backgroundColor", "base", "light")  // → --np--background-color--base--light
+getToken("backgroundColor", "base", "night")  // → --np--background-color--base--night
 
 // Custom tokens (after registration)
-getToken("brandColor", "primary") // → --app--brand-color--primary
+getToken("brandColor", "primary")     // → --np--brand-color--primary
 ```
 
-### createTokens - Register + Generate CSS
+### createTokens — Register + Generate CSS
 
-Registers tokens in the unified registry and returns a GlobalStyles component:
+Registers app-level token overrides and custom tokens in the runtime registry. Returns a GlobalStyles component (no-op if CSS already injected).
 
 ```ts
 import { createTokens, getToken } from "nice-react-styles"
 
 const AppTokenMap = {
-  // Override core tokens → uses "core" prefix
+  // Override core tokens
   fontSize: { base: "20px", larger: "40px" },
 
-  // Custom tokens → uses "app" prefix (or custom)
+  // Custom tokens
   brandColor: { primary: "#dc0000" },
+
+  // Mode-aware tokens
+  headerColor: {
+    base: { light: "#000", night: "#fff" },
+  },
 } as const
 
 export const { GlobalStyles: AppStyles } = createTokens(AppTokenMap)
-export { getToken }  // Re-export for app-wide use
+export { getToken }
 ```
 
 **Generated CSS:**
 ```css
---core--font-size--base: 20px;      /* override */
---core--font-size--larger: 40px;    /* override */
---app--brand-color--primary: #dc0000; /* custom */
+:root {
+  --np--font-size--base: 20px;
+  --np--font-size--larger: 40px;
+  --np--brand-color--primary: #dc0000;
+  --np--header-color--base: #000;
+  --np--header-color--base--night: #fff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --np--header-color--base: var(--np--header-color--base--night);
+  }
+}
 ```
 
-### Namespaced Component Tokens
+### registerTokens — Manual Registration
 
-Use an explicit prefix for isolated component tokens:
-
-```ts
-const ButtonTokenMap = {
-  height: { small: "32px", base: "48px" },
-} as const
-
-export const { GlobalStyles: ButtonStyles } = createTokens(ButtonTokenMap, "button")
-// → --button--height--small, --button--height--base
-```
-
-### Signature
-
-```ts
-createTokens(tokenMap: TokenMap, prefix?: string): ComponentTokens
-```
-
-- `tokenMap`: Object mapping token names to variant → value objects
-- `prefix`: Prefix for custom tokens (default: `"app"`). Core token overrides always use `"core"`.
-
----
-
-## mapCoreToken - Auto-Map Core Variants
-
-Maps all variants of a core token to `var()` references for use in component token maps. Reads the registry to discover variants automatically.
-
-```ts
-import { mapCoreToken } from "nice-react-styles"
-
-mapCoreToken("backgroundColor")
-// → { base: "var(--core--background-color--base)", alternate: "var(--core--background-color--alternate)" }
-
-mapCoreToken("foregroundColor")
-// → { lighter: "var(--core--foreground-color--lighter)", light: "var(...)", ..., error: "var(...)" }
-```
-
-**Use in component token maps:**
-
-```ts
-import { createTokens, mapCoreToken, type ComponentTokens } from "nice-react-styles"
-
-export const TileTokenMap = {
-  backgroundColor: mapCoreToken("backgroundColor"),
-  foregroundColor: mapCoreToken("foregroundColor"),
-} as const
-
-export const tileTokens: ComponentTokens<typeof TileTokenMap> = createTokens(TileTokenMap, "tile")
-```
-
-Use `mapCoreToken` for 1:1 core mappings. Use `getToken().var` per variant when renaming or subsetting.
-
----
-
-## Registry Utilities
-
-### registerTokens - Manual Registration
-
-Directly register tokens without generating CSS. Useful for dynamic token registration.
+Directly register tokens without generating CSS.
 
 ```ts
 import { registerTokens } from "nice-react-styles"
@@ -252,19 +322,9 @@ import { registerTokens } from "nice-react-styles"
 registerTokens({ brandColor: { primary: "#f00" } }, "app")
 ```
 
-**Merge behavior:** When registering tokens that already exist, variants are **merged** rather than replaced. This allows partial overrides:
+**Merge behavior:** Variants are merged, not replaced. Partial overrides preserve existing variants.
 
-```ts
-// Core lineHeight has: condensed, base, expanded
-
-// Override only "base" - other variants preserved
-registerTokens({ lineHeight: { base: "1.75" } })
-
-// Result: condensed (1.25), base (1.75), expanded (1.75)
-getToken("lineHeight", "condensed") // ✓ Still works
-```
-
-### hasToken - Check Existence
+### hasToken — Check Existence
 
 ```ts
 import { hasToken } from "nice-react-styles"
@@ -274,7 +334,7 @@ hasToken("brandColor")  // true (after registration)
 hasToken("unknown")     // false
 ```
 
-### getTokenNames - List All Tokens
+### getTokenNames — List All Tokens
 
 ```ts
 import { getTokenNames } from "nice-react-styles"
@@ -282,3 +342,13 @@ import { getTokenNames } from "nice-react-styles"
 getTokenNames()
 // ["fontSize", "foregroundColor", "gap", "brandColor", ...]
 ```
+
+---
+
+## Mode Architecture
+
+- **"light"** is the default mode (`DEFAULT_MODE` in nice-react-styles)
+- **"night"** replaces "dark" for mode suffixes throughout the system
+- Stable primitives: `--np--*--light` and `--np--*--night` are never reassigned
+- `@media (prefers-color-scheme: dark)` maps semantic vars to `--night` primitives
+- `color-scheme: light dark` on `:root` enables native browser dark scheme
