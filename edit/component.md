@@ -172,7 +172,7 @@ export type OnClickType = () => void
 When a prop uses a type from nice-styles, create a component-specific alias:
 
 ```ts
-import type { ForegroundColorType, FontSizeType } from "nice-styles"
+import type { ForegroundColorType, FontSizeType, ModeType } from "nice-styles"
 
 /**
  * TypographyColorType
@@ -189,6 +189,15 @@ export type TypographyColorType = ForegroundColorType
  * Font size values using design tokens.
  */
 export type TypographySizeType = FontSizeType
+
+/**
+ * TypographyModeType
+ *
+ * Re-export of ModeType from nice-styles.
+ * Pin token resolution to a specific mode.
+ * Extensible for consumer-defined custom modes.
+ */
+export type TypographyModeType = ModeType
 ```
 
 #### JSDoc Documentation

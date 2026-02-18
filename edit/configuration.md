@@ -270,7 +270,7 @@ Configuration stories use a simplified pattern compared to component stories:
 import type { Meta, StoryObj } from "@storybook/react"
 import Typography from "nice-react-typography"
 import Flex from "nice-react-flex"
-import { getToken } from "nice-styles"
+import { getToken } from "nice-react-styles"
 import { generateDescriptionString } from "../../src/services"
 
 // Empty demo component (no visual component to render)

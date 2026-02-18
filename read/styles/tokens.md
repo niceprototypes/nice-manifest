@@ -26,7 +26,7 @@ Design token naming patterns in nice-styles.
 --np--font-size--base
 --np--foreground-color--link
 --np--border-radius--larger
---np--background-color--base--light     (mode primitive)
+--np--background-color--base--day      (mode primitive)
 --np--foreground-color--base--night     (mode primitive)
 ```
 
@@ -109,7 +109,7 @@ Used by: `borderRadius`, `cellHeight`, `fontSize`, `gap`
 
 ```
 nice-styles/src/tokens/core/
-├── default/index.json    ← light/default values
+├── default/index.json    ← day/default values
 └── night/index.json      ← night mode overrides
 ```
 
@@ -148,14 +148,14 @@ nice-styles/src/generated/
 
 ---
 
-## getToken (nice-styles)
+## getCoreToken (nice-styles)
 
-Static token accessor. Returns CSS variable name and raw value from core token data.
+Static core token accessor. Returns CSS variable name and raw value from core token data only. For runtime tokens (including app-level custom tokens registered via createTokens), use getToken from nice-react-styles instead.
 
 ```ts
-import { getToken } from "nice-styles"
+import { getCoreToken } from "nice-styles"
 
-getToken("fontSize", "base")
+getCoreToken("fontSize", "base")
 // → { key: "--np--font-size--base", var: "var(--np--font-size--base)", value: "16px" }
 ```
 
@@ -172,11 +172,11 @@ interface TokenResult {
 ### Usage
 
 ```ts
-import { getToken } from "nice-styles"
+import { getCoreToken } from "nice-styles"
 
 const StyledDiv = styled.div`
-  font-size: ${getToken("fontSize", "large").var};
-  color: ${getToken("foregroundColor", "medium").var};
+  font-size: ${getCoreToken("fontSize", "large").var};
+  color: ${getCoreToken("foregroundColor", "medium").var};
 `
 ```
 
@@ -201,9 +201,9 @@ import { getConstant } from "nice-styles"
 getConstant("backgroundColor", "base")
 // → { key: "--np--background-color--base", var: "var(--np--background-color--base)" }
 
-// Force light mode primitive
-getConstant("backgroundColor", "base", { mode: "light" })
-// → { key: "--np--background-color--base--light", var: "var(--np--background-color--base--light)" }
+// Force day mode primitive
+getConstant("backgroundColor", "base", { mode: "day" })
+// → { key: "--np--background-color--base--day", var: "var(--np--background-color--base--day)" }
 
 // Force night mode primitive
 getConstant("foregroundColor", "base", { mode: "night" })
@@ -265,7 +265,7 @@ getToken("fontSize", "base")          // → --np--font-size--base
 getToken("foregroundColor", "link")   // → --np--foreground-color--link
 
 // Mode-specific primitives
-getToken("backgroundColor", "base", "light")  // → --np--background-color--base--light
+getToken("backgroundColor", "base", "day")    // → --np--background-color--base--day
 getToken("backgroundColor", "base", "night")  // → --np--background-color--base--night
 
 // Custom tokens (after registration)
@@ -288,7 +288,7 @@ const AppTokenMap = {
 
   // Mode-aware tokens
   headerColor: {
-    base: { light: "#000", night: "#fff" },
+    base: { day: "#000", night: "#fff" },
   },
 } as const
 
@@ -347,8 +347,35 @@ getTokenNames()
 
 ## Mode Architecture
 
-- **"light"** is the default mode (`DEFAULT_MODE` in nice-react-styles)
+- **"day"** is the default mode (`DEFAULT_MODE` in nice-react-styles)
 - **"night"** replaces "dark" for mode suffixes throughout the system
-- Stable primitives: `--np--*--light` and `--np--*--night` are never reassigned
+- Stable primitives: `--np--*--day` and `--np--*--night` are never reassigned
 - `@media (prefers-color-scheme: dark)` maps semantic vars to `--night` primitives
 - `color-scheme: light dark` on `:root` enables native browser dark scheme
+
+### ModeType (nice-styles)
+
+Core type for mode props across the ecosystem. Extensible for consumer-defined custom modes.
+
+```ts
+import type { ModeType } from "nice-styles"
+// "day" | "night" | (string & {})
+```
+
+Component packages re-export as component-specific aliases:
+
+```ts
+// nice-react-typography
+import type { TypographyModeType } from "nice-react-typography"
+// TypographyModeType = ModeType
+```
+
+Higher-level components (app code, wrapper components) import `ModeType` directly from nice-styles:
+
+```ts
+import type { ModeType } from "nice-styles"
+
+interface MyComponentProps {
+  mode?: ModeType
+}
+```

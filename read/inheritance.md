@@ -154,7 +154,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 - Function: `createTokens()` - registers app-level tokens and generates CSS
 - Function: `getToken()` - unified token accessor (registry-based)
 - Functions: `registerTokens()`, `hasToken()`, `getTokenNames()`, `getTokenVariants()`, `getTokenModes()`, `getTokenModeValue()`, `isModeValue()` - registry utilities
-- Constants: `DEFAULT_MODE` (`"light"`)
+- Constants: `DEFAULT_MODE` (`"day"`)
 - Re-exports from nice-styles: `getComponentToken`, `ComponentPrefix`, `TokenResult`
 - Types: `ComponentTokens`, `StylesProviderProps`, `ModeValue`, `GoogleFontsConfig`, `LinkAttributes`, `GoogleFontMetadata`, `FontAxis`
 

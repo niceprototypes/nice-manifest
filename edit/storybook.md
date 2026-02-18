@@ -136,7 +136,7 @@ Contains helper logic, constants, and demo components used across stories:
 
 ```tsx
 // Flex.services.ts
-import { getToken } from "nice-styles"
+import { getToken } from "nice-react-styles"
 
 export const twoDots = [
   {
