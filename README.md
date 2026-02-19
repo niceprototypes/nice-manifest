@@ -97,6 +97,12 @@ nnl --clean-all
 
 ---
 
+## Mandatory Prerequisites
+
+1. **Read all source files before editing.** No Claude instance may modify a nice-* package without first reading every source file in that package. Trace import chains from the entry point to verify which files the build actually uses. Duplicate or dead files exist — editing the wrong copy wastes time and produces silent failures.
+
+---
+
 ## Update Rules
 
 1. New pattern discovered → add to relevant file
