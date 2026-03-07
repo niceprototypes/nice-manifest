@@ -27,6 +27,7 @@ nice-manifest/
 │       └── tokens.md              # Token naming conventions
 ├── edit/                          # EDITING new assets
 │   ├── README.md                  # Index
+│   ├── comments.md                # Inline code comment standards for AI readability
 │   ├── component.md               # Component package structure, types, tokens
 │   ├── configuration.md           # Build config patterns, deviation audit
 │   └── storybook.md               # Story file patterns
@@ -94,6 +95,7 @@ nnl --clean-all
 | Understanding dependencies | `read/inheritance.md` |
 | Token naming / CSS variables | `read/styles/tokens.md` |
 | Audit / improve ecosystem | `read/audit.md` |
+| Writing implementation logic | `edit/comments.md` |
 
 ---
 
