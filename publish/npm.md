@@ -39,16 +39,16 @@ Bottom to top per dependency chain:
 
 | Package | Runtime Deps | Peer Deps |
 |---------|--------------|-----------|
-| nice-react-flex | nice-styles | react, react-dom, styled-components |
-| nice-react-typography | nice-styles, nice-react-styles | react, react-dom, styled-components |
-| nice-react-tile | — | **nice-react-flex**, react, react-dom, styled-components |
-| nice-react-icon | nice-icons, nice-react-styles, nice-styles | react, react-dom, styled-components |
+| nice-react-flex | nice-react-styles | react, react-dom, styled-components |
+| nice-react-typography | nice-react-styles | react, react-dom, styled-components |
+| nice-react-tile | nice-react-styles | **nice-react-flex**, react, react-dom, styled-components |
+| nice-react-icon | nice-icons, nice-react-styles | react, react-dom, styled-components |
 
 ### Feature Layer
 
 | Package | Runtime Deps | Peer Deps |
 |---------|--------------|-----------|
-| nice-react-button | nice-react-styles, nice-react-typography, nice-styles | **nice-react-flex**, **nice-react-icon**, **nice-react-typography**, react, react-dom, styled-components |
+| nice-react-button | nice-react-styles, nice-react-typography | **nice-react-flex**, **nice-react-icon**, **nice-react-typography**, react, react-dom, styled-components |
 
 ### Standalone
 

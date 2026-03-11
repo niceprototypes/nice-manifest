@@ -148,11 +148,28 @@ nice-styles/src/generated/
 
 ---
 
-## getCoreToken (nice-styles)
+## Import Guidance
 
-Static core token accessor. Returns CSS variable name and raw value from core token data only. For runtime tokens (including app-level custom tokens registered via createTokens), use getToken from nice-react-styles instead.
+In React projects, import all nice-styles assets from `nice-react-styles`, which re-exports the nice-styles public API. Import directly from `nice-styles` only when working outside the React framework (e.g., vanilla JS, build scripts, non-React tooling).
+
+**Exception:** `getCoreToken` is only available from `nice-styles` directly. In React projects, use `getToken` from `nice-react-styles` instead — it provides the same `TokenResult` shape and also supports runtime-registered custom tokens.
 
 ```ts
+// React projects — use getToken (covers core + custom tokens)
+import { getToken, getBreakpoint, type FontSizeType } from "nice-react-styles"
+
+// Non-React contexts — getCoreToken is available here
+import { getCoreToken, getBreakpoint, type FontSizeType } from "nice-styles"
+```
+
+---
+
+## getCoreToken (nice-styles only)
+
+Static core token accessor. Returns CSS variable name and raw value from core token data only. **Not re-exported from nice-react-styles.** In React projects, use `getToken` from `nice-react-styles` instead — it returns the same `TokenResult` shape and also resolves runtime-registered custom tokens.
+
+```ts
+// Non-React contexts only
 import { getCoreToken } from "nice-styles"
 
 getCoreToken("fontSize", "base")
@@ -172,11 +189,12 @@ interface TokenResult {
 ### Usage
 
 ```ts
-import { getCoreToken } from "nice-styles"
+// React projects — use getToken instead
+import { getToken } from "nice-react-styles"
 
 const StyledDiv = styled.div`
-  font-size: ${getCoreToken("fontSize", "large").var};
-  color: ${getCoreToken("foregroundColor", "medium").var};
+  font-size: ${getToken("fontSize", "large").var};
+  color: ${getToken("foregroundColor", "medium").var};
 `
 ```
 
@@ -195,7 +213,7 @@ getConstant(token: string, param: string, options?: { mode?: string; pkg?: strin
 ### Examples
 
 ```ts
-import { getConstant } from "nice-styles"
+import { getConstant } from "nice-react-styles"
 
 // Core token
 getConstant("backgroundColor", "base")
@@ -236,7 +254,7 @@ getComponentToken(
 ### Examples
 
 ```ts
-import { getComponentToken } from "nice-styles"
+import { getComponentToken } from "nice-react-styles"
 
 getComponentToken("button", "size", "base")
 // → { key: "--np--button--size--base", var: "var(--np--button--size--base)", value: "var(--np--cell-height--base)" }
@@ -358,7 +376,7 @@ getTokenNames()
 Core type for mode props across the ecosystem. Extensible for consumer-defined custom modes.
 
 ```ts
-import type { ModeType } from "nice-styles"
+import type { ModeType } from "nice-react-styles"
 // "day" | "night" | (string & {})
 ```
 
@@ -370,10 +388,10 @@ import type { TypographyModeType } from "nice-react-typography"
 // TypographyModeType = ModeType
 ```
 
-Higher-level components (app code, wrapper components) import `ModeType` directly from nice-styles:
+Higher-level components (app code, wrapper components) import `ModeType` from nice-react-styles:
 
 ```ts
-import type { ModeType } from "nice-styles"
+import type { ModeType } from "nice-react-styles"
 
 interface MyComponentProps {
   mode?: ModeType

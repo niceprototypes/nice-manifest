@@ -101,7 +101,7 @@ These become CSS custom properties in `dist/variables.css`:
 Thin wrapper around `getComponentToken` from nice-styles:
 
 ```ts
-import { getComponentToken, type TokenResult } from "nice-styles"
+import { getComponentToken, type TokenResult } from "nice-react-styles"
 
 export function getButtonToken(name: string, variant?: string, mode?: string): TokenResult {
   return getComponentToken("button", name, variant, mode)
@@ -172,7 +172,7 @@ export type OnClickType = () => void
 When a prop uses a type from nice-styles, create a component-specific alias:
 
 ```ts
-import type { ForegroundColorType, FontSizeType, ModeType } from "nice-styles"
+import type { ForegroundColorType, FontSizeType, ModeType } from "nice-react-styles"
 
 /**
  * TypographyColorType
@@ -226,7 +226,7 @@ export type TypographyWordBreakType = "normal" | "break-all" | "keep-all"
 
 ```ts
 import * as React from "react"
-import type { ForegroundColorType, FontSizeType } from "nice-styles"
+import type { ForegroundColorType, FontSizeType } from "nice-react-styles"
 
 /**
  * ButtonSizeType
