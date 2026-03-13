@@ -488,13 +488,64 @@ All include sourcemaps and use named exports.
 
 ### Package.json Requirements
 
+Every `nice-react-*` package.json must follow this structure exactly. Deviations require documented justification in the manifest.
+
+#### Entry Points
+
 ```json
 {
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "type": "module"
 }
 ```
+
+#### Scripts
+
+```json
+{
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build",
+    "prepare": "npm run build"
+  }
+}
+```
+
+Optional scripts (include only if applicable):
+- `"test": "jest"` — only if jest config and test files exist
+- `"lint": "eslint src --ext .ts,.tsx"` — use this exact format, not glob patterns
+
+Do not add convenience scripts like `build:watch`, `test:watch`, `test:coverage`, `lint:fix`, `clean`, or `build:types`. These add maintenance surface for marginal value.
+
+#### Files
+
+```json
+{
+  "files": ["dist"]
+}
+```
+
+Only `dist` is published. Do not include `src`, `README.md`, `CHANGELOG.md`, or `LICENSE` in the `files` array — npm includes README and LICENSE automatically.
+
+Exception: `nice-react-styles` includes `["dist", "src"]` because consumers may reference source files.
+
+#### Publishing
+
+Before publishing, `file:` dependency references must be replaced with semver ranges:
+
+```json
+// Local development
+"nice-react-styles": "file:../nice-react-styles"
+
+// Before npm publish
+"nice-react-styles": "^4.0.0"
+```
+
+Restore `file:` references after publishing. See `publish/npm.md` for the full publish order and peer dep version table.
 
 ## JSDoc Standards
 

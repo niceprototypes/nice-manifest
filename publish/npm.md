@@ -15,7 +15,7 @@ Bottom to top per dependency chain:
 3. nice-react-flex, nice-react-typography
 4. nice-react-icon, nice-react-tile
 5. nice-react-button
-6. nice-react-scroll, nice-react-slider, nice-react-device-detector
+6. nice-react-scroll, nice-react-slider, nice-react-device-detector, nice-react-lightbox
 
 ---
 
@@ -67,9 +67,9 @@ Bottom to top per dependency chain:
 | react | >=19.2.0 |
 | react-dom | >=19.2.0 |
 | styled-components | >=6.1.18 |
-| nice-react-flex | >=1.0.0 |
-| nice-react-icon | >=2.0.0 |
-| nice-react-typography | >=4.0.0 |
+| nice-react-flex | >=2.0.0 |
+| nice-react-icon | >=3.0.0 |
+| nice-react-typography | >=5.0.0 |
 
 ---
 

@@ -33,38 +33,19 @@ The main stories file contains:
 ```tsx
 import type { Meta, StoryObj } from "@storybook/react"
 import Button from "nice-react-button"
-import { generateDescriptionString } from "../../../src/services"
 import BasicStory from "./stories/Basic.story"
 import SizeStory from "./stories/Size.story"
 
 const meta = {
-  title: "Components/Button",
+  title: "React/Components/Button",
   component: Button,
   parameters: {
     layout: "padded",
     docs: {
-      description: {
-        component: generateDescriptionString("nice-react-button", {
-          setup: [
-            {
-              value: 'import Button from "nice-react-button"',
-              code: true,
-              newLine: true,
-            },
-          ],
-          usage: [
-            {
-              value: "<Button onClick={handler}>{children}</Button>",
-              code: true,
-            },
-          ],
-        }),
-      },
       source: { code: null },
       canvas: { sourceState: "none" },
     },
   },
-  tags: ["autodocs"],
   argTypes: {
     // ... prop definitions
   },
@@ -270,21 +251,47 @@ import DemoDots from "../../../../src/components/DemoDots"
 
 ---
 
-## Component Categories
+## Sidebar Hierarchy
 
-Stories are organized by category:
+Stories are organized by category via the `title` field:
 
 ```
-stories/
-├── Components/           # React component stories
-│   ├── Button/
-│   ├── Flex/
-│   └── ...
-├── Hooks/               # Hook documentation
-│   └── useDeviceDetector/
-└── Styles/              # Token documentation
-    └── Tokens/
+Welcome/
+├── Design Tokens
+├── Design Patterns
+└── UI Components
+Tokens/
+├── Responsive
+└── Icons
+React/
+├── Styles/
+│   ├── StylesProvider
+│   ├── getToken
+│   └── createTokens
+├── Hooks/
+│   └── useDeviceDetector
+└── Components/
+    ├── Button, Flex, Icon, Lightbox
+    ├── Scroll, Slider, Tile, Typography
+Configuration/
+├── Rollup, TypeScript, Jest
+├── ViteWatcher
+└── NPM/Watcher
 ```
+
+Each section has an MDX docs page (e.g., `stories/Styles/Styles.mdx` with `<Meta title="Tokens" />`). Component/hook stories use a companion MDX file attached via `<Meta of={Stories} />` with `<Stories />` to render all stories inline.
+
+### Code Blocks
+
+Use the `CodeBlock` component for code examples in story render functions:
+
+```tsx
+import CodeBlock from "../../src/components/CodeBlock"
+
+<CodeBlock>{`const x = 1`}</CodeBlock>
+```
+
+Do not use inline `<pre>/<code>` with repeated style objects. Do not use `<Source>` from `@storybook/addon-docs/blocks` inside story render functions — it requires DocsContext which only exists in MDX docs pages.
 
 ---
 
@@ -320,30 +327,29 @@ export { meta as default } from "./Component.meta"
 
 ---
 
-## Description Generator
+## Documentation
 
-Use `generateDescriptionString` for consistent component descriptions:
+Component descriptions and setup instructions are written in companion MDX files, not generated via JavaScript. The `generateDescriptionString` service has been removed.
 
-```tsx
-import { generateDescriptionString } from "../../../src/services"
+Each component has an MDX file that attaches to its stories via `<Meta of={Stories} />` and renders stories inline with `<Stories />`:
 
-docs: {
-  description: {
-    component: generateDescriptionString("nice-react-button", {
-      setup: [
-        {
-          value: 'import Button from "nice-react-button"',
-          code: true,
-          newLine: true,
-        },
-      ],
-      usage: [
-        {
-          value: "<Button onClick={handler}>{children}</Button>",
-          code: true,
-        },
-      ],
-    }),
-  },
-}
+```mdx
+import { Meta, Stories } from '@storybook/addon-docs/blocks'
+import * as ButtonStories from './Button.stories'
+
+<Meta of={ButtonStories} />
+
+# Button
+
+Install and import:
+
+\`\`\`bash
+npm install nice-react-button
+\`\`\`
+
+\`\`\`tsx
+import Button from "nice-react-button"
+\`\`\`
+
+<Stories />
 ```
