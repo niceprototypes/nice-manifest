@@ -1,16 +1,32 @@
 # npm Publishing
 
-## Version Bump
+## CLI Publish Command
 
 ```bash
-npm version patch|minor|major
+# Publish all changed packages (interactive prompts for version bumps and OTP)
+nnl --publish
+
+# Publish specific packages
+nnl --publish nice-styles,nice-react-styles
+
+# Preview what would be published
+nnl --publish --dry-run
 ```
+
+The `--publish` command handles the full workflow:
+1. Detects which packages have changed since last npm publish
+2. Prompts for version bump type (patch/minor/major) per package
+3. Swaps `file:` deps to semver ranges
+4. Builds each package
+5. Publishes in dependency order (npm prompts for OTP interactively)
+6. Restores `file:` refs for local development
+7. Commits and pushes version changes
 
 ## Publish Order
 
 Bottom to top per dependency chain:
 
-1. nice-styles, nice-icons, nice-configuration
+1. nice-styles, nice-icons, nice-configuration, nice-npm-link, nice-vite-watcher
 2. nice-react-styles
 3. nice-react-flex, nice-react-typography
 4. nice-react-icon, nice-react-tile
