@@ -1,3 +1,24 @@
+## File Size and Decomposition
+
+When a single file accumulates many functions, refactor it into a folder with the same name. The folder's `index.js` re-exports the public API so the import path stays the same.
+
+```
+# Before — one file growing indefinitely
+src/publisher.js  (400+ lines, 15 functions)
+
+# After — folder with focused files
+src/publisher/
+├── index.js        # Orchestrator, re-exports public API
+├── constants.js    # Static values
+├── helpers.js      # Shared utilities
+├── graph.js        # Dependency resolution
+└── otp.js          # OTP management
+```
+
+This is not a strict rule. Complex functions that are long but cohesive should stay in one file. The trigger is when a file becomes a collection of loosely related functions that are hard to index at a glance. The goal is AI parsability — a future Claude instance should be able to read a file and understand its scope without scrolling past unrelated logic.
+
+---
+
 ## ES Module Standards
 
 - Use named exports exclusively (no default exports)

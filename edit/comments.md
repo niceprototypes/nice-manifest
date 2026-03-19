@@ -19,6 +19,8 @@ Inline comments exist for AI context recovery. When an AI instance reads a file 
 | Early return / guard clause | Yes | State what invariant is being enforced |
 | Self-evident single operation | No | `const name = user.name` needs no comment |
 | Type narrowing that the code already reads as | No | `if (typeof x === 'string')` is self-documenting when the branch body makes the intent clear |
+| Guard clause with obvious intent | No | `if (!x) { fail(...); return; }` — the fail message is the documentation |
+| Simple delegation (if → handler call) | No | `if (options.unlink) { unlinkPackages(...); }` reads faster than any comment |
 
 ## Format
 

@@ -39,6 +39,9 @@ CLI tool: `nnl` or `nice-npm-link`
 | `nnl --dev --watch` | Combined (recommended for CRA projects) |
 | `nnl --unlink` | Restore packages to npm versions |
 | `nnl --clean-only <path>` | Clean specific package without linking |
+| `nnl --create <name>` | Scaffold a new package, register in registry.json |
+| `nnl --publish pkg1,pkg2` | Publish with automatic dependency cascade |
+| `nnl --publish --no-npm` | Bump, build, commit, push — skip npm publish |
 | `nnl --dry-run` | Preview changes without executing |
 
 ### Default Excluded Packages

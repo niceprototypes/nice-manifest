@@ -261,6 +261,7 @@ Welcome/
 ├── Design Patterns
 └── UI Components
 Tokens/
+├── Browse
 ├── Responsive
 └── Icons
 React/
@@ -268,15 +269,17 @@ React/
 │   ├── StylesProvider
 │   ├── getToken
 │   └── createTokens
-├── Hooks/
-│   └── useDeviceDetector
-└── Components/
-    ├── Button, Flex, Icon, Lightbox
-    ├── Scroll, Slider, Tile, Typography
+├── Components/
+│   ├── Button, Flex, Icon, Lightbox
+│   ├── Scroll, Slider, Tile, Typography
+└── Hooks/
+    └── useDeviceDetector
 Configuration/
-├── Rollup, TypeScript, Jest
-├── ViteWatcher
-└── NPM/Watcher
+├── NPM
+├── Vite
+├── TypeScript
+├── Jest
+└── Rollup
 ```
 
 Each section has an MDX docs page (e.g., `stories/Styles/Styles.mdx` with `<Meta title="Tokens" />`). Component/hook stories use a companion MDX file attached via `<Meta of={Stories} />` with `<Stories />` to render all stories inline.

@@ -166,9 +166,35 @@ CLI tool for managing local package links and resolving dependency conflicts.
 
 ```
 nice-npm-link/
-├── nice-npm-link.js            # Main CLI script
+├── nice-npm-link.js            # CLI entry (shebang → src/index.js)
+├── registry.json               # Source of truth for ecosystem packages
 ├── package.json
-└── README.md
+└── src/
+    ├── index.js                # CLI router
+    ├── args.js                 # Argument parsing
+    ├── config.js               # Default conflicting packages, peer enforce list
+    ├── logger.js               # Colored log output
+    ├── fs-utils.js             # File system helpers with caching
+    ├── pm.js                   # Package manager detection
+    ├── discovery.js            # Linked package traversal
+    ├── cleaner.js              # Singleton conflict removal
+    ├── linker.js               # Link/unlink operations
+    ├── peer-deps.js            # Peer dependency enforcement
+    ├── watcher.js              # Dist folder watcher
+    ├── dev-runner.js           # Concurrent dev script runner
+    ├── npm-auth.js             # npm authentication verification
+    ├── publisher/              # Publish workflow (separated build/publish phases)
+    │   ├── index.js            # Orchestrator
+    │   ├── constants.js        # Reads registry.json, PUBLISH_TIERS
+    │   ├── helpers.js          # prompt, run, pkgDir, version queries
+    │   ├── versioning.js       # bumpVersion, calcVersion
+    │   ├── deps.js             # file: ↔ semver swapping
+    │   ├── graph.js            # Reverse dependency resolution
+    │   └── otp.js              # OTP timer with configurable window
+    └── creator/                # Package scaffolding
+        ├── index.js            # Create orchestrator + registry registration
+        ├── component.js        # Component-specific scaffolding
+        └── templates.js        # File templates for new packages
 ```
 
 ### Package.json Configuration
@@ -182,6 +208,10 @@ nice-npm-link/
 }
 ```
 
+### Registry
+
+`registry.json` is the single source of truth for which packages belong to the Nice ecosystem. Packages not in the registry are invisible to all `nnl` operations. The `--create` command is the standard way to add new packages.
+
 ### Key Commands
 
 | Command | Description |
@@ -192,6 +222,11 @@ nice-npm-link/
 | `nnl --dev --watch` | Combined (recommended for CRA/webpack) |
 | `nnl --unlink` | Restore packages to npm versions |
 | `nnl --clean-only <path>` | Clean specific package without linking |
+| `nnl --create <name>` | Scaffold a new package and register it |
+| `nnl --create <name> --type component` | Scaffold a component package (default type) |
+| `nnl --publish pkg1,pkg2` | Publish with automatic dependency cascade |
+| `nnl --publish --no-npm` | Bump, build, commit, push — skip npm |
+| `nnl --publish --otp-window 45` | Custom OTP expiry window (default: 30s) |
 
 ### Default Excluded Packages
 

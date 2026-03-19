@@ -361,7 +361,7 @@ Passed to publisher as `publish: !options.noPublish, otpWindow: options.otpWindo
 
 Bottom to top per dependency chain:
 
-1. nice-styles, nice-icons, nice-configuration, nice-npm-link, nice-vite-watcher
+1. nice-styles, nice-icons, nice-npm-link, nice-vite-watcher
 2. nice-react-styles
 3. nice-react-flex, nice-react-typography
 4. nice-react-icon, nice-react-tile
@@ -378,7 +378,6 @@ Bottom to top per dependency chain:
 |---------|--------------|-----------|
 | nice-styles | — | — |
 | nice-icons | — | — |
-| nice-configuration | — | rollup, typescript, jest (all optional) |
 
 ### Context Layer
 
@@ -408,6 +407,7 @@ Bottom to top per dependency chain:
 | nice-react-scroll | — | react, react-dom, styled-components |
 | nice-react-slider | — | react, styled-components |
 | nice-react-device-detector | — | react, react-dom |
+| nice-react-lightbox | nice-react-styles | react, react-dom, styled-components |
 
 ---
 
