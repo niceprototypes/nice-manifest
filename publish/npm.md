@@ -13,10 +13,10 @@ nnl --publish nice-styles,nice-react-styles
 nnl --publish --dry-run
 
 # Bump and build without publishing to npm
-nnl --publish --no-publish
+nnl --publish --no-npm
 
 # Bump, build, and skip npm (e.g., only push to GitHub)
-nnl --publish nice-react-styles --no-publish
+nnl --publish nice-react-styles --no-npm
 ```
 
 The `--publish` command handles the full workflow:
@@ -136,7 +136,7 @@ The user is only prompted for version bumps on packages they explicitly changed.
 
 ---
 
-## --no-publish Flag
+## --no-npm Flag
 
 Disables npm publishing. All other steps still execute:
 - Dependency graph resolution
@@ -341,7 +341,7 @@ for (const p of toPublish) {
 
 ```js
 // New flags
-options.noPublish = hasFlag(args, '--no-publish')
+options.noNpm = hasFlag(args, '--no-npm')
 options.otpWindow = parseInt(getArg(args, '--otp-window') || '30', 10)
 ```
 
@@ -353,7 +353,7 @@ nnl --publish --otp-window 20
 nnl --publish --otp-window 45
 ```
 
-Passed to publisher as `publish: !options.noPublish, otpWindow: options.otpWindow`.
+Passed to publisher as `publish: !options.noNpm, otpWindow: options.otpWindow`.
 
 ---
 
@@ -366,7 +366,7 @@ Bottom to top per dependency chain:
 3. nice-react-flex, nice-react-typography
 4. nice-react-icon, nice-react-tile
 5. nice-react-button
-6. nice-react-scroll, nice-react-slider, nice-react-device-detector, nice-react-lightbox
+6. nice-react-scroll, nice-react-slider, nice-react-device-detector, nice-react-lightbox, nice-react-image, nice-react-input
 
 ---
 

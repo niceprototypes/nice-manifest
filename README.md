@@ -34,7 +34,8 @@ nice-manifest/
 ├── build/                         # LOCAL DEVELOPMENT
 │   ├── README.md                  # Index
 │   ├── symlinks.md                # file: references, nice-npm-link commands
-│   └── vite.md                    # nice-vite-watcher usage
+│   ├── vite.md                    # nice-vite-watcher usage
+│   └── image-compressor.md        # nice-image-compressor CLI for PNG compression
 └── publish/                       # RELEASING
     ├── README.md                  # Index
     ├── git.md                     # Commit format, branching
@@ -96,6 +97,7 @@ nnl --clean-all
 | Token naming / CSS variables | `read/styles/tokens.md` |
 | Audit / improve ecosystem | `read/audit.md` |
 | Writing implementation logic | `edit/comments.md` |
+| Compressing PNG assets | `build/image-compressor.md` |
 
 ---
 

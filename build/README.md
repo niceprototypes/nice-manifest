@@ -8,3 +8,4 @@ Local development build processes for the Nice ecosystem.
 |------|----------|
 | `symlinks.md` | npm link, file: references, nice-npm-link usage |
 | `vite.md` | Vite configuration for nice-storybook, nice-vite-watcher |
+| `image-compressor.md` | nice-image-compressor CLI for PNG compression via pngquant |

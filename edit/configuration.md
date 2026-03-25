@@ -171,6 +171,7 @@ nice-npm-link/
 ├── package.json
 └── src/
     ├── index.js                # CLI router
+    ├── registry.js             # Registry query service (all consumers import from here)
     ├── args.js                 # Argument parsing
     ├── config.js               # Default conflicting packages, peer enforce list
     ├── logger.js               # Colored log output
@@ -185,7 +186,7 @@ nice-npm-link/
     ├── npm-auth.js             # npm authentication verification
     ├── publisher/              # Publish workflow (separated build/publish phases)
     │   ├── index.js            # Orchestrator
-    │   ├── constants.js        # Reads registry.json, PUBLISH_TIERS
+    │   ├── constants.js        # Reads registry via query service
     │   ├── helpers.js          # prompt, run, pkgDir, version queries
     │   ├── versioning.js       # bumpVersion, calcVersion
     │   ├── deps.js             # file: ↔ semver swapping
@@ -211,6 +212,54 @@ nice-npm-link/
 ### Registry
 
 `registry.json` is the single source of truth for which packages belong to the Nice ecosystem. Packages not in the registry are invisible to all `nnl` operations. The `--create` command is the standard way to add new packages.
+
+#### Registry Schema
+
+Each entry in registry.json is an object with metadata:
+
+```json
+{
+  "basePath": "~/Code",
+  "tiers": [
+    [
+      { "name": "nice-styles", "type": "foundation", "sourceAliasable": false },
+      { "name": "nice-react-flex", "type": "react-component", "sourceAliasable": true },
+      { "name": "nice-react-icon", "type": "react-component", "sourceAliasable": false }
+    ]
+  ]
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Package name, must start with `nice-` |
+| `type` | enum | `foundation`, `react-component`, `cli`, `plugin` |
+| `sourceAliasable` | boolean | Can be aliased to source in Vite (no SVGR/PostCSS transforms) |
+
+Validation runs on every read via `src/registry.js`. Invalid entries throw immediately.
+
+#### Registry Query Service (`src/registry.js`)
+
+All consumers import from this module instead of reading `registry.json` directly.
+
+| Function | Returns | Purpose |
+|----------|---------|---------|
+| `getPackageNames()` | `string[]` | All package names in tier order |
+| `getTiers()` | `string[][]` | Tier arrays of name strings (backward compat) |
+| `getAllPackages()` | `object[]` | All entries with full metadata |
+| `getByType(type)` | `object[]` | Filter by package type |
+| `getByGroup(group)` | `object[]` | Shorthand group queries |
+| `getLinkedPackageMap()` | `Record<string, string>` | Name-to-path map for Vite/Storybook |
+| `getSourceAliasableNames()` | `string[]` | Packages eligible for Vite source aliases |
+| `addPackage(entry)` | void | Add a validated entry to the last tier |
+
+**Groups:** `"all"`, `"react"` / `"component"`, `"foundation"`, `"linkable"`, `"source-aliasable"`
+
+Groups are computed from `type` and `sourceAliasable` — not stored in the JSON.
+
+#### Adding a New Package
+
+`nnl --create` automatically registers the package with correct metadata. Storybook and other consumers read from the registry — no manual list updates needed.
 
 ### Key Commands
 

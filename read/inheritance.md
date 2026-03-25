@@ -36,6 +36,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 │  nice-react-scroll                    │
 │  nice-react-slider                    │
 │  nice-react-device-detector           │
+│  nice-react-image                     │
 └───────────────────────────────────────┘
                   ▼
 ┌───────────────────────────────────────┐
@@ -400,6 +401,7 @@ All nice-* interdependencies use `file:` references for local development.
 | nice-react-icon | nice-icons, nice-react-styles | react, styled-components |
 | nice-react-button | nice-react-styles, nice-react-typography | nice-react-flex, nice-react-icon, react, styled-components |
 | nice-react-lightbox | nice-react-styles | react, react-dom, styled-components |
+| nice-react-image | nice-react-styles | react, react-dom, styled-components |
 
 ### Transitive Dependencies
 
@@ -507,6 +509,6 @@ export default createConfiguration({
 | **Layout** | nice-react-flex, nice-react-tile | Flexbox/grid layout |
 | **Content** | nice-react-typography | Text rendering |
 | **Interaction** | nice-react-button, nice-react-scroll, nice-react-slider | User interactions |
-| **Assets** | nice-react-icon | Icon rendering |
+| **Assets** | nice-react-icon, nice-react-image | Icon/image rendering |
 | **Detection** | nice-react-device-detector | Device/environment detection |
 | **Applications** | nice-storybook, nice-website-* | Consumer applications |

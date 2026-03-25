@@ -46,7 +46,7 @@ Review all nice-* packages and verify alignment with manifest documentation.
 |-------|----------|
 | Foundation | nice-styles, nice-icons, nice-configuration, nice-npm-link, nice-vite-watcher |
 | Context | nice-react-styles |
-| Utility | nice-react-flex, nice-react-typography, nice-react-tile, nice-react-scroll, nice-react-slider, nice-react-device-detector |
+| Utility | nice-react-flex, nice-react-typography, nice-react-tile, nice-react-scroll, nice-react-slider, nice-react-device-detector, nice-react-image |
 | Feature | nice-react-icon, nice-react-button |
 | Application | nice-storybook, nice-website-2025 |
 
