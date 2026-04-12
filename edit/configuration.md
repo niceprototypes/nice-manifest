@@ -47,10 +47,37 @@ nice-configuration/
     "./typescript/base": "./src/typescript/base.json",
     "./typescript/react": "./src/typescript/react.json",
     "./jest/react": "./src/jest/react.js",
-    "./jest/css-mock": "./src/jest/css-mock.js"
+    "./jest/css-mock": "./src/jest/css-mock.js",
+    "./exports": "./dist/exports/index.js",
+    "./exports/schema.json": "./src/exports/schema.json"
+  },
+  "bin": {
+    "nice-generate-exports": "./dist/exports/cli.js"
   }
 }
 ```
+
+### Export Format Rationale
+
+| Subpath | Format | Reason |
+|---------|--------|--------|
+| `./typescript/*` | `.json` | TypeScript `extends` requires a JSON file path |
+| `./jest/*` | `.js` (default export) | Jest config expects a default-exported object |
+| `./rollup` | `.js` (named exports) | Consuming configs call factory functions by name |
+| `./exports` | `.js` (compiled from TS) | Application logic with validation — TypeScript source, compiled to dist/ |
+
+### Export Generator (`./exports`)
+
+CLI and programmatic API for generating `src/index.ts` in component packages from a declarative `package.exports.json` config. Written in TypeScript, compiled to `dist/exports/`.
+
+```bash
+nice-generate-exports .          # generate src/index.ts from package.exports.json
+npm run generate-exports         # same, via package script
+```
+
+Source: `src/exports/` (TypeScript). Output: `dist/exports/` (compiled JS). Build: `npm run build` runs `tsc -p tsconfig.exports.json`.
+
+See `edit/component.md` → "package.exports.json" for the config schema and field reference.
 
 ### TypeScript Configs
 
@@ -676,5 +703,6 @@ export { default } from "nice-configuration/jest/react"
 |---------|-----------|---------------|
 | nice-react-icon | Custom rollup plugins | SVGR required to transform SVG imports from nice-icons into React components |
 | nice-react-button | Extended getButtonToken signature (accepts path arrays) | Status/state token composition requires nested path lookup that flat signatures cannot express |
+| nice-react-styles | Hand-written src/index.ts (no export generator) | Bridge package — re-exports the entire nice-styles API and adds React-specific layers. Future bridge packages (e.g., nice-vue-styles) follow the same exception. |
 
 Add exceptions to this table with clear justification. If no justification exists, normalize the package.

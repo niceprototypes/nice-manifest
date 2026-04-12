@@ -1,6 +1,6 @@
 # nice-storybook
 
-Storybook 9, Vite, React 19, styled-components 6.
+Storybook 10, Vite, React 19, styled-components 6.
 
 ## Key Paths
 

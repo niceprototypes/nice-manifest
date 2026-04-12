@@ -95,7 +95,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 **Dependencies:** None
 
 **Exports:**
-- 30 SVG icons with stroke/fill variants
+- 31 SVG icons with stroke/fill variants
 - `iconNames` constant array
 
 **Inheritors:** `nice-react-icon`
@@ -290,7 +290,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 **Exports:**
 - Component: `Icon`
-- Service: `getIcon()`
+- Service: `getIcon()`, `registerVendorResolver()`
 - Constants: `iconNames`
 - Tokens: `IconStyles`, `getIconToken()`
 - Types: `IconProps`, `IconNameType`, `IconSizeType`, `IconColorType`

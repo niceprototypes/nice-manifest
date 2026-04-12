@@ -119,13 +119,29 @@ These become CSS custom properties in `dist/variables.css`:
 
 #### src/tokens/get{Component}Token.ts
 
-Thin wrapper around `getComponentToken` from nice-styles:
+Wrapper around `getComponentToken` from nice-styles. Forwards both flat and path-based calling conventions so all components can access nested tokens when their token structure requires it.
 
 ```ts
 import { getComponentToken, type TokenResult } from "nice-react-styles"
 
-export function getButtonToken(name: string, variant?: string, mode?: string): TokenResult {
-  return getComponentToken("button", name, variant, mode)
+/**
+ * Get a typography component token.
+ *
+ * Flat lookup — for tokens at depth 1 (e.g., "fontSize", "fontFamily"):
+ * ```ts
+ * getTypographyToken("fontSize", "base")
+ * ```
+ *
+ * Path lookup — for nested tokens:
+ * ```ts
+ * getTypographyToken(["group", "variant", "parameter"])
+ * ```
+ */
+export function getTypographyToken(nameOrPath: string | string[], variantOrMode?: string, mode?: string): TokenResult {
+  if (Array.isArray(nameOrPath)) {
+    return getComponentToken("typography", nameOrPath, variantOrMode)
+  }
+  return getComponentToken("typography", nameOrPath, variantOrMode, mode)
 }
 ```
 
@@ -385,6 +401,41 @@ export { TypographyStyles, getTypographyToken } from "./tokens"
 **Why `export *` over a selective list:** `types.ts` is the single source of truth for a component's public type surface. Using `export *` makes it impossible for `index.ts` to drift out of sync with `types.ts` when new prop types are added. Both individual imports (`import { TypographyProps } from "nice-react-typography"`) and namespace access (`import { TypographyTypes } from "nice-react-typography"; TypographyTypes.Props`) continue to work.
 
 **Note on `export { default }` vs `export *`:** `export *` re-exports only named exports, never the default. The package's default (the component itself) must be explicitly re-exported with `export { default } from "./components/Typography"`. The namespace is exported as `export { default as TypographyTypes }` at the types.ts level, which becomes a *named* export named `TypographyTypes` that `export *` then carries through.
+
+### package.exports.json (required)
+
+Every component package must have a `package.exports.json` at the package root. This config declares the public export surface and is consumed by the `nice-generate-exports` CLI to produce `src/index.ts`.
+
+**Do not hand-edit `src/index.ts` in component packages.** Run `npm run generate-exports` after modifying `package.exports.json`.
+
+```json
+{
+  "$schema": "../nice-configuration/src/exports/schema.json",
+  "description": "Semantic typography component for nice-react with full token support.",
+  "default": "Typography",
+  "components": ["Typography"],
+  "tokens": ["Typography"]
+}
+```
+
+| Field | Type | Required | Purpose |
+|-------|------|----------|---------|
+| `description` | string | optional | Short JSDoc block (max 5 lines, hard-enforced). Long-form content goes in README.md. |
+| `default` | string | optional | Component name to re-export as the package default. Must be listed in `components`. |
+| `components` | string[] | required | Component names. Generator emits `export * from "./components/{Name}"` for each. |
+| `tokens` | string[] | optional | Subset of `components` with token wrappers. Emits `{Name}Styles, get{Name}Token` from `./tokens`. |
+| `services` | string[] | optional | Function names exported from `./services`. |
+| `constants` | string[] | optional | Constant names exported from `./constants`. |
+
+Scaffolded packages (`nnl --create`) include this file and the `generate-exports` script automatically.
+
+### Packages exempt from export generation
+
+| Package | Reason |
+|---------|--------|
+| nice-react-styles | Bridge package — re-exports the entire nice-styles API. Hand-written. |
+| nice-react-scroll | Multi-component package — phase 2. |
+| nice-react-device-detector | Hook-only package — phase 2. |
 
 ## TypeScript Configuration
 

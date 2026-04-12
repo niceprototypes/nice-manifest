@@ -181,6 +181,7 @@ The following logic exists in packages but may be underdocumented or missing fro
 - Icon naming convention: `{IconName}StrokeIcon`, `{IconName}FillIcon`
 - Spinner icon auto-rotation animation
 - `vector-effect: non-scaling-stroke` for stroke width preservation
+- `registerVendorResolver()` service: three-tier icon resolution (custom icons → vendor resolver → direct component)
 
 #### nice-react-button
 - Status/state token composition: `status${Status}${State}` pattern
@@ -204,13 +205,17 @@ The following logic exists in packages but may be underdocumented or missing fro
 - Provider composition order: StylesProvider → DeviceProvider → ScrollProvider → StickyProvider
 - `.symlink-trigger.js` pattern for CRA HMR with linked packages
 
-### Packages Not Documented
+### Package Status
 
 | Package | Status | Notes |
 |---------|--------|-------|
+| nice-react-input | Stub | Placeholder component (`<div>{children}</div>`, one prop). Exclude from audits until implementation begins. |
+| nice-react-image | Stub | No git repo or GitHub remote. Needs infrastructure setup before auditing. |
 | nice-react-hook-device-detector | NPM alias | Same as nice-react-device-detector, published under different name |
 | nice-website-2023 | Legacy | Gatsby project, intentionally omitted |
 | nice-website-2024 | Legacy | Gatsby project, intentionally omitted |
+
+Packages marked **Stub** are not production-ready and should be excluded from consistency audits. They still receive structural scaffolding (package.exports.json, token wrappers) so they conform when implementation begins.
 
 ---
 
