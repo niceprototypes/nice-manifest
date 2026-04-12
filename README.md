@@ -44,6 +44,19 @@ nice-manifest/
 
 ---
 
+## Standard Bearers
+
+Two packages are designated as the canonical reference implementations for the ecosystem. When auditing or comparing other packages, these are the controls — their patterns define correctness, and any deviation in other packages is a finding unless the package has a documented justified exception.
+
+| Role | Package | Audit Target |
+|------|---------|--------------|
+| React component packages | **nice-react-typography** | All `nice-react-*` component packages (Button, Icon, Flex, Tile, Image, Slider, Lightbox, Input, Scroll, etc.) |
+| Configuration / CLI / build-plugin packages | **nice-npm-link** | nice-configuration, nice-vite-watcher, and similar tooling packages |
+
+When the standard bearer itself needs to change, that is a deliberate, separate decision — not something to fold into a normalization audit.
+
+---
+
 ## Quick Reference
 
 ### Package Layers (deps flow down)

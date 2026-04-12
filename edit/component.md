@@ -354,21 +354,37 @@ import type { ButtonProps } from "./types"
 - Named exports for everything else:
   - Constants
   - Services
-  - Types (default export re-exported as named)
+  - Types (all individual types via `export *` + namespace re-exported as named)
   - Component token map
   - Component token getter
 
+**Component folder `index.ts` (e.g. `src/components/Typography/index.ts`):**
+
 ```ts
 // Re-export component
-export { default } from "./Button"
+export { default } from "./Typography"
 
-// Re-export types (both individual and namespace)
-export type { ButtonProps, ButtonSizeType, ButtonOnClickType } from "./Button.types"
-export { default as ButtonTypes } from "./Button.types"
-
-// Re-export tokens
-export { ButtonStyles, getButtonToken } from "../tokens"
+// Re-export all named types from types.ts, plus the namespace
+export * from "./types"
+export { default as TypographyTypes } from "./types"
 ```
+
+**Package entry `src/index.ts`:**
+
+```ts
+// Main component export
+export { default } from "./components/Typography"
+
+// All named type exports + TypographyTypes namespace (re-exported from the component index)
+export * from "./components/Typography"
+
+// Token exports
+export { TypographyStyles, getTypographyToken } from "./tokens"
+```
+
+**Why `export *` over a selective list:** `types.ts` is the single source of truth for a component's public type surface. Using `export *` makes it impossible for `index.ts` to drift out of sync with `types.ts` when new prop types are added. Both individual imports (`import { TypographyProps } from "nice-react-typography"`) and namespace access (`import { TypographyTypes } from "nice-react-typography"; TypographyTypes.Props`) continue to work.
+
+**Note on `export { default }` vs `export *`:** `export *` re-exports only named exports, never the default. The package's default (the component itself) must be explicitly re-exported with `export { default } from "./components/Typography"`. The namespace is exported as `export { default as TypographyTypes }` at the types.ts level, which becomes a *named* export named `TypographyTypes` that `export *` then carries through.
 
 ## TypeScript Configuration
 

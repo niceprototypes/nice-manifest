@@ -675,5 +675,6 @@ export { default } from "nice-configuration/jest/react"
 | Package | Exception | Justification |
 |---------|-----------|---------------|
 | nice-react-icon | Custom rollup plugins | SVGR required to transform SVG imports from nice-icons into React components |
+| nice-react-button | Extended getButtonToken signature (accepts path arrays) | Status/state token composition requires nested path lookup that flat signatures cannot express |
 
 Add exceptions to this table with clear justification. If no justification exists, normalize the package.

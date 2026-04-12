@@ -363,6 +363,142 @@ getTokenNames()
 
 ---
 
+## Token Source Modules (nice-styles)
+
+Token values originate from three JSON module files in `nice-styles/src/tokens/`. Each module has the same data pattern (token groups → variants → values) but a different condition structure that determines how the values are emitted as CSS.
+
+### Module Files
+
+| File | Condition | JSON Shape | Default |
+|------|-----------|------------|---------|
+| `module.json` | None (static) | `{ group: { variant: value } }` | Always active |
+| `module.size.json` | Breakpoint | `{ breakpoint: { group: { variant: value } } }` | `mobile` is default |
+| `module.color.json` | Mode | `{ mode: { group: { variant: value } } }` | `day` is default |
+
+### module.json — Static Tokens
+
+Flat key-value pairs. No conditions. Every variant produces one CSS variable in `:root`.
+
+```json
+{
+  "gap": { "none": "0", "smaller": "4px", "small": "8px", "base": "16px" },
+  "borderRadius": { "smaller": "2px", "small": "4px", "base": "8px" }
+}
+```
+
+```css
+:root {
+  --np--gap--none: 0;
+  --np--gap--smaller: 4px;
+  --np--border-radius--base: 8px;
+}
+```
+
+### module.size.json — Breakpoint Tokens
+
+Top-level keys are breakpoints (`mobile`, `tablet`, `desktop`). Mobile is the default — values apply without a media query. Higher breakpoints override via `min-width` media queries.
+
+```json
+{
+  "mobile": { "fontSize": { "base": "14px" } },
+  "tablet": {},
+  "desktop": { "fontSize": { "base": "16px" } }
+}
+```
+
+```css
+:root {
+  --np--font-size--base: 14px;
+  --np--font-size--base--desktop: 16px;
+}
+@media (min-width: 1280px) {
+  :root { --np--font-size--base: var(--np--font-size--base--desktop); }
+}
+```
+
+### module.color.json — Mode Tokens
+
+Top-level keys are modes (`day`, `night`). Day is the default. Night values override via `prefers-color-scheme: dark` media query.
+
+```json
+{
+  "day": { "foregroundColor": { "base": "hsla(210, 5%, 5%, 1)" } },
+  "night": { "foregroundColor": { "base": "hsla(210, 5%, 95%, 1)" } }
+}
+```
+
+```css
+:root {
+  --np--foreground-color--base: hsla(210, 5%, 5%, 1);
+  --np--foreground-color--base--day: hsla(210, 5%, 5%, 1);
+  --np--foreground-color--base--night: hsla(210, 5%, 95%, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root { --np--foreground-color--base: var(--np--foreground-color--base--night); }
+}
+```
+
+### Build Pipeline
+
+Three scripts read these files by hardcoded path (no glob discovery):
+
+| Script | Reads | Outputs |
+|--------|-------|---------|
+| `scripts/generateTokens.ts` | All three modules + component.json | `src/generated/tokensData.ts`, `colorTokensData.ts`, `sizeTokensData.ts`, `componentTokensData.ts` |
+| `scripts/generateCss/` | All three modules + component.json | `dist/variables.css`, `dist/color-scheme.css`, `dist/css/{group}.css` |
+| `scripts/generateTypes.ts` | All three modules | `src/generated/types.ts` |
+
+Merge strategy in CSS generation: `{ ...coreTokens, ...colorDay, ...sizeMobile }` — later keys win on collision. This merged map drives the semantic `:root` variables.
+
+---
+
+## Variant Value Formats in createTokens
+
+When calling `createTokens()` from nice-react-styles, variant values can be one of three formats. These can be mixed freely within the same token group.
+
+### Static (string)
+
+```ts
+{ gap: { none: "0", base: "32px" } }
+```
+
+### Responsive (breakpoint object)
+
+Detected by `isBreakpointValue()` — checks for `mobile` key.
+
+```ts
+{ gap: { base: { mobile: "24px", desktop: "32px" } } }
+```
+
+Generates a mobile-first default + breakpoint primitives + media query reassignment.
+
+### Mode-aware (mode object)
+
+Detected by `isModeValue()` — checks for `day` key. Checked after breakpoint (if an object has both `mobile` and `day`, breakpoint wins).
+
+```ts
+{ headerColor: { base: { day: "#000", night: "#fff" } } }
+```
+
+Generates semantic variable + day/night primitives + `prefers-color-scheme` media query.
+
+### Mixed Example
+
+```ts
+createTokens({
+  gap: {
+    none: "0",                                  // static
+    base: { mobile: "24px", desktop: "32px" },  // responsive
+  },
+  headerColor: {
+    base: { day: "#000", night: "#fff" },       // mode-aware
+    accent: "#dc0000",                          // static
+  },
+})
+```
+
+---
+
 ## Mode Architecture
 
 - **"day"** is the default mode (`DEFAULT_MODE` in nice-react-styles)
