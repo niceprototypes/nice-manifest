@@ -64,6 +64,78 @@ nice-react-{component}
 3. **Utilities vs Services**: utilities are internal functions, services are exported for consumers
 4. **Tokens folder**: required for all components — token values live as JSON in nice-styles (`src/tokens/component/{name}/index.json`), and each component package provides a thin `get{Component}Token()` wrapper around `getComponentToken()` from nice-styles
 
+### Multi-Component Package Structure
+
+Reference implementation: **nice-react-scroll**
+
+Some packages export multiple related components rather than a single primary component. These packages have no default export — every component is a named export.
+
+```
+nice-react-scroll/
+└── src/
+    ├── components/
+    │   ├── ScrollProvider/
+    │   ├── Sticky/
+    │   ├── FadeOnScroll/
+    │   ├── SectionLinks/
+    │   └── StickySection/
+    ├── hooks/
+    │   └── useScroll.ts
+    └── index.ts
+```
+
+**Export pattern:** Each component folder is re-exported by name. No `export { default }` — consumers import each component individually.
+
+```ts
+export { default as ScrollProvider, ScrollContext } from "./components/ScrollProvider"
+export type { ScrollProviderProps } from "./components/ScrollProvider/types"
+export { default as ScrollProviderTypes } from "./components/ScrollProvider/types"
+
+export { useScroll } from "./hooks/useScroll"
+
+export { Sticky, StickyProvider, StickyContext } from "./components/Sticky"
+export type { StickyProps, StickyOrderType } from "./components/Sticky"
+
+export { FadeOnScroll } from "./components/FadeOnScroll"
+export type { FadeOnScrollProps } from "./components/FadeOnScroll"
+```
+
+**Key differences from single-component packages:**
+- No default export at the package level
+- No `package.exports.json` (phase 2 of the export generator)
+- Components may export sub-components, contexts, and hooks from the same folder
+- Types follow the same `{Component}{PropName}Type` naming convention
+
+### Hook-Only Package Structure
+
+Reference implementation: **nice-react-device-detector**
+
+Packages that provide only hooks and context providers — no styled-components, no tokens, no component folder structure.
+
+```
+nice-react-device-detector/
+└── src/
+    ├── hooks/
+    │   └── useDeviceDetector.ts
+    ├── components/
+    │   └── DeviceProvider/
+    └── index.ts
+```
+
+**Export pattern:**
+
+```ts
+export { useDeviceDetector, default } from "./hooks/useDeviceDetector"
+export { DeviceProvider, useDevice } from "./components/DeviceProvider"
+```
+
+**Key differences from component packages:**
+- No styled-components dependency
+- No tokens folder
+- No `package.exports.json` (phase 2 of the export generator)
+- Default export is a hook, not a component
+- Provider components live under `src/components/` even in hook-only packages
+
 ## src
 
 ### src/scripts
