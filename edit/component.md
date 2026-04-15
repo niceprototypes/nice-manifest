@@ -691,8 +691,6 @@ Do not add convenience scripts like `build:watch`, `test:watch`, `test:coverage`
 
 Only `dist` is published. Do not include `src`, `README.md`, `CHANGELOG.md`, or `LICENSE` in the `files` array — npm includes README and LICENSE automatically.
 
-Exception: `nice-react-styles` includes `["dist", "src"]` because consumers may reference source files.
-
 #### Publishing
 
 Before publishing, `file:` dependency references must be replaced with semver ranges:
