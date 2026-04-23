@@ -356,3 +356,49 @@ import Button from "nice-react-button"
 
 <Stories />
 ```
+
+---
+
+## Code Examples in MDX
+
+Story MDX files pair a live demo with a code snippet rendered by `@storybook/addon-docs` `<Source>`. Two formats are supported; pick per demo, not per file.
+
+### Option 1 — `toSource()` (auto-formatted)
+
+Import from `src/services`. Pass a tag name, a props object, and optional `children` / `raw` options.
+
+```tsx
+import { toSource } from '../../../src/services'
+
+<Source language="tsx" code={toSource("Typography", { as: "h1" }, { children: "h1" })} />
+```
+
+Formatting rules:
+
+| Inputs | Output |
+|--------|--------|
+| No props, no children | `<Tag />` |
+| No props, children | `<Tag>\n  children\n</Tag>` |
+| 1–2 props, no children | `<Tag a="1" b="2" />` — single line |
+| Anything else | multi-line — one prop per line |
+
+Options: `children` inserts a string between tags; `raw: { onClick: "handler" }` emits unquoted JSX expressions.
+
+Use when iterating many variants of the same tag via `.map()`.
+
+### Option 2 — Template literal (hand-written)
+
+```tsx
+<Source language="tsx" code={`<Flex direction="${value}">\n  {children}\n</Flex>`} />
+```
+
+Use when the opening tag must stay on one line with children, when children are a `{children}` placeholder, or when the shape does not match the `toSource()` rules.
+
+### Picking one
+
+| Scenario | Use |
+|----------|-----|
+| Array of variants mapped over a single tag | `toSource()` |
+| Children are a `{children}` placeholder | template literal |
+| Short tag with one prop that should stay on one line | template literal |
+| Prop values include raw JSX expressions or identifiers | `toSource()` with `raw` |

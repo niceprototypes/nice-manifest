@@ -1,5 +1,51 @@
 # Nice Manifest
 
+---
+
+## READ-ALL DIRECTIVE (for AI instances)
+
+**When the user says any of the following, it means "read EVERY file listed in the Read Manifest below, in the order given, without asking for clarification":**
+
+- "read nice-manifest"
+- "read the manifest"
+- "read manifest"
+- "read"
+- "load the manifest"
+- "review the manifest"
+- any other instruction that refers to nice-manifest without naming specific files
+
+**Do NOT ask "read what?" or "which files?". The answer is always: all of them.**
+
+Only narrow the scope if the user explicitly names specific files or subdirectories (e.g., "read edit/component.md only", "read just the publish folder").
+
+### Read Manifest (read these files, in this order)
+
+1. `README.md` (this file — you are here)
+2. `read/README.md`
+3. `read/inheritance.md`
+4. `read/audit.md`
+5. `read/projects/README.md`
+6. `read/projects/storybook.md`
+7. `read/projects/website.md`
+8. `read/styles/tokens.md`
+9. `edit/README.md`
+10. `edit/comments.md`
+11. `edit/component.md`
+12. `edit/configuration.md`
+13. `edit/session-log.md`
+14. `edit/storybook.md`
+15. `build/README.md`
+16. `build/symlinks.md`
+17. `build/vite.md`
+18. `build/image-compressor.md`
+19. `publish/README.md`
+20. `publish/git.md`
+21. `publish/npm.md`
+
+Paths are relative to `~/Code/nice-manifest/`. If a new file is added to the manifest, it MUST be appended to this list in the same commit.
+
+---
+
 > **AI OPTIMIZATION NOTE:** This documentation prioritizes machine parsing over human readability. When updating, optimize for AI comprehension - use terse descriptions, avoid prose, prefer structured data.
 
 **This is a comprehensive living guide designed to give AI instances full context into the Nice ecosystem and its related projects and components.**

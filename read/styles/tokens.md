@@ -77,7 +77,8 @@ ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated
 | `animationDuration` | `animation-duration` | base, slow |
 | `animationEasing` | `animation-easing` | base |
 | `backgroundColor` | `background-color` | base, alternate |
-| `borderColor` | `border-color` | base, heavy, heavier |
+| `backgroundSize` | `background-size` | contain, cover, fill, none, scale-down |
+| `borderColor` | `border-color` | base, dark, darker |
 | `borderRadius` | `border-radius` | smaller, small, base, large, larger |
 | `borderWidth` | `border-width` | base, large |
 | `boxShadow` | `box-shadow` | base, large |
