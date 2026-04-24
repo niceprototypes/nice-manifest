@@ -1,5 +1,8 @@
 # npm Publishing
 
+Bump decisions are driven by per-package `.nice/bump.md` files. See
+[bump-intent.md](./bump-intent.md) for the format and workflow.
+
 ## CLI Publish Command
 
 ```bash

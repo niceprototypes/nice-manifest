@@ -41,6 +41,7 @@ Only narrow the scope if the user explicitly names specific files or subdirector
 19. `publish/README.md`
 20. `publish/git.md`
 21. `publish/npm.md`
+22. `publish/bump-intent.md`
 
 Paths are relative to `~/Code/nice-manifest/`. If a new file is added to the manifest, it MUST be appended to this list in the same commit.
 

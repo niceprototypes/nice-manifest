@@ -6,3 +6,4 @@
 |------|----------|
 | `git.md` | Commit format, branching |
 | `npm.md` | Version bumping, publish order |
+| `bump-intent.md` | `.nice/bump.md` per-package bump-intent workflow |

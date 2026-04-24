@@ -44,6 +44,18 @@ One `claude.md/` per project root — not per subdirectory. If Claude is working
 
 ---
 
+## Bump intent (publishable packages)
+
+When a commit in a `nice-*` package is publishable (produces user-visible
+changes in the built artifact), append a `.nice/bump.md` entry in the same
+commit. See [../publish/bump-intent.md](../publish/bump-intent.md) for the
+format and the "When to write an entry" table.
+
+Commits that are purely internal (docs, tests, CI, linting) do not need an
+entry.
+
+---
+
 ## File Naming
 
 ```
