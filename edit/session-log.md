@@ -163,6 +163,48 @@ The log is a record of resolved questions and decisions, not a transcript.
 
 ---
 
+## Mistake Reporting
+
+When Claude makes a mistake during a session — wrong diagnosis, failed fix, scope creep, unauthorized action, broken assumption — it MUST append a mistake block to the current session file **inside the Claude entry where the mistake occurred**, using the format below.
+
+This is a mandatory self-report. Mistakes are recorded even when the user did not explicitly ask for them, because future Claude instances need the pattern of past failures to avoid repeating them. The goal is institutional memory of what went wrong and why.
+
+### Format
+
+Use a blockquote with bold `Mistake:` prefix. Four required fields:
+
+```md
+> **Mistake:** One-sentence summary of what went wrong.
+>
+> **Attempts:**
+> - Attempt 1: {what was tried, why it was wrong}
+> - Attempt 2: {if applicable}
+>
+> **Actual cause:** {the real root cause, once confirmed}
+>
+> **Rule for next time:** {the specific change in behavior required to avoid this pattern}
+```
+
+### When a mistake qualifies
+
+Log if any of these apply:
+- Proposed or applied a fix that did not resolve the problem.
+- Diagnosed the same problem twice with two different (wrong) causes.
+- Made an edit the user did not ask for (scope creep).
+- Ran a destructive command without approval.
+- Gave advice that contradicted documentation or current code.
+- Added complexity (a feature, an abstraction) that turned out to be unnecessary.
+
+### What a mistake entry does NOT include
+
+- Apology language. State the mistake directly.
+- Explanation of why Claude "felt" uncertain. Focus on observable behavior and the rule.
+- Any attempt to diminish the mistake ("minor issue", "small oversight"). Report it as it is.
+
+The block sits inside the Claude entry where the mistake happened — not in a separate section, and not appended to the end of the file. It belongs next to the work it describes, so future readers see the failure inline with the decision it affected.
+
+---
+
 ## Why
 
 A future Claude instance opening the project can list `claude.md/` and read the most recent files to get a fast, structured catch-up on prior decisions, user intent, and context that is not in the code itself. Date-sorted filenames make chronological replay trivial. The refactor-in-place rule keeps each entry authoritative — there is no ambiguity about which version of a question or answer is current. This complements (does not replace) git history and inline comments.
