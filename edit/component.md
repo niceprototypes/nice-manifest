@@ -446,16 +446,43 @@ import type { ButtonProps } from "./types"
   - Component token map
   - Component token getter
 
+**UI components are wrapped with `withBreakpoints` at the component-folder
+`index.ts` layer**, so every consumer of the package gets the `breakpoints`
+prop for free without per-prop plumbing. Pass the explicit prop generic to
+preserve TypeScript inference for downstream `breakpoints` entries.
+
 **Component folder `index.ts` (e.g. `src/components/Typography/index.ts`):**
 
 ```ts
-// Re-export component
-export { default } from "./Typography"
+import { withBreakpoints } from "nice-react-styles"
+import BaseTypography from "./Typography"
+import type { TypographyProps } from "./types"
 
-// Re-export all named types from types.ts, plus the namespace
+// Wrap with withBreakpoints so every prop accepts a per-viewport override
+// via the `breakpoints` array. The explicit generic pins P=TypographyProps
+// so consumer-side `(base) =>`-style callbacks (and the inferred Partial<P>
+// shape on `props`) stay strongly typed under TS 4.9+.
+const Typography = withBreakpoints<TypographyProps>(BaseTypography)
+
+export default Typography
 export * from "./types"
 export { default as TypographyTypes } from "./types"
 ```
+
+**When to skip the wrap:**
+
+- Hook-only packages (no rendered output) — see `nice-react-device-detector`.
+- Pure context providers with no DOM (`StylesProvider`, `ScrollProvider`).
+- Multi-component packages where each component would need its own wrap;
+  decide per component, not at the package level (`nice-react-scroll`).
+- Components whose every meaningful prop is already a CSS shape that Flex's
+  responsive-object covers — wrapping adds a JS subscription where the
+  styled-components media-query layer would suffice. The Flex export itself
+  is wrapped because consumers also benefit from breakpoint overrides on
+  non-CSS props (e.g. ARIA attributes), but Flex is the closest case to
+  "skipping" that's still worth wrapping.
+
+If skipping, document the reason in the package README.
 
 **Package entry `src/index.ts`:**
 
