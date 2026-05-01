@@ -526,7 +526,7 @@ Every component package must have a `package.exports.json` at the package root. 
 | `services` | string[] | optional | Function names exported from `./services`. |
 | `constants` | string[] | optional | Constant names exported from `./constants`. |
 
-Scaffolded packages (`nnl --create`) include this file and the `generate-exports` script automatically.
+Scaffolded packages (`ntk --create`) include this file and the `generate-exports` script automatically.
 
 ### Packages exempt from export generation
 
@@ -595,7 +595,7 @@ For local development, all nice-* package interdependencies use `file:` referenc
 
 ### After Modifying Dependencies
 
-Run `node ../nice-npm-link/nice-npm-link --clean-all` from the consuming project to remove duplicate React/styled-components from linked packages.
+Run `node ../nice-toolkit/nice-toolkit --clean-all` from the consuming project to remove duplicate React/styled-components from linked packages.
 
 ---
 

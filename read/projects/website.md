@@ -19,5 +19,5 @@ npm run dev:packages         # run in separate terminal for linked package rebui
 ## After Dependency Changes
 
 ```bash
-nnl --clean-all
+ntk --clean-all
 ```

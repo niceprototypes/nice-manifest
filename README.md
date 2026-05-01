@@ -2,52 +2,10 @@
 
 ---
 
-## READ-ALL DIRECTIVE (for AI instances)
-
-**When the user says any of the following, it means "read EVERY file listed in the Read Manifest below, in the order given, without asking for clarification":**
-
-- "read nice-manifest"
-- "read the manifest"
-- "read manifest"
-- "read"
-- "load the manifest"
-- "review the manifest"
-- any other instruction that refers to nice-manifest without naming specific files
-
-**Do NOT ask "read what?" or "which files?". The answer is always: all of them.**
-
-Only narrow the scope if the user explicitly names specific files or subdirectories (e.g., "read edit/component.md only", "read just the publish folder").
-
-### Read Manifest (read these files, in this order)
-
-1. `README.md` (this file — you are here)
-2. `read/README.md`
-3. `read/inheritance.md`
-4. `read/audit.md`
-5. `read/projects/README.md`
-6. `read/projects/storybook.md`
-7. `read/projects/website.md`
-8. `read/styles/tokens.md`
-9. `edit/README.md`
-10. `edit/comments.md`
-11. `edit/component.md`
-12. `edit/configuration.md`
-13. `edit/session-log.md`
-14. `edit/storybook.md`
-15. `build/README.md`
-16. `build/symlinks.md`
-17. `build/vite.md`
-18. `build/image-compressor.md`
-19. `publish/README.md`
-20. `publish/git.md`
-21. `publish/npm.md`
-22. `publish/bump-intent.md`
-
-Paths are relative to `~/Code/nice-manifest/`. If a new file is added to the manifest, it MUST be appended to this list in the same commit.
-
----
-
-> **AI OPTIMIZATION NOTE:** This documentation prioritizes machine parsing over human readability. When updating, optimize for AI comprehension - use terse descriptions, avoid prose, prefer structured data.
+> **AI OPTIMIZATION NOTES:** 
+> - This documentation prioritizes machine parsing over human readability
+> - When updating, optimize for AI comprehension by using terse descriptions, avoid prose, prefer structured data
+> - If told to "read manifest" with no further context, then read this entire project 
 
 **This is a comprehensive living guide designed to give AI instances full context into the Nice ecosystem and its related projects and components.**
 
@@ -80,12 +38,13 @@ nice-manifest/
 │   └── storybook.md               # Story file patterns
 ├── build/                         # LOCAL DEVELOPMENT
 │   ├── README.md                  # Index
-│   ├── symlinks.md                # file: references, nice-npm-link commands
+│   ├── symlinks.md                # file: references, nice-toolkit CLI commands
 │   ├── vite.md                    # nice-vite-watcher usage
 │   └── image-compressor.md        # nice-image-compressor CLI for PNG compression
 └── publish/                       # RELEASING
     ├── README.md                  # Index
-    ├── git.md                     # Commit format, branching
+    ├── git.md                     # Commit format, ntk --commit workflow
+    ├── bump-intent.md             # .nice/bump.md format, ✓ marker, --commit ↔ --publish relationship
     └── npm.md                     # Version bumping, publish order, peer deps
 ```
 
@@ -98,7 +57,7 @@ Two packages are designated as the canonical reference implementations for the e
 | Role | Package | Audit Target |
 |------|---------|--------------|
 | React component packages | **nice-react-typography** | All `nice-react-*` component packages (Button, Icon, Flex, Tile, Image, Slider, Lightbox, Input, Scroll, etc.) |
-| Configuration / CLI / build-plugin packages | **nice-npm-link** | nice-configuration, nice-vite-watcher, and similar tooling packages |
+| Configuration / CLI / build-plugin packages | **nice-toolkit** | nice-configuration, nice-vite-watcher, and similar tooling packages |
 
 When the standard bearer itself needs to change, that is a deliberate, separate decision — not something to fold into a normalization audit.
 
@@ -139,7 +98,7 @@ Foundation   →  nice-styles, nice-icons, nice-configuration
 ### After Dependency Changes
 
 ```bash
-nnl --clean-all
+ntk --clean-all
 ```
 
 ---
@@ -152,6 +111,7 @@ nnl --clean-all
 | New story | `edit/storybook.md` |
 | Build config issue | `edit/configuration.md` |
 | Linked package not updating | `build/symlinks.md` or `build/vite.md` |
+| Committing work | `publish/git.md` → `publish/bump-intent.md` |
 | Publishing | `publish/npm.md` |
 | Understanding dependencies | `read/inheritance.md` |
 | Token naming / CSS variables | `read/styles/tokens.md` |
@@ -164,6 +124,52 @@ nnl --clean-all
 ## Mandatory Prerequisites
 
 1. **Read all source files before editing.** No Claude instance may modify a nice-* package without first reading every source file in that package. Trace import chains from the entry point to verify which files the build actually uses. Duplicate or dead files exist — editing the wrong copy wastes time and produces silent failures.
+
+---
+
+## Alignment Principle
+
+The `~/nice/*` packages are not independent projects that happen to live in adjacent folders. They are one cohesive system that publishes to npm under separate names for distribution reasons only. There is no implicit reason for any two packages to drift on shared tooling — TypeScript version, build config, lint rules, or shared library versions. Treat any divergence as a defect to fix, not a per-package choice.
+
+**Rule:** Anything shared belongs in `nice-configuration` (or another foundation package). Every consuming package uses that resource at the same version. If one package needs to drift, the change is made in `nice-configuration` first and propagated to all consumers in the same operation.
+
+**Currently in scope for alignment:**
+
+| Resource | Source | Target | Status |
+|----------|--------|--------|--------|
+| TypeScript version | each package's `devDependencies` | `^6.0.0` (matches nice-configuration) | in-progress — pilot in react-lightbox first |
+| TypeScript config | each package's `tsconfig.json` | `extends "nice-configuration/typescript/react"` | partial — see deviations in `edit/configuration.md` |
+| Rollup config | each package's `rollup.config.js` | `nice-configuration/rollup → createConfiguration()` | partial — see deviations in `edit/configuration.md` |
+| Jest config | each package's `jest.config.js` | `nice-configuration/jest/react` | partial — most packages missing |
+| Lint config | each package's `.eslintrc.cjs` | TBD — currently inconsistent | not yet aligned |
+| Prettier config | each package's `.prettierrc` | TBD — currently inconsistent | not yet aligned |
+
+**Documented exceptions:**
+
+- `website-2025` — CRA 5 pins TypeScript to 4.9.5 and provides its own build pipeline. Treat as out-of-band until CRA is replaced.
+- Justified per-package deviations are listed in `edit/configuration.md → Justified Exceptions`. New deviations require an entry in that table.
+
+**Decision principle:** before adding a new dev dep or config to one package, check whether it belongs in `nice-configuration`. If it does, add it there first.
+
+---
+
+## `.nice/` Folder Convention
+
+Two artifact types exist today. Each has a fixed scope — do not mix them.
+
+| Artifact | Scope | Path | Documented in |
+|----------|-------|------|---------------|
+| Session log | workspace-wide (one location) | `manifest/.nice/sessions/YYYY-MM-DD.md` | [`edit/session-log.md`](edit/session-log.md) |
+| Bump intent | per-package | `{package}/.nice/bump.md` | [`publish/bump-intent.md`](publish/bump-intent.md) |
+
+**Sessions:** every package's session entries for a given day go in the single dated file under `manifest/.nice/sessions/`. Source-package context is preserved inline in each entry's `**Claude (HH:MM, {package}):**` marker. Per-package `.nice/sessions/` folders must not be created.
+
+**Bump intent:** each publishable package keeps its own `.nice/bump.md` because each package is independently versioned. Empty `bump.md` files are normal (placeholder until the next publishable change).
+
+### What this convention does NOT cover
+
+- One-off manual files (e.g. an ad-hoc audit a user asked Claude to write) may live under `manifest/.nice/` if they're workspace-relevant or under `{package}/.nice/` if scoped to one package. They are outside the two-artifact convention — Claude must not generalize from them or invent a third artifact category. Tooling and convention rules apply only to `sessions/` and `bump.md`.
+- Older `claude.md/` folders or per-package `.nice/sessions/` folders are migration artifacts. If encountered, fold their contents into `manifest/.nice/sessions/` and delete the source.
 
 ---
 

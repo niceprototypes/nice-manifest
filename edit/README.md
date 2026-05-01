@@ -11,5 +11,5 @@ Standards for creating new assets in the Nice ecosystem.
 | `component.md` | Component package structure, types, tokens |
 | `configuration.md` | Build config patterns (rollup, tsconfig, jest), deviation audit |
 | `comments.md` | Inline code comment standards for AI readability |
-| `session-log.md` | `claude.md/` folder convention — per-project session logs with date-serial filenames |
+| `session-log.md` | `manifest/.nice/sessions/` folder convention — single workspace-wide session log, one file per date, source package tagged inline |
 | `storybook.md` | Story file patterns for nice-storybook |

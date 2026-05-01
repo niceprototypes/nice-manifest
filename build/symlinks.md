@@ -25,24 +25,24 @@ All nice-* interdependencies use `file:` references for local development:
 
 ---
 
-## nice-npm-link
+## nice-toolkit
 
-CLI tool: `nnl` or `nice-npm-link`
+CLI tool: `ntk` (short alias) or `nice-toolkit` (long form).
 
 ### Commands
 
 | Command | Purpose |
 |---------|---------|
-| `nnl --clean-all` | Remove duplicate singletons from all linked packages |
-| `nnl --dev` | Run dev scripts in all linked packages concurrently |
-| `nnl --watch` | Watch dist folders, trigger webpack/CRA recompilation |
-| `nnl --dev --watch` | Combined (recommended for CRA projects) |
-| `nnl --unlink` | Restore packages to npm versions |
-| `nnl --clean-only <path>` | Clean specific package without linking |
-| `nnl --create <name>` | Scaffold a new package, register in registry.json |
-| `nnl --publish pkg1,pkg2` | Publish with automatic dependency cascade |
-| `nnl --publish --no-npm` | Bump, build, commit, push — skip npm publish |
-| `nnl --dry-run` | Preview changes without executing |
+| `ntk --clean-all` | Remove duplicate singletons from all linked packages |
+| `ntk --dev` | Run dev scripts in all linked packages concurrently |
+| `ntk --watch` | Watch dist folders, trigger webpack/CRA recompilation |
+| `ntk --dev --watch` | Combined (recommended for CRA projects) |
+| `ntk --unlink` | Restore packages to npm versions |
+| `ntk --clean-only <path>` | Clean specific package without linking |
+| `ntk --create <name>` | Scaffold a new package, register in registry.json |
+| `ntk --publish pkg1,pkg2` | Publish with automatic dependency cascade |
+| `ntk --publish --no-npm` | Bump, build, commit, push — skip npm publish |
+| `ntk --dry-run` | Preview changes without executing |
 
 ### Default Excluded Packages
 
@@ -57,10 +57,10 @@ Removes from linked packages to prevent duplicate instances:
 
 ```bash
 # Override defaults
-nnl --exclude react,react-dom ../my-package
+ntk --exclude react,react-dom ../my-package
 
 # Add to defaults
-nnl --add-exclude @emotion/react ../my-package
+ntk --add-exclude @emotion/react ../my-package
 ```
 
 ---
@@ -70,14 +70,14 @@ nnl --add-exclude @emotion/react ../my-package
 ### After npm install in linked package
 
 ```bash
-nnl --clean-all
+ntk --clean-all
 ```
 
 ### After modifying package.json dependencies
 
 ```bash
 npm install
-nnl --clean-all
+ntk --clean-all
 ```
 
 ### Developing with CRA/webpack
@@ -89,7 +89,7 @@ npm start
 
 Terminal 2:
 ```bash
-nnl --dev --watch
+ntk --dev --watch
 ```
 
 ### Developing with Vite
@@ -104,7 +104,7 @@ Cause: Multiple React instances from linked packages.
 
 Fix:
 ```bash
-nnl --clean-all
+ntk --clean-all
 ```
 
 ---

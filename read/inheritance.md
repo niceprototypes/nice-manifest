@@ -54,7 +54,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 │  nice-styles                          │
 │  nice-icons                           │
 │  nice-configuration                   │
-│  nice-npm-link                        │
+│  nice-toolkit                         │
 │  nice-vite-watcher                    │
 └───────────────────────────────────────┘
 ```
@@ -115,11 +115,11 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 ---
 
-### nice-npm-link (v2.1.0)
+### nice-toolkit (v2.1.0)
 
 **Role:** Development utility for local package linking and conflict resolution
 
-**Exports:** CLI commands `nice-npm-link`, `nnl`
+**Exports:** CLI commands `nice-toolkit` (long form) and `ntk` (short alias).
 
 **Key Commands:**
 - `--clean-all`: Recursively clean all file: linked packages (removes duplicate React/styled-components)
@@ -504,7 +504,7 @@ export default createConfiguration({
 | Category | Packages | Purpose |
 |----------|----------|---------|
 | **Foundation** | nice-styles, nice-icons, nice-configuration | Zero-dependency base assets |
-| **Dev Tools** | nice-npm-link, nice-vite-watcher | Development utilities |
+| **Dev Tools** | nice-toolkit, nice-vite-watcher | Development utilities |
 | **Context** | nice-react-styles | React/styled-components bridge |
 | **Layout** | nice-react-flex, nice-react-tile | Flexbox/grid layout |
 | **Content** | nice-react-typography | Text rendering |

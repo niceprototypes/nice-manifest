@@ -7,19 +7,19 @@ Bump decisions are driven by per-package `.nice/bump.md` files. See
 
 ```bash
 # Publish all changed packages (interactive prompts for version bumps and OTP)
-nnl --publish
+ntk --publish
 
 # Publish specific packages
-nnl --publish nice-styles,nice-react-styles
+ntk --publish nice-styles,nice-react-styles
 
 # Preview what would be published
-nnl --publish --dry-run
+ntk --publish --dry-run
 
 # Bump and build without publishing to npm
-nnl --publish --no-npm
+ntk --publish --no-npm
 
 # Bump, build, and skip npm (e.g., only push to GitHub)
-nnl --publish nice-react-styles --no-npm
+ntk --publish nice-react-styles --no-npm
 ```
 
 The `--publish` command handles the full workflow:
@@ -46,7 +46,7 @@ When the user specifies changed packages, the tool automatically resolves which 
 #### Input
 
 ```
-nnl --publish nice-react-styles,nice-react-button
+ntk --publish nice-react-styles,nice-react-button
 ```
 
 This means: "I made changes to nice-react-styles and nice-react-button."
@@ -350,10 +350,10 @@ options.otpWindow = parseInt(getArg(args, '--otp-window') || '30', 10)
 
 ```bash
 # Custom OTP window (default: 30 seconds)
-nnl --publish --otp-window 20
+ntk --publish --otp-window 20
 
 # Longer window for slower connections
-nnl --publish --otp-window 45
+ntk --publish --otp-window 45
 ```
 
 Passed to publisher as `publish: !options.noNpm, otpWindow: options.otpWindow`.
@@ -364,7 +364,7 @@ Passed to publisher as `publish: !options.noNpm, otpWindow: options.otpWindow`.
 
 Bottom to top per dependency chain:
 
-1. nice-styles, nice-icons, nice-npm-link, nice-vite-watcher
+1. nice-styles, nice-icons, nice-toolkit, nice-vite-watcher
 2. nice-react-styles
 3. nice-react-flex, nice-react-typography
 4. nice-react-icon, nice-react-tile

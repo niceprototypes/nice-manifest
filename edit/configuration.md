@@ -11,7 +11,7 @@ The Nice ecosystem has three types of configuration packages:
 | Category | Package | Purpose |
 |----------|---------|---------|
 | **Shareable Configs** | nice-configuration | TypeScript, Rollup, Jest configurations |
-| **CLI Tools** | nice-npm-link | Local package linking and conflict resolution |
+| **CLI Tools** | nice-toolkit | Local package linking and conflict resolution |
 | **Build Plugins** | nice-vite-watcher | Vite plugin for linked package hot-reload |
 
 ---
@@ -185,16 +185,16 @@ export { default } from "nice-configuration/jest/react"
 
 ---
 
-## nice-npm-link
+## nice-toolkit
 
-CLI tool for managing local package links and resolving dependency conflicts.
+CLI tool for managing local package links and resolving dependency conflicts. CLI binaries: `nice-toolkit` (long form) and `ntk` (short alias).
 
 ### Structure
 
 ```
-nice-npm-link/
-├── nice-npm-link.js            # CLI entry (shebang → src/index.js)
-├── registry.json               # Source of truth for ecosystem packages
+nice-toolkit/
+├── nice-toolkit               # CLI entry (shebang → src/index.js)
+├── registry.json              # Source of truth for ecosystem packages
 ├── package.json
 └── src/
     ├── index.js                # CLI router
@@ -230,15 +230,17 @@ nice-npm-link/
 ```json
 {
   "bin": {
-    "nice-npm-link": "./nice-npm-link.js",
-    "nnl": "./nice-npm-link.js"
+    "nice-toolkit": "nice-toolkit",
+    "ntk": "nice-toolkit"
   }
 }
 ```
 
+The bin script is the extensionless file `nice-toolkit` at the package root, with a `#!/usr/bin/env node` shebang. Both bin keys point at this same file.
+
 ### Registry
 
-`registry.json` is the single source of truth for which packages belong to the Nice ecosystem. Packages not in the registry are invisible to all `nnl` operations. The `--create` command is the standard way to add new packages.
+`registry.json` is the single source of truth for which packages belong to the Nice ecosystem. Packages not in the registry are invisible to all `ntk` operations. The `--create` command is the standard way to add new packages.
 
 #### Registry Schema
 
@@ -286,23 +288,23 @@ Groups are computed from `type` and `sourceAliasable` — not stored in the JSON
 
 #### Adding a New Package
 
-`nnl --create` automatically registers the package with correct metadata. Storybook and other consumers read from the registry — no manual list updates needed.
+`ntk --create` automatically registers the package with correct metadata. Storybook and other consumers read from the registry — no manual list updates needed.
 
 ### Key Commands
 
 | Command | Description |
 |---------|-------------|
-| `nnl --clean-all` | Clean all file: linked packages recursively |
-| `nnl --dev` | Run dev scripts in all linked packages |
-| `nnl --watch` | Watch dist folders and trigger recompilation |
-| `nnl --dev --watch` | Combined (recommended for CRA/webpack) |
-| `nnl --unlink` | Restore packages to npm versions |
-| `nnl --clean-only <path>` | Clean specific package without linking |
-| `nnl --create <name>` | Scaffold a new package and register it |
-| `nnl --create <name> --type component` | Scaffold a component package (default type) |
-| `nnl --publish pkg1,pkg2` | Publish with automatic dependency cascade |
-| `nnl --publish --no-npm` | Bump, build, commit, push — skip npm |
-| `nnl --publish --otp-window 45` | Custom OTP expiry window (default: 30s) |
+| `ntk --clean-all` | Clean all file: linked packages recursively |
+| `ntk --dev` | Run dev scripts in all linked packages |
+| `ntk --watch` | Watch dist folders and trigger recompilation |
+| `ntk --dev --watch` | Combined (recommended for CRA/webpack) |
+| `ntk --unlink` | Restore packages to npm versions |
+| `ntk --clean-only <path>` | Clean specific package without linking |
+| `ntk --create <name>` | Scaffold a new package and register it |
+| `ntk --create <name> --type component` | Scaffold a component package (default type) |
+| `ntk --publish pkg1,pkg2` | Publish with automatic dependency cascade |
+| `ntk --publish --no-npm` | Bump, build, commit, push — skip npm |
+| `ntk --publish --otp-window 45` | Custom OTP expiry window (default: 30s) |
 
 ### Default Excluded Packages
 
@@ -354,7 +356,7 @@ import { viteWatcher, getSourceAliases } from "nice-vite-watcher"
 | Project Type | Tool | Usage |
 |--------------|------|-------|
 | Vite/Storybook | nice-vite-watcher | Plugin in vite.config.ts |
-| CRA/webpack | nice-npm-link --dev --watch | CLI in separate terminal |
+| CRA/webpack | `nice-toolkit --dev --watch` (or `ntk --dev --watch`) | CLI in separate terminal |
 
 ---
 
@@ -559,7 +561,7 @@ Package.json:
 All configuration packages use `file:` references for interdependencies. After modifying dependencies, run:
 
 ```bash
-node ../nice-npm-link/nice-npm-link --clean-all
+node ../nice-toolkit/nice-toolkit --clean-all
 ```
 
 This removes duplicate React/styled-components from linked packages, preventing "Invalid hook call" errors.

@@ -44,7 +44,7 @@ Review all nice-* packages and verify alignment with manifest documentation.
 
 | Layer | Packages |
 |-------|----------|
-| Foundation | nice-styles, nice-icons, nice-configuration, nice-npm-link, nice-vite-watcher |
+| Foundation | nice-styles, nice-icons, nice-configuration, nice-toolkit, nice-vite-watcher |
 | Context | nice-react-styles |
 | Utility | nice-react-flex, nice-react-typography, nice-react-tile, nice-react-scroll, nice-react-slider, nice-react-device-detector, nice-react-image |
 | Feature | nice-react-icon, nice-react-button |
@@ -117,10 +117,10 @@ The following logic exists in packages but may be underdocumented or missing fro
 - Watch mode configuration with polling and debouncing
 - Jest config: `transformIgnorePatterns` excludes nice-* packages
 
-#### nice-npm-link
+#### nice-toolkit
 - Full CLI flag documentation: `--exclude`, `--add-exclude`, `--watch-dir`, `--dry-run`, `--manager`, `--skip-peer-check`
 - Keyed debouncing for file change batching
-- Backup/restore mechanism via `.nice-npm-link/linked-packages.json`
+- Backup/restore mechanism via `.nice-toolkit/linked-packages.json`
 - Watch trigger file pattern: `.symlink-trigger.js`
 - Peer dependency enforcement: moves react/react-dom/styled-components to peerDependencies
 
@@ -211,7 +211,6 @@ The following logic exists in packages but may be underdocumented or missing fro
 |---------|--------|-------|
 | nice-react-input | Stub | Placeholder component (`<div>{children}</div>`, one prop). Exclude from audits until implementation begins. |
 | nice-react-image | Stub | No git repo or GitHub remote. Needs infrastructure setup before auditing. |
-| nice-react-hook-device-detector | NPM alias | Same as nice-react-device-detector, published under different name |
 | nice-website-2023 | Legacy | Gatsby project, intentionally omitted |
 | nice-website-2024 | Legacy | Gatsby project, intentionally omitted |
 
