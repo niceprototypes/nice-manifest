@@ -2,9 +2,7 @@
 
 ## Purpose of This Document
 
-This manifest is a **comprehensive living guide** designed to give AI instances full context into the Nice ecosystem and its related projects and components. Every pattern, convention, and piece of logic that an AI assistant might need when working on nice-* packages should be documented here.
-
-**If it's not in this documentation, an AI instance won't know it exists.**
+This manifest is a **comprehensive living guide** designed to give AI instances full context into the Nice ecosystem and its related projects and components.
 
 ---
 
