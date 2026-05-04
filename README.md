@@ -20,6 +20,11 @@ Context manifest for AI assistants working on Nice Prototypes ecosystem (`nice-*
 ```
 nice-manifest/
 ├── README.md                      # THIS FILE - entry point, quick reference
+├── discipline/                    # HIGHEST-PRIORITY behavioral rules — read first
+│   ├── README.md                  # Index
+│   ├── verification.md            # Verify before claiming; tag confidence
+│   ├── disclosure.md              # Tag every factual claim by evidence source
+│   └── refactor-safety.md         # Keep every intermediate save compiling during refactors
 ├── read/                          # UNDERSTANDING existing systems
 │   ├── README.md                  # Index
 │   ├── inheritance.md             # Package hierarchy, dependency graph, layers

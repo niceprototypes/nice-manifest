@@ -61,7 +61,7 @@ When a `Guess:` or `Unverified:` claim turns out wrong:
 - Remove any change that was applied on the basis of the failed guess.
 - Do not present the next attempt as "we now know" unless the new attempt is `Verified:`.
 
-When the user catches a discipline failure (presenting a guess as fact, expanding scope, etc.), append a Mistake block to the current session log entry per `edit/session-log.md`. Do not minimize, do not deflect.
+When the user catches a discipline failure (presenting a guess as fact, expanding scope, etc.), append a Mistake block to the current session log entry per `../edit/session-log.md`. Do not minimize, do not deflect.
 
 ---
 
