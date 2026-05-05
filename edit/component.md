@@ -36,15 +36,15 @@ nice-react-{component}
     │   ├── {Component}
     │   │   ├── {Component}.test.tsx
     │   │   ├── {Component}.tsx
-    │   │   ├── index.ts
-    │   │   ├── styles.ts
-    │   │   └── types.ts
+    │   │   ├── {Component}.styles.ts
+    │   │   ├── {Component}.types.ts
+    │   │   └── index.ts
     │   └── {SubComponent} (optional)
     │       ├── {SubComponent}.test.tsx
     │       ├── {SubComponent}.tsx
-    │       ├── index.ts
-    │       ├── styles.ts
-    │       └── types.ts
+    │       ├── {SubComponent}.styles.ts
+    │       ├── {SubComponent}.types.ts
+    │       └── index.ts
     ├── utilities (optional)
     │   └── {utility1}.ts
     ├── services (optional)
@@ -61,8 +61,9 @@ nice-react-{component}
 
 1. **Components live in `src/components/{Component}/`** - never at the src root level
 2. **Each component folder contains**: the component file, types, styles, tests, and index
-3. **Utilities vs Services**: utilities are internal functions, services are exported for consumers
-4. **Tokens folder**: required for all components — token values live as JSON in nice-styles (`src/tokens/component/{name}/index.json`), and each component package provides a thin `get{Component}Token()` wrapper around `getComponentToken()` from nice-styles
+3. **Supporting files are prefixed with the component name**: `{Component}.styles.ts`, `{Component}.types.ts`, `{Component}.helpers.ts`, `{Component}.services.ts`, etc. Never bare `styles.ts` / `types.ts`. **Why:** an editor open on `Button.styles.ts` and `Tile.styles.ts` is unambiguous; two tabs both labelled `styles.ts` aren't. Grep, find, and AI search land directly on the right file. **How to apply:** any non-`index.ts`, non-`{Component}.tsx` file inside a component folder gets the component-name prefix. PascalCase sibling files (sub-components like `Sticky/StickyProvider.tsx`) keep their own name — they are themselves components, not supporting files.
+4. **Utilities vs Services**: utilities are internal functions, services are exported for consumers
+5. **Tokens folder**: required for all components — token values live as JSON in nice-styles (`src/tokens/component/{name}/index.json`), and each component package provides a thin `get{Component}Token()` wrapper around `getComponentToken()` from nice-styles
 
 ### Multi-Component Package Structure
 
@@ -88,8 +89,8 @@ nice-react-scroll/
 
 ```ts
 export { default as ScrollProvider, ScrollContext } from "./components/ScrollProvider"
-export type { ScrollProviderProps } from "./components/ScrollProvider/types"
-export { default as ScrollProviderTypes } from "./components/ScrollProvider/types"
+export type { ScrollProviderProps } from "./components/ScrollProvider/ScrollProvider.types"
+export { default as ScrollProviderTypes } from "./components/ScrollProvider/ScrollProvider.types"
 
 export { useScroll } from "./hooks/useScroll"
 
@@ -250,15 +251,16 @@ export const ICON_NAMES = [...] as const
 export const DEFAULT_SIZE = "base"
 ```
 
-### src/styles.ts
+### {Component}.styles.ts
 
+- Co-located with the component file (e.g., `Button.styles.ts` alongside `Button.tsx` in the component folder)
 - All styled-components declarations
 - Named exports only
 - Styled components are internal only - never export them from the package
 
 ### {Component}.types.ts
 
-- Co-located with the component file (e.g., `types.ts` alongside `Button.tsx` in the component folder)
+- Co-located with the component file (e.g., `Button.types.ts` alongside `Button.tsx` in the component folder)
 - All prop types abstracted as `{Component}{PropName}Type` - never hardcode types like `boolean` or `string` directly in props
 - Uses declaration merging with default export for type namespace
 
