@@ -373,7 +373,7 @@ Token values originate from three JSON module files in `nice-styles/src/tokens/`
 | File | Condition | JSON Shape | Default |
 |------|-----------|------------|---------|
 | `module.json` | None (static) | `{ group: { variant: value } }` | Always active |
-| `module.size.json` | Breakpoint | `{ breakpoint: { group: { variant: value } } }` | `mobile` is default |
+| `module.size.json` | Breakpoint | `{ breakpoint: { group: { variant: value } } }` | `phone` is default |
 | `module.color.json` | Mode | `{ mode: { group: { variant: value } } }` | `day` is default |
 
 ### module.json — Static Tokens
@@ -397,22 +397,27 @@ Flat key-value pairs. No conditions. Every variant produces one CSS variable in 
 
 ### module.size.json — Breakpoint Tokens
 
-Top-level keys are breakpoints (`mobile`, `tablet`, `desktop`). Mobile is the default — values apply without a media query. Higher breakpoints override via `min-width` media queries.
+Top-level keys are breakpoints (`phone`, `tablet`, `laptop`, `desktop`). Phone is the default — values apply without a media query. Higher breakpoints override via `min-width` media queries. Thresholds: phone 0–640, tablet 641–1279, laptop 1280–1719, desktop 1720+.
 
 ```json
 {
-  "mobile": { "fontSize": { "base": "14px" } },
+  "phone": { "fontSize": { "base": "14px" } },
   "tablet": {},
-  "desktop": { "fontSize": { "base": "16px" } }
+  "laptop": { "fontSize": { "base": "16px" } },
+  "desktop": { "fontSize": { "base": "18px" } }
 }
 ```
 
 ```css
 :root {
   --np--font-size--base: 14px;
-  --np--font-size--base--desktop: 16px;
+  --np--font-size--base--laptop: 16px;
+  --np--font-size--base--desktop: 18px;
 }
 @media (min-width: 1280px) {
+  :root { --np--font-size--base: var(--np--font-size--base--laptop); }
+}
+@media (min-width: 1720px) {
   :root { --np--font-size--base: var(--np--font-size--base--desktop); }
 }
 ```
@@ -449,7 +454,7 @@ Three scripts read these files by hardcoded path (no glob discovery):
 | `scripts/generateCss/` | All three modules + component.json | `dist/variables.css`, `dist/color-scheme.css`, `dist/css/{group}.css` |
 | `scripts/generateTypes.ts` | All three modules | `src/generated/types.ts` |
 
-Merge strategy in CSS generation: `{ ...coreTokens, ...colorDay, ...sizeMobile }` — later keys win on collision. This merged map drives the semantic `:root` variables.
+Merge strategy in CSS generation: `{ ...coreTokens, ...colorDay, ...sizePhone }` — later keys win on collision. This merged map drives the semantic `:root` variables.
 
 ---
 
@@ -465,17 +470,17 @@ When calling `createTokens()` from nice-react-styles, variant values can be one 
 
 ### Responsive (breakpoint object)
 
-Detected by `isBreakpointValue()` — checks for `mobile` key.
+Detected by `isBreakpointValue()` — checks for `phone` key.
 
 ```ts
-{ gap: { base: { mobile: "24px", desktop: "32px" } } }
+{ gap: { base: { phone: "24px", laptop: "32px" } } }
 ```
 
-Generates a mobile-first default + breakpoint primitives + media query reassignment.
+Generates a phone-first default + breakpoint primitives + media query reassignment.
 
 ### Mode-aware (mode object)
 
-Detected by `isModeValue()` — checks for `day` key. Checked after breakpoint (if an object has both `mobile` and `day`, breakpoint wins).
+Detected by `isModeValue()` — checks for `day` key. Checked after breakpoint (if an object has both `phone` and `day`, breakpoint wins).
 
 ```ts
 { headerColor: { base: { day: "#000", night: "#fff" } } }
@@ -489,7 +494,7 @@ Generates semantic variable + day/night primitives + `prefers-color-scheme` medi
 createTokens({
   gap: {
     none: "0",                                  // static
-    base: { mobile: "24px", desktop: "32px" },  // responsive
+    base: { phone: "24px", laptop: "32px" },    // responsive
   },
   headerColor: {
     base: { day: "#000", night: "#fff" },       // mode-aware

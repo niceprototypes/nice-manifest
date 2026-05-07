@@ -99,7 +99,7 @@ The following logic exists in packages but may be underdocumented or missing fro
 - `getTokenFromMap()` engine in `src/utilities/` (used by getToken and getComponentToken)
 - `formatError()` in `src/utilities/` for structured error messages
 - Layout types: `SpacingType`, `SpacingShorthandType`, `SpacingDefinitionType`, `SpacingResponsiveType`
-- Breakpoint system: mobile (640px), tablet (641px), desktop (1280px)
+- Breakpoint system: phone (0–640px), tablet (641–1279px), laptop (1280–1719px), desktop (1720px+)
 - Auto-generated files in `src/generated/`: `types.ts`, `tokensData.ts`, `componentTokensData.ts` from `src/tokens/` JSON
 - Build scripts: `scripts/generateTokens.ts`, `scripts/generateTypes.ts`, `scripts/generateCss.ts`, `scripts/postBuild.ts`
 
@@ -141,9 +141,9 @@ The following logic exists in packages but may be underdocumented or missing fro
 ### Utility Layer
 
 #### nice-react-flex
-- `normalizeProps()` helper: converts simple values to `{ mobile: value }` format
+- `normalizeProps()` helper: converts simple values to `{ phone: value }` format
 - `parseSpacingShorthand()`: CSS-like shorthand parsing (1-4 values)
-- Mobile-first responsive: simple values only apply at mobile breakpoint
+- Phone-first responsive: simple values only apply at phone breakpoint
 - `styleFlex()` service generates CSS for each breakpoint
 
 #### nice-react-typography

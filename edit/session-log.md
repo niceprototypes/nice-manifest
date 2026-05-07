@@ -42,13 +42,16 @@ If a refinement arrives after Claude has already moved on to a later question, s
 ```
 ~/nice/manifest/.nice/
 ├── bump.md                    # manifest's own bump intent (rare; manifest is not a published package)
-└── sessions/                  # SINGLE centralized session log for every package
-    ├── 2026-04-21.md
-    ├── 2026-04-22.md
-    └── 2026-04-23.md
+├── sessions/                  # SINGLE centralized session log for every package
+│   ├── 2026-04-21.md
+│   ├── 2026-04-22.md
+│   └── 2026-04-23.md
+└── reports/                   # SINGLE centralized location for ad-hoc audits and analyses
+    ├── rimraf-adoption.md
+    └── third-party-libraries.md
 ```
 
-There is exactly one `sessions/` folder in the entire local workspace — `manifest/.nice/sessions/`. Other packages must **not** create their own `.nice/sessions/` folder. If one is found, merge its contents into the central log and delete the per-package folder.
+There is exactly one `sessions/` folder and one `reports/` folder in the entire local workspace — both under `manifest/.nice/`. Other packages must **not** create their own `.nice/sessions/` or `.nice/reports/` folder. If one is found, merge its contents into the central location and delete the per-package folder. The previous top-level `manifest/.reports/` location is also a migration artifact — if encountered, move its contents into `manifest/.nice/reports/`.
 
 A package's own `.nice/` folder still exists for **bump intent only** (`bump.md`). Sessions do not live there.
 

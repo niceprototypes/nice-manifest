@@ -18,7 +18,7 @@ Plain text. One entry per line. Bracketed timestamp, optional `✓`
 consumed marker, level, colon, commit message:
 
 ```
-[2026-04-25 21:50] major: Rename breakpoint identifiers mobile/tablet/desktop to small/medium/large
+[2026-04-25 21:50] major: Rename breakpoint identifiers small/medium/large to phone/tablet/laptop and add desktop
 [2026-04-25 21:51] minor: Add useBreakpoint hook
 [2026-04-25 21:52] ✓ patch: Re-export BREAKPOINT_* constants
 ```

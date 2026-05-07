@@ -24,6 +24,7 @@ nice-manifest/
 │   ├── README.md                  # Index
 │   ├── verification.md            # Verify before claiming; tag confidence
 │   ├── disclosure.md              # Tag every factual claim by evidence source
+│   ├── typed-values.md            # Never invent a typed/enumerated value — read the registry
 │   └── refactor-safety.md         # Keep every intermediate save compiling during refactors
 ├── read/                          # UNDERSTANDING existing systems
 │   ├── README.md                  # Index
@@ -160,21 +161,24 @@ The `~/nice/*` packages are not independent projects that happen to live in adja
 
 ## `.nice/` Folder Convention
 
-Two artifact types exist today. Each has a fixed scope — do not mix them.
+Three artifact types exist today. Each has a fixed scope — do not mix them.
 
 | Artifact | Scope | Path | Documented in |
 |----------|-------|------|---------------|
 | Session log | workspace-wide (one location) | `manifest/.nice/sessions/YYYY-MM-DD.md` | [`edit/session-log.md`](edit/session-log.md) |
+| Report | workspace-wide (one location) | `manifest/.nice/reports/{slug}.md` | this section |
 | Bump intent | per-package | `{package}/.nice/bump.md` | [`publish/bump-intent.md`](publish/bump-intent.md) |
 
 **Sessions:** every package's session entries for a given day go in the single dated file under `manifest/.nice/sessions/`. Source-package context is preserved inline in each entry's `**Claude (HH:MM, {package}):**` marker. Per-package `.nice/sessions/` folders must not be created.
+
+**Reports:** ad-hoc audits, analyses, or recommendation documents the user asks Claude to produce live as standalone files under `manifest/.nice/reports/`. One file per report, kebab-case slug (`third-party-libraries.md`, `rimraf-adoption.md`). Reports are workspace-wide — package-scoped findings still belong here, with the package named in the body. Do not create a `reports/` folder under any individual package's `.nice/`.
 
 **Bump intent:** each publishable package keeps its own `.nice/bump.md` because each package is independently versioned. Empty `bump.md` files are normal (placeholder until the next publishable change).
 
 ### What this convention does NOT cover
 
-- One-off manual files (e.g. an ad-hoc audit a user asked Claude to write) may live under `manifest/.nice/` if they're workspace-relevant or under `{package}/.nice/` if scoped to one package. They are outside the two-artifact convention — Claude must not generalize from them or invent a third artifact category. Tooling and convention rules apply only to `sessions/` and `bump.md`.
-- Older `claude.md/` folders or per-package `.nice/sessions/` folders are migration artifacts. If encountered, fold their contents into `manifest/.nice/sessions/` and delete the source.
+- Reports are not session entries. A report is a single durable document on a topic; a session entry is a paraphrased Q&A bound to a date. If the user asks for an audit, write a report. If the user asks a question that resolves into understanding, append a session entry. Do not duplicate the same content across both.
+- Older `claude.md/` folders, per-package `.nice/sessions/` folders, or a top-level `manifest/.reports/` folder are migration artifacts. If encountered, move their contents into the corresponding `manifest/.nice/{sessions,reports}/` location and delete the source.
 
 ---
 

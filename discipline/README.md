@@ -10,6 +10,7 @@ Behavioral rules for AI instances working in this ecosystem. These are not phase
 |------|----------|
 | `verification.md` | Verify before claiming. Tag every claim by confidence (`Verified` / `Unverified` / `Guess` / `Unknown`). No speculative fixes without user confirmation. |
 | `disclosure.md` | Tag every factual claim by evidence source (`[verified: <source>]` / `[inferred from <source>]` / `[guess]`). Hedges like "probably" / "likely" do not substitute for the tag. |
+| `typed-values.md` | Never invent a value that has an enumerated type or registry definition. Read the type or registry first; tagging a guess does not authorize it. |
 | `refactor-safety.md` | Cross-file refactors must keep every intermediate save in a compiling state. Add the new before deleting the old. Remove instances before removing imports. |
 
 ## Why a separate folder
