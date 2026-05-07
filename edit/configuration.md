@@ -275,6 +275,7 @@ All consumers import from this module instead of reading `registry.json` directl
 |----------|---------|---------|
 | `getPackageNames()` | `string[]` | All package names in tier order |
 | `getTiers()` | `string[][]` | Tier arrays of name strings (backward compat) |
+| `getTierIndexMap()` | `Map<string, number>` | Name → tier-index lookup for callers that group or sort by tier |
 | `getAllPackages()` | `object[]` | All entries with full metadata |
 | `getByType(type)` | `object[]` | Filter by package type |
 | `getByGroup(group)` | `object[]` | Shorthand group queries |
