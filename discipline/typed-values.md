@@ -2,7 +2,7 @@
 
 **Highest-priority rule for AI instances writing calls into typed APIs.** Read alongside `verification.md` and `disclosure.md`.
 
-This rule exists because a Claude instance hallucinated `getToken("lineHeight", "small")` and `getToken("backgroundColor", "lighter")` into production website code on launch day. Both variant names looked plausible. Neither existed in the registry. The site threw at module evaluation and stayed broken for 30+ minutes across multiple deploys while the failure mode was tracked back to invented values.
+This rule exists because a Claude instance hallucinated `getReactToken("lineHeight", "small")` and `getReactToken("backgroundColor", "lighter")` into production website code on launch day. Both variant names looked plausible. Neither existed in the registry. The site threw at module evaluation and stayed broken for 30+ minutes across multiple deploys while the failure mode was tracked back to invented values.
 
 The point: **in strongly typed code, the legal values are precomputed and sitting on disk.** Generating a value rather than reading it is choosing local-token-cheapness over correctness, and the cost is asymmetric — a few tokens saved on the read, a launch-day outage paid by the user.
 
@@ -16,7 +16,7 @@ If a function signature, type union, or registry has a finite set of legal input
 
 This applies to, at minimum:
 
-- Token registries (`getToken`, `getComponentToken`, `getConstant`, etc.)
+- Token registries (`getReactToken`, `getComponentToken`, `getConstant`, etc.)
 - Union-typed props on components (`size`, `color`, `mode`, `variant`)
 - Enum constants
 - Config keys with documented allowed values
@@ -28,7 +28,7 @@ This applies to, at minimum:
 
 ### 1. Read the type or registry before writing the call
 
-Before writing `getToken("group", "variant")`:
+Before writing `getReactToken("group", "variant")`:
 
 - Read `nice-styles/src/generated/types.ts` for the variant union, OR
 - Read `nice-styles/src/tokens/{module}.json` for the live values, OR
@@ -48,7 +48,7 @@ Pattern-matched recall — "lineHeight usually has a small" — is not knowledge
 tsc --noEmit
 ```
 
-If the call site does not compile, **do not deploy.** If `getToken`'s signature in this project widens variant names to `string` (and so accepts garbage at compile time), that is itself a finding — surface it to the user, do not fill the gap with a guess.
+If the call site does not compile, **do not deploy.** If `getReactToken`'s signature in this project widens variant names to `string` (and so accepts garbage at compile time), that is itself a finding — surface it to the user, do not fill the gap with a guess.
 
 ### 4. Tagging a guess does not authorize the guess
 

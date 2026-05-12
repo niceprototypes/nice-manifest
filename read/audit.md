@@ -96,7 +96,7 @@ The following logic exists in packages but may be underdocumented or missing fro
 #### nice-styles
 - `getBreakpoint()` service with media query generation
 - `camelToKebab()` and `camelToScreaming()` in `src/utilities/`
-- `getTokenFromMap()` engine in `src/utilities/` (used by getToken and getComponentToken)
+- `getTokenFromMap()` engine in `src/utilities/` (used by getReactToken and getComponentToken)
 - `formatError()` in `src/utilities/` for structured error messages
 - Layout types: `SpacingType`, `SpacingShorthandType`, `SpacingDefinitionType`, `SpacingResponsiveType`
 - Breakpoint system: phone (0–640px), tablet (641–1279px), laptop (1280–1719px), desktop (1720px+)

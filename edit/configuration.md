@@ -384,7 +384,7 @@ Configuration stories use a simplified pattern compared to component stories:
 import type { Meta, StoryObj } from "@storybook/react"
 import Typography from "nice-react-typography"
 import Flex from "nice-react-flex"
-import { getToken } from "nice-react-styles"
+import { getReactToken } from "nice-react-styles"
 import { generateDescriptionString } from "../../src/services"
 
 // Empty demo component (no visual component to render)
@@ -433,9 +433,9 @@ const CodeBlock = ({ children }: { children: string }) => (
     code
     style={{
       display: "block",
-      backgroundColor: getToken("backgroundColor", "alternate").var,
-      padding: getToken("gap", "base").var,
-      borderRadius: getToken("borderRadius", "base").var,
+      backgroundColor: getReactToken("backgroundColor", "alternate").var,
+      padding: getReactToken("gap", "base").var,
+      borderRadius: getReactToken("borderRadius", "base").var,
       whiteSpace: "pre",
       overflow: "auto",
     }}

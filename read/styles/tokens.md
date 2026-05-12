@@ -46,17 +46,17 @@ Design token naming patterns in nice-styles.
 ### Token Groups (camelCase)
 
 ```ts
-getToken("fontSize")
-getToken("foregroundColor")
-getToken("borderRadius")
+getReactToken("fontSize")
+getReactToken("foregroundColor")
+getReactToken("borderRadius")
 ```
 
 ### Token Items (camelCase or kebab)
 
 ```ts
-getToken("fontSize", "base")
-getToken("fontSize", "large")
-getToken("foregroundColor", "link")
+getReactToken("fontSize", "base")
+getReactToken("fontSize", "large")
+getReactToken("foregroundColor", "link")
 ```
 
 ### Type Names (PascalCase + Type suffix)
@@ -153,27 +153,27 @@ nice-styles/src/generated/
 
 In React projects, import all nice-styles assets from `nice-react-styles`, which re-exports the nice-styles public API. Import directly from `nice-styles` only when working outside the React framework (e.g., vanilla JS, build scripts, non-React tooling).
 
-**Exception:** `getCoreToken` is only available from `nice-styles` directly. In React projects, use `getToken` from `nice-react-styles` instead — it provides the same `TokenResult` shape and also supports runtime-registered custom tokens.
+**Exception:** `getToken` is only available from `nice-styles` directly. In React projects, use `getReactToken` from `nice-react-styles` instead — it provides the same `TokenResult` shape and also supports runtime-registered custom tokens.
 
 ```ts
-// React projects — use getToken (covers core + custom tokens)
-import { getToken, getBreakpoint, type FontSizeType } from "nice-react-styles"
+// React projects — use getReactToken (covers core + custom tokens)
+import { getReactToken, getBreakpoint, type FontSizeType } from "nice-react-styles"
 
-// Non-React contexts — getCoreToken is available here
-import { getCoreToken, getBreakpoint, type FontSizeType } from "nice-styles"
+// Non-React contexts — getToken is available here
+import { getToken, getBreakpoint, type FontSizeType } from "nice-styles"
 ```
 
 ---
 
-## getCoreToken (nice-styles only)
+## getToken (nice-styles only)
 
-Static core token accessor. Returns CSS variable name and raw value from core token data only. **Not re-exported from nice-react-styles.** In React projects, use `getToken` from `nice-react-styles` instead — it returns the same `TokenResult` shape and also resolves runtime-registered custom tokens.
+Static core token accessor. Returns CSS variable name and raw value from core token data only. **Not re-exported from nice-react-styles.** In React projects, use `getReactToken` from `nice-react-styles` instead — it returns the same `TokenResult` shape and also resolves runtime-registered custom tokens.
 
 ```ts
 // Non-React contexts only
-import { getCoreToken } from "nice-styles"
+import { getToken } from "nice-styles"
 
-getCoreToken("fontSize", "base")
+getToken("fontSize", "base")
 // → { key: "--np--font-size--base", var: "var(--np--font-size--base)", value: "16px" }
 ```
 
@@ -190,12 +190,12 @@ interface TokenResult {
 ### Usage
 
 ```ts
-// React projects — use getToken instead
-import { getToken } from "nice-react-styles"
+// React projects — use getReactToken instead
+import { getReactToken } from "nice-react-styles"
 
 const StyledDiv = styled.div`
-  font-size: ${getToken("fontSize", "large").var};
-  color: ${getToken("foregroundColor", "medium").var};
+  font-size: ${getReactToken("fontSize", "large").var};
+  color: ${getReactToken("foregroundColor", "medium").var};
 `
 ```
 
@@ -272,23 +272,23 @@ TypeScript enforces valid prefixes via `ComponentPrefix` (auto-generated from `s
 
 Runtime token registry that extends nice-styles' static tokens. Core tokens are available immediately; custom tokens are registered via `createTokens()` or `registerTokens()`.
 
-### getToken (nice-react-styles) — Unified Token Accessor
+### getReactToken (nice-react-styles) — Unified Token Accessor
 
 Queries the runtime registry. Core tokens work immediately. Custom tokens available after registration.
 
 ```ts
-import { getToken } from "nice-react-styles"
+import { getReactToken } from "nice-react-styles"
 
 // Core tokens (always available)
-getToken("fontSize", "base")          // → --np--font-size--base
-getToken("foregroundColor", "link")   // → --np--foreground-color--link
+getReactToken("fontSize", "base")          // → --np--font-size--base
+getReactToken("foregroundColor", "link")   // → --np--foreground-color--link
 
 // Mode-specific primitives
-getToken("backgroundColor", "base", "day")    // → --np--background-color--base--day
-getToken("backgroundColor", "base", "night")  // → --np--background-color--base--night
+getReactToken("backgroundColor", "base", "day")    // → --np--background-color--base--day
+getReactToken("backgroundColor", "base", "night")  // → --np--background-color--base--night
 
 // Custom tokens (after registration)
-getToken("brandColor", "primary")     // → --np--brand-color--primary
+getReactToken("brandColor", "primary")     // → --np--brand-color--primary
 ```
 
 ### createTokens — Register + Generate CSS
@@ -296,7 +296,7 @@ getToken("brandColor", "primary")     // → --np--brand-color--primary
 Registers app-level token overrides and custom tokens in the runtime registry. Returns a GlobalStyles component (no-op if CSS already injected).
 
 ```ts
-import { createTokens, getToken } from "nice-react-styles"
+import { createTokens, getReactToken } from "nice-react-styles"
 
 const AppTokenMap = {
   // Override core tokens
@@ -312,7 +312,7 @@ const AppTokenMap = {
 } as const
 
 export const { GlobalStyles: AppStyles } = createTokens(AppTokenMap)
-export { getToken }
+export { getReactToken }
 ```
 
 **Generated CSS:**
@@ -353,12 +353,12 @@ hasToken("brandColor")  // true (after registration)
 hasToken("unknown")     // false
 ```
 
-### getTokenNames — List All Tokens
+### getReactTokenNames — List All Tokens
 
 ```ts
-import { getTokenNames } from "nice-react-styles"
+import { getReactTokenNames } from "nice-react-styles"
 
-getTokenNames()
+getReactTokenNames()
 // ["fontSize", "foregroundColor", "gap", "brandColor", ...]
 ```
 
