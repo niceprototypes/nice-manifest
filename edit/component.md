@@ -698,11 +698,12 @@ Every `nice-react-*` package.json must follow this structure exactly. Deviations
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build",
-    "prepare": "npm run build"
+    "prepublishOnly": "npm run build"
   }
 }
 ```
+
+Do **not** add `"prepare": "npm run build"`. npm runs `prepare` on every `file:` install in every consumer, which cascades into a full rebuild of every linked package on every `npm i` in every project. `prepublishOnly` covers the publish path; `ntk --build-all` covers the explicit workspace rebuild. See `manifest/.nice/reports/npm-install-breaks-consumers.md`.
 
 Optional scripts (include only if applicable):
 - `"test": "jest"` — only if jest config and test files exist

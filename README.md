@@ -101,11 +101,17 @@ Foundation   →  nice-styles, nice-icons, nice-configuration
 "nice-styles": "file:../nice-styles"
 ```
 
-### After Dependency Changes
+### Workspace operations
+
+Three non-overlapping `ntk` commands cover the workspace-level concerns:
 
 ```bash
-ntk --clean-all
+ntk --clean-caches    # kill dev-server ports + wipe consumer build-tool caches
+ntk --clean-all       # remove duplicate singletons from linked packages
+ntk --build-all       # rebuild every linked package's dist in tier order
 ```
+
+After dependency changes, run `ntk --clean-all`. After source changes that consumers don't see, `ntk --clean-caches`. After a foundation refactor or on a fresh clone, `ntk --build-all`. Full topology and recipes in `build/symlinks.md` and `.nice/reports/caches.md`.
 
 ---
 

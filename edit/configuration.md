@@ -293,14 +293,23 @@ Groups are computed from `type` and `sourceAliasable` — not stored in the JSON
 
 ### Key Commands
 
+**Workspace-level triad** (cache / singletons / build) — distinct layers, non-overlapping targets. See `manifest/.nice/reports/caches.md`.
+
 | Command | Description |
 |---------|-------------|
-| `ntk --clean-all` | Clean all file: linked packages recursively |
+| `ntk --clean-caches` | Wipe `node_modules/.cache` + `.vite` across every consumer; first kills any process bound to a dev-server port discovered from `.env` `PORT=` entries or `package.json` `-p`/`--port` flags. `--no-kill` to skip the kill phase. |
+| `ntk --clean-all` | Recursively clean singletons (react, styled-components, etc.) from all linked packages' `node_modules` |
+| `ntk --build-all` | Walk registry tier order and run `npm run build` in every linked nice-* package |
+
+**Linking / dev / publish**
+
+| Command | Description |
+|---------|-------------|
 | `ntk --dev` | Run dev scripts in all linked packages |
 | `ntk --watch` | Watch dist folders and trigger recompilation |
 | `ntk --dev --watch` | Combined (recommended for CRA/webpack) |
 | `ntk --unlink` | Restore packages to npm versions |
-| `ntk --clean-only <path>` | Clean specific package without linking |
+| `ntk --clean-only <path>` | Clean singletons in a specific package without linking |
 | `ntk --create <name>` | Scaffold a new package and register it |
 | `ntk --create <name> --type component` | Scaffold a component package (default type) |
 | `ntk --publish pkg1,pkg2` | Publish with automatic dependency cascade |
