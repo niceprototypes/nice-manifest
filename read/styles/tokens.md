@@ -451,7 +451,7 @@ Three scripts read these files by hardcoded path (no glob discovery):
 | Script | Reads | Outputs |
 |--------|-------|---------|
 | `scripts/generateTokens.ts` | All three modules + component.json | `src/generated/tokensData.ts`, `colorTokensData.ts`, `sizeTokensData.ts`, `componentTokensData.ts` |
-| `scripts/generateCss/` | All three modules + component.json | `dist/variables.css`, `dist/color-scheme.css`, `dist/css/{group}.css` |
+| `scripts/generateCss/` | All three modules + component.json | `dist/variables.css`, `dist/css/{group}.css` |
 | `scripts/generateTypes.ts` | All three modules | `src/generated/types.ts` |
 
 Merge strategy in CSS generation: `{ ...coreTokens, ...colorDay, ...sizePhone }` — later keys win on collision. This merged map drives the semantic `:root` variables.
