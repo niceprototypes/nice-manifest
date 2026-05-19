@@ -37,7 +37,7 @@ before committing each.
 ## Before Committing
 
 ```bash
-ntk --clean-all
+ntk --dedupe
 npm run build
 npm test
 ```

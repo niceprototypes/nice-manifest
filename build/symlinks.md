@@ -38,10 +38,10 @@ These three operations target distinct layers and do not overlap. Each addresses
 | Command | Target | Reach for it when |
 |---------|--------|-------------------|
 | `ntk --clean-caches` | each consumer's `node_modules/.cache` + `.vite`; also kills processes on discovered dev-server ports (parsed from `.env` `PORT=` and `package.json` `-p`/`--port` flags) | Dev server is serving stale code after a linked-package source change |
-| `ntk --clean-all` | duplicate singletons (react, styled-components, etc.) inside each linked package's `node_modules` | "Invalid hook call" or styled-components context mismatch |
-| `ntk --build-all` | walks registry tier order, runs `npm run build` in every linked nice-* package | Fresh clone; after `--clean-all`; after a foundation-package refactor |
+| `ntk --dedupe` | duplicate singletons (react, styled-components, etc.) inside each linked package's `node_modules` | "Invalid hook call" or styled-components context mismatch |
+| `ntk --build-all` | walks registry tier order, runs `npm run build` in every linked nice-* package | Fresh clone; after `--dedupe`; after a foundation-package refactor |
 
-Common reset: `ntk --clean-caches && ntk --clean-all && ntk --build-all`, then restart any dev server.
+Common reset: `ntk --clean-caches && ntk --dedupe && ntk --build-all`, then restart any dev server.
 
 `ntk --clean-caches --no-kill` skips the port-kill phase (CI / scripted contexts).
 
@@ -97,14 +97,14 @@ The `prepare` hook is no longer wired into nice-* packages (see `manifest/.nice/
 ### After npm install in a linked package
 
 ```bash
-ntk --clean-all
+ntk --dedupe
 ```
 
 ### After modifying package.json dependencies
 
 ```bash
 npm install
-ntk --clean-all
+ntk --dedupe
 ```
 
 ### Dev server is serving stale code after a linked-package source change
@@ -139,7 +139,7 @@ Cause: Multiple React instances from linked packages.
 
 Fix:
 ```bash
-ntk --clean-all
+ntk --dedupe
 ```
 
 ---

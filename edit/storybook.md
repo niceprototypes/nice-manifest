@@ -117,27 +117,27 @@ Contains helper logic, constants, and demo components used across stories:
 
 ```tsx
 // Flex.services.ts
-import { getReactToken } from "nice-react-styles"
+import { getToken } from "nice-react-styles"
 
 export const twoDots = [
   {
-    color: getReactToken("foregroundColor", "error").var,
-    height: getReactToken("cellHeight", "smaller").var,
-    width: getReactToken("cellHeight", "smaller").var,
+    color: getToken("foregroundColor", "error"),
+    height: getToken("cellHeight", "smaller"),
+    width: getToken("cellHeight", "smaller"),
   },
   {
-    color: getReactToken("foregroundColor", "warning").var,
-    height: getReactToken("cellHeight", "smaller").var,
-    width: getReactToken("cellHeight", "smaller").var,
+    color: getToken("foregroundColor", "warning"),
+    height: getToken("cellHeight", "smaller"),
+    width: getToken("cellHeight", "smaller"),
   },
 ]
 
 export const threeDots = [
   ...twoDots,
   {
-    color: getReactToken("foregroundColor", "link").var,
-    height: getReactToken("cellHeight", "smaller").var,
-    width: getReactToken("cellHeight", "smaller").var,
+    color: getToken("foregroundColor", "link"),
+    height: getToken("cellHeight", "smaller"),
+    width: getToken("cellHeight", "smaller"),
   },
 ]
 ```
@@ -267,7 +267,7 @@ Tokens/
 React/
 ├── Styles/
 │   ├── StylesProvider
-│   ├── getReactToken
+│   ├── getToken
 │   └── createTokens
 ├── Components/
 │   ├── Button, Flex, Icon, Lightbox

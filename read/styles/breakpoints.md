@@ -2,7 +2,7 @@
 
 Pixel thresholds for responsive `@media` queries. One source of truth feeds
 both the runtime getters (`getBreakpoint`, `getBreakpointValue`) and the
-build-time `@media` literals baked into `dist/variables.css`.
+build-time `@media` literals baked into `dist/tokens.css`.
 
 ---
 
@@ -41,9 +41,9 @@ cd nice-styles && npm run build
 
 The generator writes `src/generated/breakpointsData.ts`, which feeds the
 runtime `BREAKPOINTS` const and the build-time `@media (min-width: …)`
-literals in `dist/variables.css`.
+literals in `dist/tokens.css`.
 
-After rebuild: hard-reload the consumer so the new `variables.css` is fetched.
+After rebuild: hard-reload the consumer so the new `tokens.css` is fetched.
 
 ---
 
@@ -67,7 +67,7 @@ Effects, in this order:
    any other reader pick up the new values immediately.
 2. Re-emits the size-token `@media` cascade and injects it into a
    `<style data-nice-breakpoints>` element appended to `<head>`. The injected
-   stylesheet has higher cascade weight than `variables.css` (later in source
+   stylesheet has higher cascade weight than `tokens.css` (later in source
    order), so semantic vars start switching at the new thresholds.
 
 Omitted breakpoints are preserved.
@@ -93,7 +93,7 @@ createTokens({
 
 | You want… | Use |
 |-----------|-----|
-| Frozen thresholds shipped in `dist/variables.css` | `tokens/breakpoints.json` + rebuild |
+| Frozen thresholds shipped in `dist/tokens.css` | `tokens/breakpoints.json` + rebuild |
 | Live overrides without rebuilding | `setBreakpoints` at app startup |
 | Per-app thresholds in a React project | `createTokens({ breakpoints: … })` |
 
@@ -147,7 +147,7 @@ import { BREAKPOINTS } from "nice-styles"
 ## Why CSS variables can't drive `@media`
 
 The CSS spec does not allow `var()` inside `@media` query conditions. That is
-why thresholds are baked into `variables.css` at build time and re-emitted as
+why thresholds are baked into `tokens.css` at build time and re-emitted as
 a separate stylesheet at runtime, rather than reading from a CSS custom
 property. The same constraint applies to every design system — runtime
 threshold changes require either re-rendering CSS or a CSS Houdini paint.

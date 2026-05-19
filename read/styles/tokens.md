@@ -46,17 +46,17 @@ Design token naming patterns in nice-styles.
 ### Token Groups (camelCase)
 
 ```ts
-getReactToken("fontSize")
-getReactToken("foregroundColor")
-getReactToken("borderRadius")
+getToken("fontSize")
+getToken("foregroundColor")
+getToken("borderRadius")
 ```
 
 ### Token Items (camelCase or kebab)
 
 ```ts
-getReactToken("fontSize", "base")
-getReactToken("fontSize", "large")
-getReactToken("foregroundColor", "link")
+getToken("fontSize", "base")
+getToken("fontSize", "large")
+getToken("foregroundColor", "link")
 ```
 
 ### Type Names (PascalCase + Type suffix)
@@ -151,51 +151,47 @@ nice-styles/src/generated/
 
 ## Import Guidance
 
-In React projects, import all nice-styles assets from `nice-react-styles`, which re-exports the nice-styles public API. Import directly from `nice-styles` only when working outside the React framework (e.g., vanilla JS, build scripts, non-React tooling).
-
-**Exception:** `getToken` is only available from `nice-styles` directly. In React projects, use `getReactToken` from `nice-react-styles` instead — it provides the same `TokenResult` shape and also supports runtime-registered custom tokens.
+In React projects, import all nice-styles assets from `nice-react-styles`, which re-exports the entire nice-styles public API. Import directly from `nice-styles` only when working outside the React framework (e.g., vanilla JS, build scripts, non-React tooling). Either import path is valid — they resolve to the same functions.
 
 ```ts
-// React projects — use getReactToken (covers core + custom tokens)
-import { getReactToken, getBreakpoint, type FontSizeType } from "nice-react-styles"
+// React projects
+import { getToken, getBreakpoint, type FontSizeType } from "nice-react-styles"
 
-// Non-React contexts — getToken is available here
+// Non-React contexts
 import { getToken, getBreakpoint, type FontSizeType } from "nice-styles"
 ```
 
 ---
 
-## getToken (nice-styles only)
+## getToken
 
-Static core token accessor. Returns CSS variable name and raw value from core token data only. **Not re-exported from nice-react-styles.** In React projects, use `getReactToken` from `nice-react-styles` instead — it returns the same `TokenResult` shape and also resolves runtime-registered custom tokens.
+Unified token accessor. Reads from the runtime registry (seeded at module load from the generated token data, runtime-extensible via `createTokens`). Throws on unknown tokens.
+
+Three sibling functions cover the three accessor forms:
+
+- `getToken(name, variant?, mode?)` — `var(--np--…)` reference (the common case).
+- `getTokenKey(name, variant?, mode?)` — bare CSS variable name (no `var(...)` wrapper).
+- `getTokenValue(name, variant?, mode?)` — raw underlying value (e.g. `"16px"`).
 
 ```ts
-// Non-React contexts only
-import { getToken } from "nice-styles"
+import { getToken, getTokenKey, getTokenValue } from "nice-react-styles"
 
-getToken("fontSize", "base")
-// → { key: "--np--font-size--base", var: "var(--np--font-size--base)", value: "16px" }
+getToken("fontSize", "base")          // → "var(--np--font-size--base)"
+getTokenKey("fontSize", "base")       // → "--np--font-size--base"
+getTokenValue("fontSize", "base")     // → "16px"
+
+// Mode-pinned primitives
+getToken("foregroundColor", "base", "night")   // → "var(--np--foreground-color--base--night)"
 ```
 
-### Return Shape
+### Usage in styled-components
 
 ```ts
-interface TokenResult {
-  key: string   // "--np--font-size--base"
-  var: string   // "var(--np--font-size--base)"
-  value: string // "16px"
-}
-```
-
-### Usage
-
-```ts
-// React projects — use getReactToken instead
-import { getReactToken } from "nice-react-styles"
+import { getToken } from "nice-react-styles"
 
 const StyledDiv = styled.div`
-  font-size: ${getReactToken("fontSize", "large").var};
-  color: ${getReactToken("foregroundColor", "medium").var};
+  font-size: ${getToken("fontSize", "large")};
+  color: ${getToken("foregroundColor", "medium")};
 `
 ```
 
@@ -245,12 +241,14 @@ Component-scoped token accessor. Reads from auto-generated component token data.
 
 ```ts
 getComponentToken(
-  prefix: ComponentPrefix,  // "button" | "icon" | "tile" | "typography"
+  prefix: ComponentPrefix,  // "button" | "icon" | "tile" | "typography" | …
   tokenName: string,
   variant?: string,         // defaults to "base"
   mode?: string
-): TokenResult
+): string
 ```
+
+`getComponentTokenKey` and `getComponentTokenValue` are sibling functions returning the bare name and raw value respectively, mirroring the `getToken` family pattern.
 
 ### Examples
 
@@ -258,10 +256,10 @@ getComponentToken(
 import { getComponentToken } from "nice-react-styles"
 
 getComponentToken("button", "size", "base")
-// → { key: "--np--button--size--base", var: "var(--np--button--size--base)", value: "var(--np--cell-height--base)" }
+// → "var(--np--button--size--base)"
 
 getComponentToken("icon", "color", "error")
-// → { key: "--np--icon--color--error", var: "var(--np--icon--color--error)", value: "var(--np--foreground-color--error)" }
+// → "var(--np--icon--color--error)"
 ```
 
 TypeScript enforces valid prefixes via `ComponentPrefix` (auto-generated from `src/tokens/component/` folder names).
@@ -272,23 +270,23 @@ TypeScript enforces valid prefixes via `ComponentPrefix` (auto-generated from `s
 
 Runtime token registry that extends nice-styles' static tokens. Core tokens are available immediately; custom tokens are registered via `createTokens()` or `registerTokens()`.
 
-### getReactToken (nice-react-styles) — Unified Token Accessor
+### getToken (nice-react-styles) — Unified Token Accessor
 
 Queries the runtime registry. Core tokens work immediately. Custom tokens available after registration.
 
 ```ts
-import { getReactToken } from "nice-react-styles"
+import { getToken } from "nice-react-styles"
 
 // Core tokens (always available)
-getReactToken("fontSize", "base")          // → --np--font-size--base
-getReactToken("foregroundColor", "link")   // → --np--foreground-color--link
+getToken("fontSize", "base")          // → --np--font-size--base
+getToken("foregroundColor", "link")   // → --np--foreground-color--link
 
 // Mode-specific primitives
-getReactToken("backgroundColor", "base", "day")    // → --np--background-color--base--day
-getReactToken("backgroundColor", "base", "night")  // → --np--background-color--base--night
+getToken("backgroundColor", "base", "day")    // → --np--background-color--base--day
+getToken("backgroundColor", "base", "night")  // → --np--background-color--base--night
 
 // Custom tokens (after registration)
-getReactToken("brandColor", "primary")     // → --np--brand-color--primary
+getToken("brandColor", "primary")     // → --np--brand-color--primary
 ```
 
 ### createTokens — Register + Generate CSS
@@ -296,7 +294,7 @@ getReactToken("brandColor", "primary")     // → --np--brand-color--primary
 Registers app-level token overrides and custom tokens in the runtime registry. Returns a GlobalStyles component (no-op if CSS already injected).
 
 ```ts
-import { createTokens, getReactToken } from "nice-react-styles"
+import { createTokens, getToken } from "nice-react-styles"
 
 const AppTokenMap = {
   // Override core tokens
@@ -312,7 +310,7 @@ const AppTokenMap = {
 } as const
 
 export const { GlobalStyles: AppStyles } = createTokens(AppTokenMap)
-export { getReactToken }
+export { getToken }
 ```
 
 **Generated CSS:**
@@ -343,23 +341,16 @@ registerTokens({ brandColor: { primary: "#f00" } }, "app")
 
 **Merge behavior:** Variants are merged, not replaced. Partial overrides preserve existing variants.
 
-### hasToken — Check Existence
+### Direct registry access
+
+The registry itself is exported as a `Map<string, RegistryEntry>` for callers that need lookup or enumeration:
 
 ```ts
-import { hasToken } from "nice-react-styles"
+import { registry } from "nice-react-styles"
 
-hasToken("fontSize")    // true (core token)
-hasToken("brandColor")  // true (after registration)
-hasToken("unknown")     // false
-```
-
-### getReactTokenNames — List All Tokens
-
-```ts
-import { getReactTokenNames } from "nice-react-styles"
-
-getReactTokenNames()
-// ["fontSize", "foregroundColor", "gap", "brandColor", ...]
+registry.has("fontSize")         // true
+registry.has("brandColor")       // true (after registerTokens / createTokens)
+[...registry.keys()]             // ["fontSize", "foregroundColor", "gap", ...]
 ```
 
 ---
@@ -373,8 +364,8 @@ Token values originate from three JSON module files in `nice-styles/src/tokens/`
 | File | Condition | JSON Shape | Default |
 |------|-----------|------------|---------|
 | `module.json` | None (static) | `{ group: { variant: value } }` | Always active |
-| `module.size.json` | Breakpoint | `{ breakpoint: { group: { variant: value } } }` | `phone` is default |
-| `module.color.json` | Mode | `{ mode: { group: { variant: value } } }` | `day` is default |
+| `module.breakpoints.json` | Breakpoint | `{ breakpoint: { group: { variant: value } } }` | `phone` is default |
+| `module.modes.json` | Mode | `{ mode: { group: { variant: value } } }` | `day` is default |
 
 ### module.json — Static Tokens
 
@@ -395,7 +386,7 @@ Flat key-value pairs. No conditions. Every variant produces one CSS variable in 
 }
 ```
 
-### module.size.json — Breakpoint Tokens
+### module.breakpoints.json — Breakpoint Tokens
 
 Top-level keys are breakpoints (`phone`, `tablet`, `laptop`, `desktop`). Phone is the default — values apply without a media query. Higher breakpoints override via `min-width` media queries. Thresholds: phone 0–640, tablet 641–1279, laptop 1280–1719, desktop 1720+.
 
@@ -422,7 +413,7 @@ Top-level keys are breakpoints (`phone`, `tablet`, `laptop`, `desktop`). Phone i
 }
 ```
 
-### module.color.json — Mode Tokens
+### module.modes.json — Mode Tokens
 
 Top-level keys are modes (`day`, `night`). Day is the default. Night values override via `prefers-color-scheme: dark` media query.
 
@@ -451,7 +442,7 @@ Three scripts read these files by hardcoded path (no glob discovery):
 | Script | Reads | Outputs |
 |--------|-------|---------|
 | `scripts/generateTokens.ts` | All three modules + component.json | `src/generated/tokensData.ts`, `colorTokensData.ts`, `sizeTokensData.ts`, `componentTokensData.ts` |
-| `scripts/generateCss/` | All three modules + component.json | `dist/variables.css`, `dist/css/{group}.css` |
+| `scripts/generateCss/` | All three modules + component.json | `dist/tokens.css`, `dist/css/{group}.css` |
 | `scripts/generateTypes.ts` | All three modules | `src/generated/types.ts` |
 
 Merge strategy in CSS generation: `{ ...coreTokens, ...colorDay, ...sizePhone }` — later keys win on collision. This merged map drives the semantic `:root` variables.

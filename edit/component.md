@@ -161,7 +161,7 @@ export { formatDate } from "./formatDate"
 
 ### src/tokens
 
-Component tokens are defined as JSON in nice-styles (`src/tokens/component/{name}/index.json`) and compiled into `dist/variables.css` at build time. Each React component package provides a thin accessor wrapper and a backward-compatible Styles export.
+Component tokens are defined as JSON in nice-styles (`src/tokens/component/{name}/index.json`) and compiled into `dist/tokens.css` at build time. Each React component package provides a thin accessor wrapper and a backward-compatible Styles export.
 
 #### Token Values (in nice-styles)
 
@@ -184,7 +184,7 @@ Token values live in `nice-styles/src/tokens/component/{name}/index.json`. Value
 }
 ```
 
-These become CSS custom properties in `dist/variables.css`:
+These become CSS custom properties in `dist/tokens.css`:
 ```css
 --np--button--size--base: var(--np--cell-height--base);
 --np--button--border-radius--small: var(--np--border-radius--small);
@@ -220,7 +220,7 @@ export function getTypographyToken(nameOrPath: string | string[], variantOrMode?
 
 #### src/tokens/{Component}Styles.ts
 
-No-op component kept for backward compatibility. CSS custom properties are generated at nice-styles build time in `dist/variables.css`.
+No-op component kept for backward compatibility. CSS custom properties are generated at nice-styles build time in `dist/tokens.css`.
 
 ```ts
 import type { ComponentType } from "react"
@@ -239,7 +239,7 @@ export { getButtonToken } from "./getButtonToken"
 
 #### Component Styles in Applications
 
-Component CSS custom properties are included automatically via `nice-styles/variables.css` (loaded by `StylesProvider`). The `{Component}Styles` exports are no-ops — they exist only for backward compatibility and can be safely omitted from `componentStyles` in `StylesProvider`.
+Component CSS custom properties are included automatically via `nice-styles/tokens.css` (loaded by `StylesProvider`). The `{Component}Styles` exports are no-ops — they exist only for backward compatibility and can be safely omitted from `componentStyles` in `StylesProvider`.
 
 ### src/constants.ts
 
@@ -597,7 +597,7 @@ For local development, all nice-* package interdependencies use `file:` referenc
 
 ### After Modifying Dependencies
 
-Run `node ../nice-toolkit/nice-toolkit --clean-all` from the consuming project to remove duplicate React/styled-components from linked packages.
+Run `node ../nice-toolkit/nice-toolkit --dedupe` from the consuming project to remove duplicate React/styled-components from linked packages.
 
 ---
 
@@ -662,7 +662,7 @@ These settings prevent the "off by one" caching issue where file changes would a
 ### Auto-Externalized Packages
 
 The configuration automatically externalizes:
-- All `nice-*` packages (including subpaths like `nice-styles/variables.css`)
+- All `nice-*` packages (including subpaths like `nice-styles/tokens.css`)
 - React ecosystem (`react`, `react-dom`, `react/jsx-runtime`)
 - `styled-components`
 

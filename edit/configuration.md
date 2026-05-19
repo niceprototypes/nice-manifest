@@ -298,7 +298,7 @@ Groups are computed from `type` and `sourceAliasable` — not stored in the JSON
 | Command | Description |
 |---------|-------------|
 | `ntk --clean-caches` | Wipe `node_modules/.cache` + `.vite` across every consumer; first kills any process bound to a dev-server port discovered from `.env` `PORT=` entries or `package.json` `-p`/`--port` flags. `--no-kill` to skip the kill phase. |
-| `ntk --clean-all` | Recursively clean singletons (react, styled-components, etc.) from all linked packages' `node_modules` |
+| `ntk --dedupe` | Recursively clean singletons (react, styled-components, etc.) from all linked packages' `node_modules` |
 | `ntk --build-all` | Walk registry tier order and run `npm run build` in every linked nice-* package |
 
 **Linking / dev / publish**
@@ -393,7 +393,7 @@ Configuration stories use a simplified pattern compared to component stories:
 import type { Meta, StoryObj } from "@storybook/react"
 import Typography from "nice-react-typography"
 import Flex from "nice-react-flex"
-import { getReactToken } from "nice-react-styles"
+import { getToken } from "nice-react-styles"
 import { generateDescriptionString } from "../../src/services"
 
 // Empty demo component (no visual component to render)
@@ -442,9 +442,9 @@ const CodeBlock = ({ children }: { children: string }) => (
     code
     style={{
       display: "block",
-      backgroundColor: getReactToken("backgroundColor", "alternate").var,
-      padding: getReactToken("gap", "base").var,
-      borderRadius: getReactToken("borderRadius", "base").var,
+      backgroundColor: getToken("backgroundColor", "alternate"),
+      padding: getToken("gap", "base"),
+      borderRadius: getToken("borderRadius", "base"),
       whiteSpace: "pre",
       overflow: "auto",
     }}
@@ -571,7 +571,7 @@ Package.json:
 All configuration packages use `file:` references for interdependencies. After modifying dependencies, run:
 
 ```bash
-node ../nice-toolkit/nice-toolkit --clean-all
+node ../nice-toolkit/nice-toolkit --dedupe
 ```
 
 This removes duplicate React/styled-components from linked packages, preventing "Invalid hook call" errors.

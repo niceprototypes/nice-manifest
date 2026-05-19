@@ -107,11 +107,11 @@ Three non-overlapping `ntk` commands cover the workspace-level concerns:
 
 ```bash
 ntk --clean-caches    # kill dev-server ports + wipe consumer build-tool caches
-ntk --clean-all       # remove duplicate singletons from linked packages
+ntk --dedupe       # remove duplicate singletons from linked packages
 ntk --build-all       # rebuild every linked package's dist in tier order
 ```
 
-After dependency changes, run `ntk --clean-all`. After source changes that consumers don't see, `ntk --clean-caches`. After a foundation refactor or on a fresh clone, `ntk --build-all`. Full topology and recipes in `build/symlinks.md` and `.nice/reports/caches.md`.
+After dependency changes, run `ntk --dedupe`. After source changes that consumers don't see, `ntk --clean-caches`. After a foundation refactor or on a fresh clone, `ntk --build-all`. Full topology and recipes in `build/symlinks.md` and `.nice/reports/caches.md`.
 
 ---
 
