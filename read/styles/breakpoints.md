@@ -50,7 +50,7 @@ After rebuild: hard-reload the consumer so the new `tokens.css` is fetched.
 ## Customizing — runtime
 
 Use `setBreakpoints` from `nice-styles` (or `nice-react-styles`). Same shape
-as `setSizeTokens` / `setColorTokens`: additive, partial map.
+as `setBreakpointTokens` / `setModeTokens`: additive, partial map.
 
 ```ts
 import { setBreakpoints } from "nice-styles"
