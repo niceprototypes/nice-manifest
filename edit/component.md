@@ -433,6 +433,40 @@ import type { ButtonProps } from "./types"
 - No logic in this file, only imports and default export
 - Exception: React components use default export per convention
 
+#### Mode prop — wrap-in-Mode standard (required for visual components)
+
+Every visual component that accepts a `mode?: ModeType` prop **must** delegate the pin mechanism to `Mode` from `nice-react-styles` — do not pass `mode` into `getToken(...)` inside the styled-component. The cascade does the work.
+
+Canonical pattern:
+
+```tsx
+import { Mode } from "nice-react-styles"
+
+const Component: React.FC<Props> = ({ mode, ...rest }) => {
+  const element = <StyledComponent {...rest} />
+  return mode ? <Mode name={mode}>{element}</Mode> : element
+}
+```
+
+For components with multiple early returns (Icon's three-tier resolution, Image's `as="img" | "div" | renderImage`), use a `withMode` local helper:
+
+```tsx
+const withMode = (el: React.ReactElement) =>
+  mode ? <Mode name={mode}>{el}</Mode> : el
+
+if (renderImage) return withMode(<>{renderImage(src, alt)}</>)
+if (as === "div") return withMode(<StyledDiv … />)
+return withMode(<StyledImg … />)
+```
+
+Why this is required:
+- One mechanism — `[data-theme]` cascade — handles every level of pinning (whole-page, region, single component).
+- Descendants of a mode-pinned component automatically inherit the pin. `<Tile mode="night">{nested Typography, Icon}</Tile>` works without threading `mode` into the children.
+- Styled-components stay simpler — no `$mode` transient prop, no third arg to `getToken`. Semantic tokens resolve via cascade.
+- The escape hatch (component renders a direct-primitive reference that bypasses the cascade) is reserved for explicit inverted-mode needs like Button's text contrast.
+
+Styled-components: do not declare `$mode?: ModeType` in transient props, and do not call `getToken(name, variant, mode)` with a third argument. Use `getToken(name, variant)` only. The `getStatusToken` utility on Button and Input dropped its `mode` parameter for the same reason.
+
 ### {Component}.test.tsx
 
 - Co-located test file for the component

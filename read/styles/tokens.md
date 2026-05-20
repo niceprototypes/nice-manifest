@@ -501,8 +501,39 @@ createTokens({
 - **"day"** is the default mode (`DEFAULT_MODE` in nice-react-styles)
 - **"night"** replaces "dark" for mode suffixes throughout the system
 - Stable primitives: `--np--*--day` and `--np--*--night` are never reassigned
-- `@media (prefers-color-scheme: dark)` maps semantic vars to `--night` primitives
+- `@media (prefers-color-scheme: dark)` maps semantic vars to `--night` primitives — this is the **default behavior** when no pin is set
 - `color-scheme: light dark` on `:root` enables native browser dark scheme
+
+### Pinning a region to a specific mode
+
+`tokens.css` also emits two attribute-selector blocks that override the OS-preference cascade:
+
+```css
+[data-theme="day"]   { color-scheme: light; --np--foreground-color--base: var(--np--foreground-color--base--day);   /* …all mode vars */ }
+[data-theme="night"] { color-scheme: dark;  --np--foreground-color--base: var(--np--foreground-color--base--night); /* …all mode vars */ }
+```
+
+The attribute selector outranks `@media (prefers-color-scheme: dark)`, so when `data-theme` is set on an element the pin wins. The reassignments cascade to every descendant — nice components, raw markup, third-party widgets that read `var(--np--…)` alike.
+
+Three ways consumers pin:
+
+| Approach | Code | Use when |
+|---|---|---|
+| Whole page | `<html data-theme="day">` | App-wide default that overrides OS preference (e.g. storybook). |
+| Subtree via React | `<Mode name="day">{children}</Mode>` from `nice-react-styles` | Pin a region; uses a `<div style="display:contents">` so layout is unaffected. |
+| Subtree via raw HTML | `<section data-theme="day">…</section>` | Same mechanism without React. |
+
+### Component `mode` prop
+
+Visual components (Typography, Tile, Button, Icon, Image, Input) implement their `mode` prop by wrapping their rendered output in `<Mode name={mode}>` when the prop is set. Consequences:
+
+- Descendants of `<Tile mode="night">` automatically inherit night via the cascade — no need to set `mode` on each child.
+- A child with its own `mode` prop pins itself (and its descendants), overriding the ancestor.
+- Internal styled-components do **not** thread `$mode`; they reference semantic vars and rely on the cascade.
+
+### Escape hatch — explicit primitive
+
+The third `mode?` argument on `getToken(name, variant, mode)` returns the bare mode-primitive reference (`var(--np--…--day)` or `--night`) — bypassing the cascade entirely. Use only when an element inside a pinned region needs the opposite mode regardless of any ancestor pin (e.g. Button's inverted-mode text contrast).
 
 ### ModeType (nice-styles)
 

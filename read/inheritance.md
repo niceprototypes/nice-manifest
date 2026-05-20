@@ -44,6 +44,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 │───────────────────────────────────────│
 │  nice-react-styles (React bridge)     │
 │  └─ StylesProvider                    │
+│  └─ Mode (data-theme pin wrapper)     │
 │  └─ createTokens (React shim)         │
 │  └─ withBreakpoints / useBreakpoint   │
 └───────────────────────────────────────┘
@@ -164,10 +165,10 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 - `react-dom` (>=19.2.0)
 - `styled-components` (>=6.1.18)
 
-**Role-statement:** A *thin React-bridge package.* All framework-agnostic logic lives in `nice-styles`. nice-react-styles owns the React-only surface: a `ThemeProvider`-backed `StylesProvider`, a `useBreakpoint` hook, a `withBreakpoints` HOC, and a `createTokens` React wrapper.
+**Role-statement:** A *thin React-bridge package.* All framework-agnostic logic lives in `nice-styles`. nice-react-styles owns the React-only surface: a `ThemeProvider`-backed `StylesProvider`, a `Mode` pin component, a `useBreakpoint` hook, a `withBreakpoints` HOC, and a `createTokens` React wrapper.
 
 **Exports:**
-- Component: `StylesProvider`, `FontLoader` (internal to StylesProvider's font-loading path).
+- Component: `StylesProvider`, `FontLoader` (internal to StylesProvider's font-loading path), `Mode` (pins a subtree to a mode via `data-theme`).
 - React wrapper: `createTokens()` — calls `generateTokenCSS` + `injectTokenCSS` from nice-styles, returns `{ GlobalStyles }`.
 - React HOC + hook: `withBreakpoints`, `useBreakpoint`.
 - Type: `Breakpoints<T>` (React-prop responsive shape).
@@ -347,6 +348,30 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 - Component: `Lightbox`
 - Tokens: `LightboxStyles`, `getLightboxToken()`
 - Types: `LightboxProps`, `LightboxImageUrlType`, `LightboxAltType`, `LightboxTitleType`, `LightboxDescriptionType`
+
+---
+
+### nice-react-image
+
+**Role:** Image component with two rendering modes (`as="img"` / `as="div"` background-image) and optional token-based border
+
+**Dependencies:**
+- `nice-react-styles`
+
+**Peer Dependencies:**
+- `react`, `react-dom`, `styled-components`
+
+**Exports:**
+- Component: `Image`
+- Service: `registerVendorResolver()`
+- Tokens: `ImageStyles`, `getImageToken()`
+- Types: `ImageProps`, `ImageAsType`, `ImageSrcType`, `ImageAltType`, `ImageWidthType`, `ImageHeightType`, `ImageBackgroundSizeType`, `ImageBackgroundPositionType`, `ImageBorderRadiusType`, `ImageBorderedType`, `ImageBorderWidthType`, `ImageBorderColorType`, `ImageModeType`, `ImageRenderImageType`, `ImageVendorType`
+
+**Border props (v ≥ Mode unification cycle):**
+- `bordered: ImageBorderedType` — boolean gate; renders a border using design tokens when true.
+- `borderWidth: ImageBorderWidthType` — `BorderWidthType` re-export (default `"base"`).
+- `borderColor: ImageBorderColorType` — `BorderColorType` re-export (default `"base"`).
+Applied for both `as="img"` and `as="div"` rendering paths via the shared style fragment.
 
 ---
 
