@@ -677,7 +677,6 @@ export { default } from "nice-configuration/jest/react"
 
 | Package | Issue |
 |---------|-------|
-| nice-react-styles | Raw config array, manual plugin setup |
 | nice-react-device-detector | Raw config array, manual plugin setup |
 
 **Normalization:** Replace with `createConfiguration()`.
@@ -688,24 +687,26 @@ export { default } from "nice-configuration/jest/react"
 |---------|--------|
 | nice-react-icon | `target: es5`, `jsx: react`, `noEmit: true`, `moduleResolution: node` |
 | nice-react-flex | `target: ES2018`, `jsx: react`, `moduleResolution: node`, redundant strict options |
-| nice-react-styles | Non-standard output dirs (`dist/esm`), missing test excludes |
 | nice-react-device-detector | `target: es5`, `noEmit: true`, missing excludes |
 
 **Normalization:** Extend `nice-configuration/typescript/react`, use standard output paths.
 
-### Packages Missing Jest Config
+### Jest Config Status
 
-| Package | Status |
-|---------|--------|
-| nice-react-typography | No jest.config.js |
-| nice-react-flex | No jest.config.js |
-| nice-react-tile | No jest.config.js |
-| nice-react-styles | No jest.config.js |
-| nice-react-scroll | No jest.config.js |
-| nice-react-slider | No jest.config.js |
-| nice-react-device-detector | No jest.config.js |
+Verified 2026-05-20.
 
-**Action:** Add jest.config.js if tests exist or are planned.
+| Package | Tests in `src/` | jest.config.js |
+|---------|----------------:|----------------|
+| nice-react-icon | 1 | present (canonical) |
+| nice-react-button | 2 | present (canonical) |
+| nice-react-input | 1 | present (canonical) |
+| all other nice-* packages | 0 | absent — no action required |
+
+**Rule:** `jest.config.js` is only added when test files exist in `src/`. A config without tests adds maintenance surface for no behavior. When the first test is added to a package, also add `jest.config.js` (canonical one-liner below) and the `"test": "jest"` script.
+
+```js
+export { default } from "nice-configuration/jest/react"
+```
 
 ---
 
