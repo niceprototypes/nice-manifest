@@ -433,6 +433,33 @@ import type { ButtonProps } from "./types"
 - No logic in this file, only imports and default export
 - Exception: React components use default export per convention
 
+#### `className` prop — required for every visual component
+
+Every nice-react-* component that renders any DOM **must** accept an optional `className?: string` prop and forward it to the rendered root element. Non-visual components (pure context providers like `ScrollProvider`, hooks-only packages like `nice-react-device-detector`) are exempt.
+
+```tsx
+// In {Component}.types.ts — declare on the public props
+export interface ComponentProps {
+  // …other props
+  /** CSS class name applied to the root element */
+  className?: string
+}
+
+// In {Component}.tsx — destructure and forward to the rendered root
+const Component: React.FC<ComponentProps> = ({ className, …rest }) => (
+  <StyledRoot className={className} …rest />
+)
+```
+
+For components with multiple rendering branches (e.g. Image's `as="img" | "div" | renderImage`), forward `className` to whichever root is returned.
+
+Why this is required:
+- Consumers need a stable hook for cascading their own CSS scope into a nice subtree. Examples: `<Mode name="day" className="nice-storybook">` lets `preview-docs.css` scope storybook overrides to `.nice-storybook` rather than relying on broad selectors; an app might add `className="my-page-section"` to a Tile to apply page-specific tweaks.
+- Without `className`, consumers fall back to ancestor selectors or DOM IDs — both brittle.
+- The class lands alongside whatever styled-components emits, so component-internal styling is unaffected.
+
+This rule applies retroactively — any visual component missing `className` is a bug. The current set covers Typography, Tile, Button, Icon, Image, Input, Flex, Lightbox, LightboxCaption, Slider, FadeOnScroll, Sticky, SectionLinks, StickySection, and Mode.
+
 #### Mode prop — wrap-in-Mode standard (required for visual components)
 
 Every visual component that accepts a `mode?: ModeType` prop **must** delegate the pin mechanism to `Mode` from `nice-react-styles` — do not pass `mode` into `getToken(...)` inside the styled-component. The cascade does the work.
