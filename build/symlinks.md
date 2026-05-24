@@ -37,13 +37,13 @@ These three operations target distinct layers and do not overlap. Each addresses
 
 | Command | Target | Reach for it when |
 |---------|--------|-------------------|
-| `ntk --clean-caches` | each consumer's `node_modules/.cache` + `.vite`; also kills processes on discovered dev-server ports (parsed from `.env` `PORT=` and `package.json` `-p`/`--port` flags) | Dev server is serving stale code after a linked-package source change |
+| `ntk --clean` | each consumer's `node_modules/.cache` + `.vite`; also kills processes on discovered dev-server ports (parsed from `.env` `PORT=` and `package.json` `-p`/`--port` flags) | Dev server is serving stale code after a linked-package source change |
 | `ntk --dedupe` | duplicate singletons (react, styled-components, etc.) inside each linked package's `node_modules` | "Invalid hook call" or styled-components context mismatch |
 | `ntk --build-all` | walks registry tier order, runs `npm run build` in every linked nice-* package | Fresh clone; after `--dedupe`; after a foundation-package refactor |
 
-Common reset: `ntk --clean-caches && ntk --dedupe && ntk --build-all`, then restart any dev server.
+Common reset: `ntk --reset` (chains `--build-all → --dedupe → --clean`), then restart any dev server. The individual flags can also be run separately if you only need one.
 
-`ntk --clean-caches --no-kill` skips the port-kill phase (CI / scripted contexts).
+`ntk --clean --no-kill` skips the port-kill phase (CI / scripted contexts).
 
 #### Linking / dev / publish
 
@@ -53,7 +53,8 @@ Common reset: `ntk --clean-caches && ntk --dedupe && ntk --build-all`, then rest
 | `ntk --watch` | Watch dist folders, trigger webpack/CRA recompilation |
 | `ntk --dev --watch` | Combined (recommended for CRA projects) |
 | `ntk --unlink` | Restore packages to npm versions |
-| `ntk --clean-only <path>` | Clean singletons in a specific package without linking |
+| `ntk --dedupe <path>` | Dedupe singletons in a specific package without linking |
+| `ntk --reset` | Chain `--build-all → --dedupe → --clean` (post-foundation-refactor recovery) |
 | `ntk --publish pkg1,pkg2` | Publish with automatic dependency cascade |
 | `ntk --publish --no-npm` | Bump, build, commit, push — skip npm publish |
 | `ntk --dry-run` | Preview changes without executing |
@@ -109,10 +110,10 @@ ntk --dedupe
 ### Dev server is serving stale code after a linked-package source change
 
 ```bash
-ntk --clean-caches
+ntk --clean
 ```
 
-Then restart the dev server. `--clean-caches` kills the running process holding the port before wiping caches, so the next start picks up fresh state.
+Then restart the dev server. `--clean` kills the running process holding the port before wiping caches, so the next start picks up fresh state.
 
 ### Developing with CRA/webpack
 

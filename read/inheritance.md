@@ -133,9 +133,10 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 **Exports:** CLI commands `nice-toolkit` (long form) and `ntk` (short alias).
 
 **Key Commands:**
-- `--clean-caches`: Kill dev-server ports (discovered from each consumer's `.env` / package.json) and wipe `node_modules/.cache` + `.vite` across the workspace
+- `--clean`: Kill dev-server ports (discovered from each consumer's `.env` / package.json) and wipe `node_modules/.cache` + `.vite` across the workspace
 - `--dedupe`: Recursively clean singletons (react, styled-components, etc.) from linked packages' `node_modules`
 - `--build-all`: Walk registry tier order, run `npm run build` in every linked nice-* package (replaces the `prepare` hook that was removed from package.json files)
+- `--reset`: Chain `--build-all → --dedupe → --clean` in sequence. Use after refactors that touch foundation packages (e.g. token renames, type narrowing in nice-styles).
 - `--dev`: Run dev scripts in all linked packages concurrently
 - `--unlink`: Restore packages to npm versions
 
@@ -239,7 +240,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 **Exports:**
 - Component: `Tile`
 - Tokens: `getTileToken()`
-- Types: `TileProps`, `TileMaxWidthType`, `TileMaxWidthValueType`, `TileAlignItemsType`, `TileJustifyContentType`, `TileBackgroundColorType`, `TileForegroundColorType`, `TileBackgroundSizeType`, `TileTypographyProps`
+- Types: `TileProps`, `TileMaxWidthType`, `TileMaxWidthValueType`, `TileAlignItemsType`, `TileJustifyContentType`, `TileBackgroundColorType`, `TileColorType`, `TileBackgroundSizeType`, `TileTypographyProps`
 
 ---
 

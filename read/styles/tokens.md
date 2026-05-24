@@ -15,7 +15,7 @@ Design token naming patterns in nice-styles.
 |---------|--------|----------|
 | np | fixed namespace | always `np` |
 | prefix | kebab-case (component only) | `button`, `icon`, `tile`, `typography` |
-| group | kebab-case | `font-size`, `foreground-color`, `border-radius` |
+| group | kebab-case | `font-size`, `color`, `border-radius` |
 | item | kebab-case | `base`, `large`, `primary-hover` |
 
 **Double dashes (`--`) separate segments. Single dashes within segments for compound words.**
@@ -24,10 +24,10 @@ Design token naming patterns in nice-styles.
 
 ```
 --np--font-size--base
---np--foreground-color--link
+--np--color--link
 --np--border-radius--larger
 --np--background-color--base--day      (mode primitive)
---np--foreground-color--base--night     (mode primitive)
+--np--color--base--night     (mode primitive)
 ```
 
 ### Component Token Examples
@@ -47,7 +47,7 @@ Design token naming patterns in nice-styles.
 
 ```ts
 getToken("fontSize")
-getToken("foregroundColor")
+getToken("color")
 getToken("borderRadius")
 ```
 
@@ -56,14 +56,14 @@ getToken("borderRadius")
 ```ts
 getToken("fontSize", "base")
 getToken("fontSize", "large")
-getToken("foregroundColor", "link")
+getToken("color", "link")
 ```
 
 ### Type Names (PascalCase + Type suffix)
 
 ```ts
 FontSizeType        // "smaller" | "small" | "base" | "large" | "larger"
-ForegroundColorType // "lighter" | "light" | "medium" | ... | "error"
+ColorType // "lighter" | "light" | "medium" | ... | "error"
 BorderRadiusType    // "smaller" | "small" | "base" | "large" | "larger"
 ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated)
 ```
@@ -86,7 +86,7 @@ ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated
 | `fontFamily` | `font-family` | base, code, heading |
 | `fontSize` | `font-size` | smaller, small, base, large, larger |
 | `fontWeight` | `font-weight` | light, base, medium, semibold, bold, extrabold, black |
-| `foregroundColor` | `foreground-color` | lighter, light, medium, heavy, base, disabled, link, success, warning, error |
+| `color` | `color` | lighter, light, medium, heavy, base, disabled, link, success, warning, error |
 | `gap` | `gap` | none, smaller, small, base, large, larger |
 | `lineHeight` | `line-height` | condensed, base, expanded |
 
@@ -181,7 +181,7 @@ getTokenKey("fontSize", "base")       // → "--np--font-size--base"
 getTokenValue("fontSize", "base")     // → "16px"
 
 // Mode-pinned primitives
-getToken("foregroundColor", "base", "night")   // → "var(--np--foreground-color--base--night)"
+getToken("color", "base", "night")   // → "var(--np--color--base--night)"
 ```
 
 ### Usage in styled-components
@@ -191,7 +191,7 @@ import { getToken } from "nice-react-styles"
 
 const StyledDiv = styled.div`
   font-size: ${getToken("fontSize", "large")};
-  color: ${getToken("foregroundColor", "medium")};
+  color: ${getToken("color", "medium")};
 `
 ```
 
@@ -221,8 +221,8 @@ getConstant("backgroundColor", "base", { mode: "day" })
 // → { key: "--np--background-color--base--day", var: "var(--np--background-color--base--day)" }
 
 // Force night mode primitive
-getConstant("foregroundColor", "base", { mode: "night" })
-// → { key: "--np--foreground-color--base--night", var: "var(--np--foreground-color--base--night)" }
+getConstant("color", "base", { mode: "night" })
+// → { key: "--np--color--base--night", var: "var(--np--color--base--night)" }
 
 // Component token
 getConstant("height", "small", { pkg: "button" })
@@ -279,7 +279,7 @@ import { getToken } from "nice-react-styles"
 
 // Core tokens (always available)
 getToken("fontSize", "base")          // → --np--font-size--base
-getToken("foregroundColor", "link")   // → --np--foreground-color--link
+getToken("color", "link")   // → --np--color--link
 
 // Mode-specific primitives
 getToken("backgroundColor", "base", "day")    // → --np--background-color--base--day
@@ -350,7 +350,7 @@ import { registry } from "nice-react-styles"
 
 registry.has("fontSize")         // true
 registry.has("brandColor")       // true (after registerTokens / createTokens)
-[...registry.keys()]             // ["fontSize", "foregroundColor", "gap", ...]
+[...registry.keys()]             // ["fontSize", "color", "gap", ...]
 ```
 
 ---
@@ -419,19 +419,19 @@ Top-level keys are modes (`day`, `night`). Day is the default. Night values over
 
 ```json
 {
-  "day": { "foregroundColor": { "base": "hsla(210, 5%, 5%, 1)" } },
-  "night": { "foregroundColor": { "base": "hsla(210, 5%, 95%, 1)" } }
+  "day": { "color": { "base": "hsla(210, 5%, 5%, 1)" } },
+  "night": { "color": { "base": "hsla(210, 5%, 95%, 1)" } }
 }
 ```
 
 ```css
 :root {
-  --np--foreground-color--base: hsla(210, 5%, 5%, 1);
-  --np--foreground-color--base--day: hsla(210, 5%, 5%, 1);
-  --np--foreground-color--base--night: hsla(210, 5%, 95%, 1);
+  --np--color--base: hsla(210, 5%, 5%, 1);
+  --np--color--base--day: hsla(210, 5%, 5%, 1);
+  --np--color--base--night: hsla(210, 5%, 95%, 1);
 }
 @media (prefers-color-scheme: dark) {
-  :root { --np--foreground-color--base: var(--np--foreground-color--base--night); }
+  :root { --np--color--base: var(--np--color--base--night); }
 }
 ```
 
@@ -509,8 +509,8 @@ createTokens({
 `tokens.css` also emits two attribute-selector blocks that override the OS-preference cascade:
 
 ```css
-[data-theme="day"]   { color-scheme: light; --np--foreground-color--base: var(--np--foreground-color--base--day);   /* …all mode vars */ }
-[data-theme="night"] { color-scheme: dark;  --np--foreground-color--base: var(--np--foreground-color--base--night); /* …all mode vars */ }
+[data-theme="day"]   { color-scheme: light; --np--color--base: var(--np--color--base--day);   /* …all mode vars */ }
+[data-theme="night"] { color-scheme: dark;  --np--color--base: var(--np--color--base--night); /* …all mode vars */ }
 ```
 
 The attribute selector outranks `@media (prefers-color-scheme: dark)`, so when `data-theme` is set on an element the pin wins. The reassignments cascade to every descendant — nice components, raw markup, third-party widgets that read `var(--np--…)` alike.

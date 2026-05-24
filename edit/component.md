@@ -272,15 +272,15 @@ export type OnClickType = () => void
 When a prop uses a type from nice-styles, create a component-specific alias:
 
 ```ts
-import type { ForegroundColorType, FontSizeType, ModeType } from "nice-react-styles"
+import type { ColorType, FontSizeType, ModeType } from "nice-react-styles"
 
 /**
  * TypographyColorType
  *
- * Re-export of ForegroundColorType from nice-styles.
+ * Re-export of ColorType from nice-styles.
  * Text color values using design tokens.
  */
-export type TypographyColorType = ForegroundColorType
+export type TypographyColorType = ColorType
 
 /**
  * TypographySizeType
@@ -326,7 +326,7 @@ export type TypographyWordBreakType = "normal" | "break-all" | "keep-all"
 
 ```ts
 import * as React from "react"
-import type { ForegroundColorType, FontSizeType } from "nice-react-styles"
+import type { ColorType, FontSizeType } from "nice-react-styles"
 
 /**
  * ButtonSizeType
@@ -343,10 +343,10 @@ export type ButtonSizeType = "small" | "base" | "large"
 /**
  * ButtonColorType
  *
- * Re-export of ForegroundColorType from nice-styles.
+ * Re-export of ColorType from nice-styles.
  * Button text color using design tokens.
  */
-export type ButtonColorType = ForegroundColorType
+export type ButtonColorType = ColorType
 
 /**
  * ButtonOnClickType
