@@ -589,7 +589,7 @@ Every component package must have a `package.exports.json` at the package root. 
 | `services` | string[] | optional | Function names exported from `./services`. |
 | `constants` | string[] | optional | Constant names exported from `./constants`. |
 
-Scaffolded packages (`ntk --create`) include this file and the `generate-exports` script automatically.
+New packages must include this file alongside a `"generate-exports"` script in `package.json`. Use the standard-bearer (`nice-react-typography`) as the reference layout.
 
 ### Packages exempt from export generation
 
@@ -690,11 +690,12 @@ All plugins are baked in - no imports or configuration required for standard com
 ### Default Plugins
 
 The configuration includes these plugins by default:
-- `rollup-plugin-peer-deps-external` - Externalize peer dependencies
 - `@rollup/plugin-node-resolve` - Resolve node modules (browser: true)
 - `@rollup/plugin-commonjs` - Convert CommonJS to ESM
 - `@rollup/plugin-typescript` - TypeScript compilation with sourcemaps
 - `rollup-plugin-dts` - Bundle declaration files
+
+Peer-dependency externalization is handled inline by `createExternals` in `nice-configuration/src/rollup/externals.js`, which reads the consumer's `package.json` peerDependencies and matches them with the same exact/subpath rule as nice-*. No plugin is required.
 
 ### Watch Mode Configuration
 
@@ -753,6 +754,10 @@ Every `nice-react-*` package.json must follow this structure exactly. Deviations
 
 #### Scripts
 
+Canonical scripts per package class. Each script must be both (a) appropriate for the class and (b) **runnable** — a script that references a tool whose config file is missing is broken and should be removed, not left as a placeholder.
+
+**`nice-react-*` component packages — required:**
+
 ```json
 {
   "scripts": {
@@ -764,13 +769,28 @@ Every `nice-react-*` package.json must follow this structure exactly. Deviations
 }
 ```
 
-Do **not** add `"prepare": "npm run build"`. npm runs `prepare` on every `file:` install in every consumer, which cascades into a full rebuild of every linked package on every `npm i` in every project. `prepublishOnly` covers the publish path; `ntk --build-all` covers the explicit workspace rebuild. See `manifest/.nice/reports/npm-install-breaks-consumers.md`.
+**`nice-react-*` component packages — conditional (add only when the prerequisite is present):**
 
-Optional scripts (include only if applicable):
-- `"test": "jest"` — only if jest config and test files exist
-- `"lint": "eslint src --ext .ts,.tsx"` — use this exact format, not glob patterns
+| Script | Add when |
+|---|---|
+| `"test": "jest"` | The package has `jest.config.js` AND at least one `*.test.ts(x)` file. |
+| `"lint": "eslint src --ext .ts,.tsx"` | The package has an `.eslintrc.{js,cjs,json}` (or equivalent flat config). |
+| `"generate-exports": "nice-generate-exports ."` | The package has `package.exports.json` at its root. (Always paired — if `package.exports.json` exists, the script must be present so `src/index.ts` regenerates from one canonical command.) |
 
-Do not add convenience scripts like `build:watch`, `test:watch`, `test:coverage`, `lint:fix`, `clean`, or `build:types`. These add maintenance surface for marginal value.
+**Forbidden everywhere:**
+
+- `"prepare": "npm run build"` — npm runs `prepare` on every `file:` install in every consumer, cascading into a full rebuild of every linked package on every `npm i` in every project. `prepublishOnly` covers the publish path; `ntk --build-all` covers the explicit workspace rebuild. See `manifest/.nice/reports/npm-install-breaks-consumers.md`.
+- Convenience aliases like `build:watch`, `test:watch`, `test:coverage`, `lint:fix`, `clean`, `build:types`. These add maintenance surface for marginal value.
+
+**Non-component package classes** (these don't follow the component template; the canonical sets below are the documented variant per class):
+
+| Package | Build tool | Scripts |
+|---|---|---|
+| `nice-styles` (foundation) | bespoke generator pipeline | `clean` + `build:tokens` + `build:types` + `build:css` + `build:ts` + `build:post` chained from `build`; `dev` runs them in `--watch` mode; `prepublishOnly` and `test` (placeholder) for the publish chain. |
+| `nice-icons` (foundation) | gen script | `build`, `dev` (with `--watch`), `prepublishOnly`. No `prepare`. |
+| `nice-configuration` (foundation/CLI) | `tsc` | `build`, `prepublishOnly`. No `prepare`. |
+| `nice-vite-watcher` (plugin) | `tsup` | `build`, `dev`, `prepublishOnly`. No `prepare`. |
+| `nice-toolkit` (CLI) | no build | `test` (smoke). |
 
 #### Files
 

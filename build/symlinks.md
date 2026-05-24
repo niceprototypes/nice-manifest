@@ -54,7 +54,6 @@ Common reset: `ntk --clean-caches && ntk --dedupe && ntk --build-all`, then rest
 | `ntk --dev --watch` | Combined (recommended for CRA projects) |
 | `ntk --unlink` | Restore packages to npm versions |
 | `ntk --clean-only <path>` | Clean singletons in a specific package without linking |
-| `ntk --create <name>` | Scaffold a new package, register in registry.json |
 | `ntk --publish pkg1,pkg2` | Publish with automatic dependency cascade |
 | `ntk --publish --no-npm` | Bump, build, commit, push — skip npm publish |
 | `ntk --dry-run` | Preview changes without executing |

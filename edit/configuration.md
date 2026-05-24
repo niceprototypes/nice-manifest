@@ -131,11 +131,12 @@ export default createConfiguration({
 | `dtsInput` | `'dist/types/index.d.ts'` | Declaration input path |
 
 **Default Plugins:**
-- `rollup-plugin-peer-deps-external`
 - `@rollup/plugin-node-resolve` (browser: true)
 - `@rollup/plugin-commonjs`
 - `@rollup/plugin-typescript`
 - `rollup-plugin-dts` (declaration bundling)
+
+Peer-dependency externalization is handled inline by `createExternals` (see `src/rollup/externals.js`), which reads the consumer's `package.json` peerDependencies. No plugin needed.
 
 **Watch Mode Settings:**
 
@@ -219,10 +220,6 @@ nice-toolkit/
     │   ├── deps.js             # file: ↔ semver swapping
     │   ├── graph.js            # Reverse dependency resolution
     │   └── otp.js              # OTP timer with configurable window
-    └── creator/                # Package scaffolding
-        ├── index.js            # Create orchestrator + registry registration
-        ├── component.js        # Component-specific scaffolding
-        └── templates.js        # File templates for new packages
 ```
 
 ### Package.json Configuration
@@ -281,7 +278,6 @@ All consumers import from this module instead of reading `registry.json` directl
 | `getByGroup(group)` | `object[]` | Shorthand group queries |
 | `getLinkedPackageMap()` | `Record<string, string>` | Name-to-path map for Vite/Storybook |
 | `getSourceAliasableNames()` | `string[]` | Packages eligible for Vite source aliases |
-| `addPackage(entry)` | void | Add a validated entry to the last tier |
 
 **Groups:** `"all"`, `"react"` / `"component"`, `"foundation"`, `"linkable"`, `"source-aliasable"`
 
@@ -289,7 +285,7 @@ Groups are computed from `type` and `sourceAliasable` — not stored in the JSON
 
 #### Adding a New Package
 
-`ntk --create` automatically registers the package with correct metadata. Storybook and other consumers read from the registry — no manual list updates needed.
+Append a new entry by hand to `nice-toolkit/registry.json`, placing it in the appropriate tier. Storybook and other consumers read from the registry — no other manual list updates needed.
 
 ### Key Commands
 
@@ -310,8 +306,6 @@ Groups are computed from `type` and `sourceAliasable` — not stored in the JSON
 | `ntk --dev --watch` | Combined (recommended for CRA/webpack) |
 | `ntk --unlink` | Restore packages to npm versions |
 | `ntk --clean-only <path>` | Clean singletons in a specific package without linking |
-| `ntk --create <name>` | Scaffold a new package and register it |
-| `ntk --create <name> --type component` | Scaffold a component package (default type) |
 | `ntk --publish pkg1,pkg2` | Publish with automatic dependency cascade |
 | `ntk --publish --no-npm` | Bump, build, commit, push — skip npm |
 | `ntk --publish --otp-window 45` | Custom OTP expiry window (default: 30s) |
