@@ -238,7 +238,8 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 **Exports:**
 - Component: `Tile`
-- Types: All tile-related types
+- Tokens: `TileStyles`, `getTileToken()`
+- Types: `TileProps`, `TileMaxWidthType`, `TileMaxWidthValueType`, `TileAlignItemsType`, `TileJustifyContentType`, `TileBackgroundColorType`, `TileForegroundColorType`, `TileBackgroundSizeType`, `TileTypographyProps`
 
 ---
 
@@ -330,7 +331,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 **Exports:**
 - Component: `Button`
 - Tokens: `ButtonStyles`, `getButtonToken()`
-- Types: `ButtonProps`, `ButtonBorderRadiusType`, `ButtonStatusType`, `ButtonStateType`
+- Types: `ButtonProps`, `ButtonBorderRadiusType`, `ButtonBorderColorType`, `ButtonStatusType`, `ButtonStateType`
 
 ---
 
