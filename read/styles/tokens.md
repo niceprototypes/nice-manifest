@@ -291,7 +291,7 @@ getToken("brandColor", "primary")     // → --np--brand-color--primary
 
 ### createTokens — Register + Generate CSS
 
-Registers app-level token overrides and custom tokens in the runtime registry. Returns a GlobalStyles component (no-op if CSS already injected).
+Registers app-level token overrides and custom tokens in the runtime registry. Injects the generated CSS synchronously at call time; returns nothing. Call it once at module load (typically in `src/nice/tokens.ts`) and import that file for its side effect from your app entry.
 
 ```ts
 import { createTokens, getToken } from "nice-react-styles"
@@ -309,7 +309,7 @@ const AppTokenMap = {
   },
 } as const
 
-export const { GlobalStyles: AppStyles } = createTokens(AppTokenMap)
+createTokens(AppTokenMap)
 export { getToken }
 ```
 

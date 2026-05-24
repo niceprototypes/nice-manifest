@@ -169,7 +169,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 **Exports:**
 - Component: `StylesProvider`, `FontLoader` (internal to StylesProvider's font-loading path), `Mode` (pins a subtree to a mode via `data-theme`).
-- React wrapper: `createTokens()` — calls `generateTokenCSS` + `injectTokenCSS` from nice-styles, returns `{ GlobalStyles }`.
+- React wrapper: `createTokens()` — calls `generateTokenCSS` + `injectTokenCSS` from nice-styles. Returns nothing; CSS is injected synchronously at call time.
 - React HOC + hook: `withBreakpoints`, `useBreakpoint`.
 - Type: `Breakpoints<T>` (React-prop responsive shape).
 - Re-exports the entire nice-styles public API (all token getters, setters, constants, types) so consumers can import everything from `"nice-react-styles"`.
@@ -218,7 +218,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 **Exports:**
 - Component: `Typography`
-- Tokens: `TypographyStyles`, `getTypographyToken()`
+- Tokens: `getTypographyToken()`
 - Types: `TypographyProps`, `AsType`, `AlignType`
 
 **Inheritors:** `nice-react-button`
@@ -238,7 +238,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 **Exports:**
 - Component: `Tile`
-- Tokens: `TileStyles`, `getTileToken()`
+- Tokens: `getTileToken()`
 - Types: `TileProps`, `TileMaxWidthType`, `TileMaxWidthValueType`, `TileAlignItemsType`, `TileJustifyContentType`, `TileBackgroundColorType`, `TileForegroundColorType`, `TileBackgroundSizeType`, `TileTypographyProps`
 
 ---
@@ -307,7 +307,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 - Component: `Icon`
 - Service: `getIcon()`, `registerVendorResolver()`
 - Constants: `iconNames`
-- Tokens: `IconStyles`, `getIconToken()`
+- Tokens: `getIconToken()`
 - Types: `IconProps`, `IconNameType`, `IconSizeType`, `IconColorType`
 
 **Inheritors:** `nice-react-button` (peer dependency)
@@ -330,7 +330,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 **Exports:**
 - Component: `Button`
-- Tokens: `ButtonStyles`, `getButtonToken()`
+- Tokens: `getButtonToken()`
 - Types: `ButtonProps`, `ButtonBorderRadiusType`, `ButtonBorderColorType`, `ButtonStatusType`, `ButtonStateType`
 
 ---
@@ -347,7 +347,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 
 **Exports:**
 - Component: `Lightbox`
-- Tokens: `LightboxStyles`, `getLightboxToken()`
+- Tokens: `getLightboxToken()`
 - Types: `LightboxProps`, `LightboxImageUrlType`, `LightboxAltType`, `LightboxTitleType`, `LightboxDescriptionType`
 
 ---
@@ -365,7 +365,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 **Exports:**
 - Component: `Image`
 - Service: `registerVendorResolver()`
-- Tokens: `ImageStyles`, `getImageToken()`
+- Tokens: `getImageToken()`
 - Types: `ImageProps`, `ImageAsType`, `ImageSrcType`, `ImageAltType`, `ImageWidthType`, `ImageHeightType`, `ImageBackgroundSizeType`, `ImageBackgroundPositionType`, `ImageBorderRadiusType`, `ImageBorderedType`, `ImageBorderWidthType`, `ImageBorderColorType`, `ImageModeType`, `ImageRenderImageType`, `ImageVendorType`
 
 **Border props (v ≥ Mode unification cycle):**

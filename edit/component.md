@@ -218,28 +218,17 @@ export function getTypographyToken(nameOrPath: string | string[], variantOrMode?
 }
 ```
 
-#### src/tokens/{Component}Styles.ts
-
-No-op component kept for backward compatibility. CSS custom properties are generated at nice-styles build time in `dist/tokens.css`.
-
-```ts
-import type { ComponentType } from "react"
-
-export const ButtonStyles: ComponentType = () => null
-```
-
 #### src/tokens/index.ts
 
-Re-exports from the individual token files:
+Re-exports the per-component token getter:
 
 ```ts
-export { ButtonStyles } from "./ButtonStyles"
 export { getButtonToken } from "./getButtonToken"
 ```
 
 #### Component Styles in Applications
 
-Component CSS custom properties are included automatically via `nice-styles/tokens.css` (loaded by `StylesProvider`). The `{Component}Styles` exports are no-ops — they exist only for backward compatibility and can be safely omitted from `componentStyles` in `StylesProvider`.
+Component CSS custom properties are included automatically via `nice-styles/tokens.css` (loaded by `StylesProvider`). Consumers do not register or render anything per-component to enable token CSS.
 
 ### src/constants.ts
 
@@ -557,7 +546,7 @@ export { default } from "./components/Typography"
 export * from "./components/Typography"
 
 // Token exports
-export { TypographyStyles, getTypographyToken } from "./tokens"
+export { getTypographyToken } from "./tokens"
 ```
 
 **Why `export *` over a selective list:** `types.ts` is the single source of truth for a component's public type surface. Using `export *` makes it impossible for `index.ts` to drift out of sync with `types.ts` when new prop types are added. Both individual imports (`import { TypographyProps } from "nice-react-typography"`) and namespace access (`import { TypographyTypes } from "nice-react-typography"; TypographyTypes.Props`) continue to work.
