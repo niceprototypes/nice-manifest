@@ -86,7 +86,7 @@ ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated
 | `fontFamily` | `font-family` | base, code, heading |
 | `fontSize` | `font-size` | smaller, small, base, large, larger |
 | `fontWeight` | `font-weight` | light, base, medium, semibold, bold, extrabold, black |
-| `color` | `color` | lighter, light, medium, heavy, base, disabled, link, success, warning, error |
+| `color` | `color` | base, light, lighter, lightest, disabled, link, success, warning, error |
 | `gap` | `gap` | none, smaller, small, base, large, larger |
 | `lineHeight` | `line-height` | condensed, base, expanded |
 
@@ -191,7 +191,7 @@ import { getToken } from "nice-react-styles"
 
 const StyledDiv = styled.div`
   font-size: ${getToken("fontSize", "large")};
-  color: ${getToken("color", "medium")};
+  color: ${getToken("color", "light")};
 `
 ```
 
