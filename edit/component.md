@@ -272,7 +272,7 @@ export type OnClickType = () => void
 When a prop uses a type from nice-styles, create a component-specific alias:
 
 ```ts
-import type { ColorType, FontSizeType, ModeType } from "nice-react-styles"
+import type { ColorType, FontSizeType, ThemeType } from "nice-react-styles"
 
 /**
  * TypographyColorType
@@ -291,13 +291,13 @@ export type TypographyColorType = ColorType
 export type TypographySizeType = FontSizeType
 
 /**
- * TypographyModeType
+ * TypographyThemeType
  *
- * Re-export of ModeType from nice-styles.
+ * Re-export of ThemeType from nice-styles.
  * Pin token resolution to a specific mode.
  * Extensible for consumer-defined custom modes.
  */
-export type TypographyModeType = ModeType
+export type TypographyThemeType = ThemeType
 ```
 
 #### JSDoc Documentation
@@ -443,24 +443,24 @@ const Component: React.FC<ComponentProps> = ({ className, …rest }) => (
 For components with multiple rendering branches (e.g. Image's `as="img" | "div" | renderImage`), forward `className` to whichever root is returned.
 
 Why this is required:
-- Consumers need a stable hook for cascading their own CSS scope into a nice subtree. Examples: `<Mode name="day" className="nice-storybook">` lets `preview-docs.css` scope storybook overrides to `.nice-storybook` rather than relying on broad selectors; an app might add `className="my-page-section"` to a Tile to apply page-specific tweaks.
+- Consumers need a stable hook for cascading their own CSS scope into a nice subtree. Examples: `<Theme name="day" className="nice-storybook">` lets `preview-docs.css` scope storybook overrides to `.nice-storybook` rather than relying on broad selectors; an app might add `className="my-page-section"` to a Tile to apply page-specific tweaks.
 - Without `className`, consumers fall back to ancestor selectors or DOM IDs — both brittle.
 - The class lands alongside whatever styled-components emits, so component-internal styling is unaffected.
 
-This rule applies retroactively — any visual component missing `className` is a bug. The current set covers Typography, Tile, Button, Icon, Image, Input, Flex, Lightbox, LightboxCaption, Slider, FadeOnScroll, Sticky, SectionLinks, StickySection, and Mode.
+This rule applies retroactively — any visual component missing `className` is a bug. The current set covers Typography, Tile, Button, Icon, Image, Input, Flex, Lightbox, LightboxCaption, Slider, FadeOnScroll, Sticky, SectionLinks, StickySection, and Theme.
 
-#### Mode prop — wrap-in-Mode standard (required for visual components)
+#### Theme prop — wrap-in-Theme standard (required for visual components)
 
-Every visual component that accepts a `mode?: ModeType` prop **must** delegate the pin mechanism to `Mode` from `nice-react-styles` — do not pass `mode` into `getToken(...)` inside the styled-component. The cascade does the work.
+Every visual component that accepts a `theme?: ThemeType` prop **must** delegate the pin mechanism to `Theme` from `nice-react-styles` — do not pass `mode` into `getToken(...)` inside the styled-component. The cascade does the work.
 
 Canonical pattern:
 
 ```tsx
-import { Mode } from "nice-react-styles"
+import { Theme } from "nice-react-styles"
 
 const Component: React.FC<Props> = ({ mode, ...rest }) => {
   const element = <StyledComponent {...rest} />
-  return mode ? <Mode name={mode}>{element}</Mode> : element
+  return theme ? <Theme name={theme}>{element}</Theme> : element
 }
 ```
 
@@ -468,7 +468,7 @@ For components with multiple early returns (Icon's three-tier resolution, Image'
 
 ```tsx
 const withMode = (el: React.ReactElement) =>
-  mode ? <Mode name={mode}>{el}</Mode> : el
+  theme ? <Theme name={theme}>{el}</Theme> : el
 
 if (renderImage) return withMode(<>{renderImage(src, alt)}</>)
 if (as === "div") return withMode(<StyledDiv … />)
@@ -481,7 +481,7 @@ Why this is required:
 - Styled-components stay simpler — no `$mode` transient prop, no third arg to `getToken`. Semantic tokens resolve via cascade.
 - The escape hatch (component renders a direct-primitive reference that bypasses the cascade) is reserved for explicit inverted-mode needs like Button's text contrast.
 
-Styled-components: do not declare `$mode?: ModeType` in transient props, and do not call `getToken(name, variant, mode)` with a third argument. Use `getToken(name, variant)` only. The `getStatusToken` utility on Button and Input dropped its `mode` parameter for the same reason.
+Styled-components: do not declare `$mode?: ThemeType` in transient props, and do not call `getToken(name, variant, mode)` with a third argument. Use `getToken(name, variant)` only. The `getStatusToken` utility on Button and Input dropped its `mode` parameter for the same reason.
 
 ### {Component}.test.tsx
 

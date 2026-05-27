@@ -180,7 +180,7 @@ getToken("fontSize", "base")          // → "var(--np--font-size--base)"
 getTokenKey("fontSize", "base")       // → "--np--font-size--base"
 getTokenValue("fontSize", "base")     // → "16px"
 
-// Mode-pinned primitives
+// Theme-pinned primitives
 getToken("color", "base", "night")   // → "var(--np--color--base--night)"
 ```
 
@@ -281,7 +281,7 @@ import { getToken } from "nice-react-styles"
 getToken("fontSize", "base")          // → --np--font-size--base
 getToken("color", "link")   // → --np--color--link
 
-// Mode-specific primitives
+// Theme-specific primitives
 getToken("backgroundColor", "base", "day")    // → --np--background-color--base--day
 getToken("backgroundColor", "base", "night")  // → --np--background-color--base--night
 
@@ -303,7 +303,7 @@ const AppTokenMap = {
   // Custom tokens
   brandColor: { primary: "#dc0000" },
 
-  // Mode-aware tokens
+  // Theme-aware tokens
   headerColor: {
     base: { day: "#000", night: "#fff" },
   },
@@ -365,7 +365,7 @@ Token values originate from three JSON module files in `nice-styles/src/tokens/`
 |------|-----------|------------|---------|
 | `module.json` | None (static) | `{ group: { variant: value } }` | Always active |
 | `module.breakpoints.json` | Breakpoint | `{ breakpoint: { group: { variant: value } } }` | `phone` is default |
-| `module.modes.json` | Mode | `{ mode: { group: { variant: value } } }` | `day` is default |
+| `module.themes.json` | Theme | `{ theme: { group: { variant: value } } }` | `day` is default |
 
 ### module.json — Static Tokens
 
@@ -413,7 +413,7 @@ Top-level keys are breakpoints (`phone`, `tablet`, `laptop`, `desktop`). Phone i
 }
 ```
 
-### module.modes.json — Mode Tokens
+### module.themes.json — Theme Tokens
 
 Top-level keys are modes (`day`, `night`). Day is the default. Night values override via `prefers-color-scheme: dark` media query.
 
@@ -441,7 +441,7 @@ Three scripts read these files by hardcoded path (no glob discovery):
 
 | Script | Reads | Outputs |
 |--------|-------|---------|
-| `scripts/generateTokens.ts` | All three modules + component.json | `src/generated/tokensData.ts`, `modeTokensData.ts`, `breakpointTokensData.ts`, `componentTokensData.ts` |
+| `scripts/generateTokens.ts` | All three modules + component.json | `src/generated/tokensData.ts`, `themeTokensData.ts`, `breakpointTokensData.ts`, `componentTokensData.ts` |
 | `scripts/generateCss/` | All three modules + component.json | `dist/tokens.css`, `dist/css/{group}.css` |
 | `scripts/generateTypes.ts` | All three modules | `src/generated/types.ts` |
 
@@ -469,9 +469,9 @@ Detected by `isBreakpointValue()` — checks for `phone` key.
 
 Generates a phone-first default + breakpoint primitives + media query reassignment.
 
-### Mode-aware (mode object)
+### Theme-aware (theme object)
 
-Detected by `isModeValue()` — checks for `day` key. Checked after breakpoint (if an object has both `phone` and `day`, breakpoint wins).
+Detected by `isThemeValue()` — checks for `day` key. Checked after breakpoint (if an object has both `phone` and `day`, breakpoint wins).
 
 ```ts
 { headerColor: { base: { day: "#000", night: "#fff" } } }
@@ -496,9 +496,9 @@ createTokens({
 
 ---
 
-## Mode Architecture
+## Theme Architecture
 
-- **"day"** is the default mode (`DEFAULT_MODE` in nice-react-styles)
+- **"day"** is the default theme (`DEFAULT_THEME` in nice-react-styles)
 - **"night"** replaces "dark" for mode suffixes throughout the system
 - Stable primitives: `--np--*--day` and `--np--*--night` are never reassigned
 - `@media (prefers-color-scheme: dark)` maps semantic vars to `--night` primitives — this is the **default behavior** when no pin is set
@@ -520,12 +520,12 @@ Three ways consumers pin:
 | Approach | Code | Use when |
 |---|---|---|
 | Whole page | `<html data-theme="day">` | App-wide default that overrides OS preference (e.g. storybook). |
-| Subtree via React | `<Mode name="day">{children}</Mode>` from `nice-react-styles` | Pin a region; uses a `<div style="display:contents">` so layout is unaffected. |
+| Subtree via React | `<Theme name="day">{children}</Theme>` from `nice-react-styles` | Pin a region; uses a `<div style="display:contents">` so layout is unaffected. |
 | Subtree via raw HTML | `<section data-theme="day">…</section>` | Same mechanism without React. |
 
 ### Component `mode` prop
 
-Visual components (Typography, Tile, Button, Icon, Image, Input) implement their `mode` prop by wrapping their rendered output in `<Mode name={mode}>` when the prop is set. Consequences:
+Visual components (Typography, Tile, Button, Icon, Image, Input) implement their `theme` prop by wrapping their rendered output in `<Theme name={theme}>` when the prop is set. Consequences:
 
 - Descendants of `<Tile mode="night">` automatically inherit night via the cascade — no need to set `mode` on each child.
 - A child with its own `mode` prop pins itself (and its descendants), overriding the ancestor.
@@ -535,12 +535,12 @@ Visual components (Typography, Tile, Button, Icon, Image, Input) implement their
 
 The third `mode?` argument on `getToken(name, variant, mode)` returns the bare mode-primitive reference (`var(--np--…--day)` or `--night`) — bypassing the cascade entirely. Use only when an element inside a pinned region needs the opposite mode regardless of any ancestor pin (e.g. Button's inverted-mode text contrast).
 
-### ModeType (nice-styles)
+### ThemeType (nice-styles)
 
 Core type for mode props across the ecosystem. Extensible for consumer-defined custom modes.
 
 ```ts
-import type { ModeType } from "nice-react-styles"
+import type { ThemeType } from "nice-react-styles"
 // "day" | "night" | (string & {})
 ```
 
@@ -548,16 +548,16 @@ Component packages re-export as component-specific aliases:
 
 ```ts
 // nice-react-typography
-import type { TypographyModeType } from "nice-react-typography"
-// TypographyModeType = ModeType
+import type { TypographyThemeType } from "nice-react-typography"
+// TypographyThemeType = ThemeType
 ```
 
-Higher-level components (app code, wrapper components) import `ModeType` from nice-react-styles:
+Higher-level components (app code, wrapper components) import `ThemeType` from nice-react-styles:
 
 ```ts
-import type { ModeType } from "nice-react-styles"
+import type { ThemeType } from "nice-react-styles"
 
 interface MyComponentProps {
-  mode?: ModeType
+  mode?: ThemeType
 }
 ```
