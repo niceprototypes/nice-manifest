@@ -294,8 +294,8 @@ export type TypographySizeType = FontSizeType
  * TypographyThemeType
  *
  * Re-export of ThemeType from nice-styles.
- * Pin token resolution to a specific mode.
- * Extensible for consumer-defined custom modes.
+ * Pin token resolution to a specific theme.
+ * Extensible for consumer-defined custom themes.
  */
 export type TypographyThemeType = ThemeType
 ```
@@ -451,37 +451,37 @@ This rule applies retroactively — any visual component missing `className` is 
 
 #### Theme prop — wrap-in-Theme standard (required for visual components)
 
-Every visual component that accepts a `theme?: ThemeType` prop **must** delegate the pin mechanism to `Theme` from `nice-react-styles` — do not pass `mode` into `getToken(...)` inside the styled-component. The cascade does the work.
+Every visual component that accepts a `theme?: ThemeType` prop **must** delegate the pin mechanism to `Theme` from `nice-react-styles` — do not pass `theme` into `getToken(...)` inside the styled-component. The cascade does the work.
 
 Canonical pattern:
 
 ```tsx
 import { Theme } from "nice-react-styles"
 
-const Component: React.FC<Props> = ({ mode, ...rest }) => {
+const Component: React.FC<Props> = ({ theme, ...rest }) => {
   const element = <StyledComponent {...rest} />
   return theme ? <Theme name={theme}>{element}</Theme> : element
 }
 ```
 
-For components with multiple early returns (Icon's three-tier resolution, Image's `as="img" | "div" | renderImage`), use a `withMode` local helper:
+For components with multiple early returns (Icon's three-tier resolution, Image's `as="img" | "div" | renderImage`), use a `withTheme` local helper:
 
 ```tsx
-const withMode = (el: React.ReactElement) =>
+const withTheme = (el: React.ReactElement) =>
   theme ? <Theme name={theme}>{el}</Theme> : el
 
-if (renderImage) return withMode(<>{renderImage(src, alt)}</>)
-if (as === "div") return withMode(<StyledDiv … />)
-return withMode(<StyledImg … />)
+if (renderImage) return withTheme(<>{renderImage(src, alt)}</>)
+if (as === "div") return withTheme(<StyledDiv … />)
+return withTheme(<StyledImg … />)
 ```
 
 Why this is required:
 - One mechanism — `[data-theme]` cascade — handles every level of pinning (whole-page, region, single component).
-- Descendants of a mode-pinned component automatically inherit the pin. `<Tile mode="night">{nested Typography, Icon}</Tile>` works without threading `mode` into the children.
-- Styled-components stay simpler — no `$mode` transient prop, no third arg to `getToken`. Semantic tokens resolve via cascade.
-- The escape hatch (component renders a direct-primitive reference that bypasses the cascade) is reserved for explicit inverted-mode needs like Button's text contrast.
+- Descendants of a theme-pinned component automatically inherit the pin. `<Tile theme="night">{nested Typography, Icon}</Tile>` works without threading `theme` into the children.
+- Styled-components stay simpler — no `$theme` transient prop, no third arg to `getToken`. Semantic tokens resolve via cascade.
+- The escape hatch (component renders a direct-primitive reference that bypasses the cascade) is reserved for explicit inverted-theme needs like Button's text contrast.
 
-Styled-components: do not declare `$mode?: ThemeType` in transient props, and do not call `getToken(name, variant, mode)` with a third argument. Use `getToken(name, variant)` only. The `getStatusToken` utility on Button and Input dropped its `mode` parameter for the same reason.
+Styled-components: do not declare `$theme?: ThemeType` in transient props, and do not call `getToken(name, variant, theme)` with a third argument. Use `getToken(name, variant)` only. The `getStatusToken` utility on Button and Input dropped its `theme` parameter for the same reason.
 
 ### {Component}.test.tsx
 
