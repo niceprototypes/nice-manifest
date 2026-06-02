@@ -10,24 +10,27 @@ build-time `@media` literals baked into `dist/tokens.css`.
 
 | Name | Pixels | Query shape |
 |------|-------:|-------------|
-| `phone` | `640` | `@media (max-width: 640px)` |
-| `tablet` | derived (`phone + 1`) | `@media (min-width: 641px)` |
+| `phone` | derived (`tablet − 1`) | `@media (max-width: 640px)` |
+| `tablet` | `641` | `@media (min-width: 641px)` |
 | `laptop` | `1280` | `@media (min-width: 1280px)` |
 | `desktop` | `1720` | `@media (min-width: 1720px)` |
 
-`tablet` has no pixel entry — it is the derived band between `phone`
-(max-width) and `laptop` (min-width). Moving `phone` automatically shifts the
-start of `tablet`.
+`phone` is the implicit mobile-first base — it has **no stored pixel entry** and
+is not editable. Its ceiling is derived as `tablet − 1`, so moving the `tablet`
+floor automatically shifts where the phone band ends. The three editable floors
+are `tablet` / `laptop` / `desktop`; each is a `min-width` threshold you can set
+independently.
 
 ---
 
 ## Customizing — build time
 
-Edit `nice-styles/src/tokens/breakpoints.json`:
+Edit `nice-styles/src/tokens/breakpoints.json` (the editable floors — no
+`phone` key; phone is the derived base):
 
 ```json
 {
-  "phone": 600,
+  "tablet": 600,
   "laptop": 1100,
   "desktop": 1800
 }
@@ -117,19 +120,22 @@ getBreakpoint("tablet", true)      // → "@media (min-width: 641px) and (max-wi
 
 ### `getBreakpointValue(name)`
 
-Returns the pixel threshold as a number. For `tablet`, returns `phone + 1`.
+Returns the pixel threshold as a number. For `phone` (the derived base),
+returns its ceiling — `tablet − 1`.
 
 ```ts
 getBreakpointValue("laptop")   // → 1280
+getBreakpointValue("phone")    // → 640  (tablet − 1)
 ```
 
 ### `setBreakpoints(overrides)`
 
-Runtime override. Accepts `Partial<BreakpointValues>` — any subset of
-`phone` / `laptop` / `desktop`.
+Runtime override. Accepts `Partial<BreakpointValues>` — any subset of the
+editable floors `tablet` / `laptop` / `desktop`. `phone` is the derived base
+and cannot be set.
 
 ```ts
-setBreakpoints({ laptop: 1100 })
+setBreakpoints({ tablet: 700, laptop: 1100 })
 ```
 
 ### `BREAKPOINTS`
@@ -139,7 +145,7 @@ re-importing. Do not reassign — call `setBreakpoints` instead.
 
 ```ts
 import { BREAKPOINTS } from "nice-styles"
-// { phone: 640, laptop: 1280, desktop: 1720 }
+// { tablet: 641, laptop: 1280, desktop: 1720 }
 ```
 
 ---
