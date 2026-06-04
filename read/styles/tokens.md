@@ -106,11 +106,18 @@ Used by: `borderRadius`, `cellHeight`, `fontSize`, `gap`
 
 ## Token Source Files
 
-JSON sources split into two scopes — module-level (cross-component) at the root, and component-level (per-prefix) under `components/`. One file per scope per component. Breakpoint and alt-theme overrides live **inside** each file under the reserved `$breakpoints` and `$themes` keys.
+JSON sources split into two scopes — module-level (cross-component) under `modules/`, and component-level (per-prefix) under `components/`. Both scopes are **folders of one-file-per-key**: `modules/{group}.json` (one per token group) and `components/{prefix}.json` (one per component). Breakpoint and alt-theme overrides live **inside** each file under the reserved `$breakpoints` and `$themes` keys.
 
 ```
 nice-styles/src/tokens/
-├── module.json                  ← module base + $breakpoints + $themes (all inline)
+├── modules/                     ← one file per token group
+│   ├── color.json               ← base + $themes (alt themes inline)
+│   ├── backgroundColor.json
+│   ├── borderColor.json
+│   ├── fontSize.json            ← $breakpoints only (no top-level base)
+│   ├── gap.json
+│   ├── borderRadius.json
+│   └── …                        ← one per group (16 today)
 ├── breakpoints.json             ← breakpoint pixel thresholds (separate concern)
 └── components/
     ├── button.json              ← per-component base + $themes (alt themes inline)
@@ -132,28 +139,31 @@ Themes are emitted last in `dist/tokens.css`, so on overlap (a token overridden 
 
 ### Module-level files
 
-- **`module.json`** holds the comprehensive base for every cross-component token group at the top level, plus reserved `$breakpoints` and `$themes` keys for the two override axes:
+- **`modules/{group}.json`** — one file per cross-component token group; the filename stem is the group name (`color.json` → `color`). Top-level keys are that group's base variants, with reserved `$breakpoints` (keyed by breakpoint name) and `$themes` (keyed by alt-theme name) holding overrides **scoped to that group**:
   ```json
+  // modules/color.json
   {
-    "gap":          { "none": "0", "smaller": "4px", ... },
-    "color":        { "base": "hsla(210, 5%, 5%, 1)", ... },
-    "backgroundColor": { ... },
-
-    "$breakpoints": {
-      "phone":   { "fontSize": { "base": "14px" } },
-      "tablet":  {},
-      "laptop":  { "fontSize": { "base": "16px" } },
-      "desktop": { "fontSize": { "base": "18px" } }
-    },
+    "base":  "hsla(210, 5%, 5%, 1)",
+    "light": "hsla(210, 5%, 25%, 1)", ...,
     "$themes": {
-      "night": {
-        "color":           { "base": "hsla(210, 5%, 95%, 1)", ... },
-        "backgroundColor": { ... }
-      }
+      "night": { "base": "hsla(210, 5%, 95%, 1)", "light": "...", ... }
     }
   }
   ```
-  Each alt theme inside `$themes` mirrors the shape of the base but is partial — only entries that differ. A theme MUST NOT introduce a group or variant absent from the base; the base is the registration site. `$breakpoints` is keyed by `phone` / `tablet` / `laptop` / `desktop`; `phone` is the implicit default.
+  ```json
+  // modules/fontSize.json — purely breakpoint-driven; no top-level base
+  {
+    "$breakpoints": {
+      "phone":   { "smaller": "11px", "base": "14px", ... },
+      "tablet":  { ... },
+      "laptop":  { "smaller": "12px", "base": "16px", ... },
+      "desktop": { ... }
+    }
+  }
+  ```
+  Each `$themes` / `$breakpoints` entry is partial — only the variants that differ. A theme override MUST NOT introduce a variant absent from the group's base; the base is the registration site. The exception is a **purely breakpoint-driven group** like `fontSize`, which carries no top-level base — its `phone` dimension *is* the default (`phone` is the implicit default breakpoint).
+
+  **Adding a token group = drop one `modules/{group}.json`.** The build globs the folder — no script edits. Same philosophy as `components/`.
 - **`breakpoints.json`** pixel-threshold table for the breakpoint names (a separate concern from breakpoint-conditional token values — this file defines *when* a breakpoint is active, not *which tokens* it overrides).
 
 ### Component-level files
@@ -189,7 +199,7 @@ nice-styles/src/generated/
 └── breakpointsData.ts             ← pixel thresholds
 ```
 
-The generators reconstitute the `{day, night}` split for runtime consumption — `themesData.day` is computed by splitting `module.json`'s themed groups out of the base. Runtime registry and CSS emission both still address the base theme as `"day"`; the JSON layer alone elides the wrapper.
+The generators reconstitute the `{day, night}` split for runtime consumption — `themesData.day` is computed by splitting the `modules/` themed groups out of the base. Runtime registry and CSS emission both still address the base theme as `"day"`; the JSON layer alone elides the wrapper.
 
 ---
 
@@ -401,31 +411,35 @@ registry.has("brandColor")       // true (after registerTokens / createTokens)
 
 ## Token Source Modules (nice-styles)
 
-Token values originate from one JSON module file in `nice-styles/src/tokens/`. `module.json` carries the comprehensive base at the top level, plus inline `$breakpoints` and `$themes` override sections. Per-component tokens live under `components/{prefix}.json` with the same internal shape.
+Token values originate from per-group JSON files under `nice-styles/src/tokens/modules/` — one file per token group, each carrying the comprehensive base at its top level plus inline `$breakpoints` and `$themes` override sections **scoped to that group**. A shared reader (`scripts/shared/readModuleFolder.ts`) globs the folder and reassembles the combined object the build consumes. Per-component tokens live under `components/{prefix}.json` with the same internal shape.
 
-### module.json — Base + `$breakpoints` + `$themes`
+### modules/{group}.json — Base + `$breakpoints` + `$themes`
 
-Top-level keys hold the comprehensive base: static groups (`gap`, `borderRadius`, …) and the default-theme values for theme-conditional groups (`color`, `backgroundColor`, `borderColor`). Two reserved override sections follow:
+Each file's top-level keys hold the group's base variants: static groups (`gap`, `borderRadius`, …) carry their values directly; theme-conditional groups (`color`, `backgroundColor`, `borderColor`) carry their default-theme values. Two reserved override sections may follow, scoped to that group:
 
 - **`$breakpoints`** — keyed by `phone` / `tablet` / `laptop` / `desktop`. `phone` is the implicit default; higher breakpoints override via `min-width` media queries.
-- **`$themes`** — keyed by alternative theme name (`night`, …). Each value mirrors the base shape but is partial (only entries that differ).
+- **`$themes`** — keyed by alternative theme name (`night`, …). Partial — only the variants that differ from the base.
 
 ```json
+// modules/gap.json — static group, no overrides
+{ "none": "0", "smaller": "4px", "small": "8px", "base": "16px" }
+```
+```json
+// modules/color.json — theme-conditional group
 {
-  "gap":          { "none": "0", "smaller": "4px", "small": "8px", "base": "16px" },
-  "borderRadius": { "smaller": "2px", "small": "4px", "base": "8px" },
-  "color":        { "base": "hsla(210, 5%, 5%, 1)", "light": "hsla(210, 5%, 25%, 1)", … },
-
-  "$breakpoints": {
-    "phone":   { "fontSize": { "base": "14px" } },
-    "tablet":  {},
-    "laptop":  { "fontSize": { "base": "16px" } },
-    "desktop": { "fontSize": { "base": "18px" } }
-  },
+  "base": "hsla(210, 5%, 5%, 1)", "light": "hsla(210, 5%, 25%, 1)", …,
   "$themes": {
-    "night": {
-      "color": { "base": "hsla(210, 5%, 95%, 1)", "light": "hsla(210, 5%, 95%, 0.85)", … }
-    }
+    "night": { "base": "hsla(210, 5%, 95%, 1)", "light": "hsla(210, 5%, 95%, 0.85)", … }
+  }
+}
+```
+```json
+// modules/fontSize.json — breakpoint-driven; no top-level base, phone is the default
+{
+  "$breakpoints": {
+    "phone":   { "base": "14px" },
+    "laptop":  { "base": "16px" },
+    "desktop": { "base": "18px" }
   }
 }
 ```
@@ -449,21 +463,21 @@ Top-level keys hold the comprehensive base: static groups (`gap`, `borderRadius`
 }
 ```
 
-JSON key order mirrors CSS cascade order: `base → $breakpoints → $themes`. On overlap (a token overridden by both a breakpoint and a theme), the theme wins by source-order precedence — matching the canonical pattern of placing `prefers-color-scheme: dark` after `min-width` media queries.
+JSON key order within each file mirrors CSS cascade order: `base → $breakpoints → $themes`. On overlap (a token overridden by both a breakpoint and a theme), the theme wins by source-order precedence — matching the canonical pattern of placing `prefers-color-scheme: dark` after `min-width` media queries.
 
-A theme or breakpoint override MUST NOT introduce a group or variant absent from the base — the generator validates this and throws on orphan overrides. The base is the registration site for every possible variant any override axis can address.
+A theme override MUST NOT introduce a variant absent from the group's base — the generator validates night against day and throws on orphan overrides; the base is the registration site for every variant a theme can address. The exception is a purely breakpoint-driven group (`fontSize`), which carries no top-level base — its `phone` dimension *is* the default.
 
 ### Build Pipeline
 
-Three readers consume the source JSON. Module-level reads use a hardcoded `path.join('module.json')` call; per-component files are discovered via `components/*.json` glob so adding a new component package is a zero-script-edit operation. Both `$breakpoints` and `$themes` overrides are always inline under the parent file — no sibling `module.breakpoints.json` or `.themes.json` files exist.
+Three readers consume the source JSON. Module-level files are discovered via a `modules/*.json` glob and reassembled into the combined shape by the shared `readModuleFolder` reader; per-component files via a `components/*.json` glob. **Both scopes are zero-script-edit — adding a token group or a component package is just a new file.** Both `$breakpoints` and `$themes` overrides are always inline under the parent file — no sibling `module.breakpoints.json` or `.themes.json` files exist.
 
 | Script | Reads | Outputs |
 |--------|-------|---------|
-| `scripts/generateTokens/` | `module.json` (incl. `$breakpoints` + `$themes`), `breakpoints.json`, glob `components/*.json` (each incl. `$themes`) | `src/generated/tokensData.ts`, `themeTokensData.ts`, `breakpointTokensData.ts`, `componentTokensData.ts`, `breakpointsData.ts` |
+| `scripts/generateTokens/` | glob `modules/*.json` (each incl. `$breakpoints` + `$themes`), `breakpoints.json`, glob `components/*.json` (each incl. `$themes`) | `src/generated/tokensData.ts`, `themeTokensData.ts`, `breakpointTokensData.ts`, `componentTokensData.ts`, `breakpointsData.ts` |
 | `scripts/generateCss/` | same set | `dist/tokens.css`, `dist/css/{group}.css` |
 | `scripts/generateTypes/` | same set, just enough to derive type unions | `src/generated/types.ts` |
 
-The legacy `{day, night}` shape used by the runtime registry and the generated `themeTokensData.ts` is reconstituted at read time: themed groups (those that appear in any alt theme inside `$themes`) are split out of the base portion of `module.json` to compute `themesDay`; `$themes.night` (etc.) is passed through unchanged. The breakpoint data is read from `$breakpoints` directly into the same shape that `module.breakpoints.json` previously held.
+The legacy `{day, night}` shape used by the runtime registry and the generated `themeTokensData.ts` is reconstituted at read time: themed groups (those that appear in any alt theme inside `$themes`) are split out of the reassembled `modules/` base to compute `themesDay`; `$themes.night` (etc.) is passed through unchanged. The breakpoint data is read from `$breakpoints` directly into the same shape that `module.breakpoints.json` previously held.
 
 Merge strategy in CSS generation: `{ ...coreTokens, ...themesDay, ...breakpointsPhone }` — later keys win on collision. This merged map drives the semantic `:root` variables.
 
