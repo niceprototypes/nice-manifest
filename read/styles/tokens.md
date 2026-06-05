@@ -183,6 +183,22 @@ Themes are emitted last in `dist/tokens.css`, so on overlap (a token overridden 
   ```
   Components with no alt-theme overrides (icon, tile, typography, image, input, lightbox today) simply omit the `$themes` key.
 
+  **Components support `$breakpoints` too** — the same reserved key modules use, with each breakpoint holding a partial mirror of the (nested) base tree. So both axes are available in both scopes:
+
+  ```json
+  {
+    "size": { "base": "var(--np--cell-height--base)", ... },
+    "$breakpoints": {
+      "laptop": { "size": { "base": "var(--np--cell-height--large)" } }
+    },
+    "$themes": {
+      "night": { "status": { "primary": { ... } } }
+    }
+  }
+  ```
+
+  Each `$breakpoints` / `$themes` entry is partial — only the paths that differ from the base. A `night` theme is special (it is the OS dark default, see Theme Architecture); any other `$themes` name and every `$breakpoints` name validate against the base tree and emit pin / `min-width` overrides.
+
 Adding a new component package = drop one `components/{prefix}.json`. The build picks it up automatically via filename glob — no script edits.
 
 ### Auto-Generated Files
@@ -316,7 +332,7 @@ getComponentToken("icon", "color", "error")
 // → "var(--np--icon--color--error)"
 ```
 
-TypeScript enforces valid prefixes via `ComponentPrefix` (auto-generated from `src/tokens/component/` folder names).
+TypeScript enforces valid prefixes via `ComponentPrefix` (auto-generated from `src/tokens/components/*.json` filenames).
 
 ---
 
@@ -537,6 +553,10 @@ createTokens({
 - Stable primitives: `--np--*--day` and `--np--*--night` are never reassigned
 - `@media (prefers-color-scheme: dark)` maps semantic vars to `--night` primitives — this is the **default behavior** when no pin is set
 - `color-scheme: light dark` on `:root` enables native browser dark scheme
+
+### Arbitrary theme names
+
+`night` is not the only possible theme — it is the **single theme wired to `@media (prefers-color-scheme: dark)`** (the OS dark default). Any *other* name under a `$themes` key (module or component), e.g. `sepia`, emits a stable `--np--…--{name}` primitive plus a `[data-theme="{name}"]` pin block, and is activated **only** by an explicit pin (`<Theme name="sepia">` / `data-theme="sepia"`) — there is no OS auto-switch for extra themes, since only one theme can own `prefers-color-scheme: dark`. Extra themes validate against the day base like night does. This is additive: the day/night path is unchanged.
 
 ### Pinning a region to a specific mode
 

@@ -63,7 +63,7 @@ nice-react-{component}
 2. **Each component folder contains**: the component file, types, styles, tests, and index
 3. **Supporting files are prefixed with the component name**: `{Component}.styles.ts`, `{Component}.types.ts`, `{Component}.helpers.ts`, `{Component}.services.ts`, etc. Never bare `styles.ts` / `types.ts`. **Why:** an editor open on `Button.styles.ts` and `Tile.styles.ts` is unambiguous; two tabs both labelled `styles.ts` aren't. Grep, find, and AI search land directly on the right file. **How to apply:** any non-`index.ts`, non-`{Component}.tsx` file inside a component folder gets the component-name prefix. PascalCase sibling files (sub-components like `Sticky/StickyProvider.tsx`) keep their own name — they are themselves components, not supporting files.
 4. **Utilities vs Services**: utilities are internal functions, services are exported for consumers
-5. **Tokens folder**: required for all components — token values live as JSON in nice-styles (`src/tokens/component/{name}/index.json`), and each component package provides a thin `get{Component}Token()` wrapper around `getComponentToken()` from nice-styles
+5. **Tokens folder**: required for all components — token values live as JSON in nice-styles (`src/tokens/components/{prefix}.json`), and each component package provides a thin `get{Component}Token()` wrapper around `getComponentToken()` from nice-styles
 
 ### Multi-Component Package Structure
 
@@ -161,11 +161,11 @@ export { formatDate } from "./formatDate"
 
 ### src/tokens
 
-Component tokens are defined as JSON in nice-styles (`src/tokens/component/{name}/index.json`) and compiled into `dist/tokens.css` at build time. Each React component package provides a thin accessor wrapper and a backward-compatible Styles export.
+Component tokens are defined as JSON in nice-styles (`src/tokens/components/{prefix}.json`) and compiled into `dist/tokens.css` at build time. Each React component package provides a thin accessor wrapper and a backward-compatible Styles export.
 
 #### Token Values (in nice-styles)
 
-Token values live in `nice-styles/src/tokens/component/{name}/index.json`. Values are raw CSS strings; cross-references use `var()`:
+Token values live in `nice-styles/src/tokens/components/{prefix}.json`. Values are raw CSS strings; cross-references use `var()`:
 
 ```json
 {
@@ -189,6 +189,12 @@ These become CSS custom properties in `dist/tokens.css`:
 --np--button--size--base: var(--np--cell-height--base);
 --np--button--border-radius--small: var(--np--border-radius--small);
 ```
+
+A component file may also carry the reserved `$themes` and `$breakpoints`
+override axes (both partial mirrors of the base tree) — see
+[`read/styles/tokens.md`](../read/styles/tokens.md) → "Component-level files".
+`night` is the OS dark default; other `$themes` names emit `[data-theme]` pins,
+and `$breakpoints` emits per-viewport `min-width` overrides.
 
 #### src/tokens/get{Component}Token.ts
 
