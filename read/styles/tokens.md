@@ -235,7 +235,7 @@ import { getToken, getBreakpoint, type FontSizeType } from "nice-styles"
 
 ## getToken
 
-Unified token accessor. Reads from the runtime registry (seeded at module load from the generated token data, runtime-extensible via `createTokens`). Throws on unknown tokens.
+Unified token accessor. Reads from the runtime registry (seeded at module load from the generated token data, runtime-extensible via `setTokens`). Throws on unknown tokens.
 
 Three sibling functions cover the three accessor forms:
 
@@ -338,7 +338,7 @@ TypeScript enforces valid prefixes via `ComponentPrefix` (auto-generated from `s
 
 ## Token Registry (nice-react-styles)
 
-Runtime token registry that extends nice-styles' static tokens. Core tokens are available immediately; custom tokens are registered via `createTokens()` or `registerTokens()`.
+Runtime token registry that extends nice-styles' static tokens. Core tokens are available immediately; custom tokens are registered via `setTokens()` or `registerTokens()`.
 
 ### getToken (nice-react-styles) — Unified Token Accessor
 
@@ -359,12 +359,12 @@ getToken("backgroundColor", "base", "night")  // → --np--background-color--bas
 getToken("brandColor", "primary")     // → --np--brand-color--primary
 ```
 
-### createTokens — Register + Generate CSS
+### setTokens — Register + Generate CSS
 
 Registers app-level token overrides and custom tokens in the runtime registry. Injects the generated CSS synchronously at call time; returns nothing. Call it once at module load (typically in `src/nice/tokens.ts`) and import that file for its side effect from your app entry.
 
 ```ts
-import { createTokens, getToken } from "nice-react-styles"
+import { setTokens, getToken } from "nice-react-styles"
 
 const AppTokenMap = {
   // Override core tokens
@@ -379,7 +379,7 @@ const AppTokenMap = {
   },
 } as const
 
-createTokens(AppTokenMap)
+setTokens(AppTokenMap)
 export { getToken }
 ```
 
@@ -419,7 +419,7 @@ The registry itself is exported as a `Map<string, RegistryEntry>` for callers th
 import { registry } from "nice-react-styles"
 
 registry.has("fontSize")         // true
-registry.has("brandColor")       // true (after registerTokens / createTokens)
+registry.has("brandColor")       // true (after registerTokens / setTokens)
 [...registry.keys()]             // ["fontSize", "color", "gap", ...]
 ```
 
@@ -499,9 +499,9 @@ Merge strategy in CSS generation: `{ ...coreTokens, ...themesDay, ...breakpoints
 
 ---
 
-## Variant Value Formats in createTokens
+## Variant Value Formats in setTokens
 
-When calling `createTokens()` from nice-react-styles, variant values can be one of three formats. These can be mixed freely within the same token group.
+When calling `setTokens()` from nice-react-styles, variant values can be one of three formats. These can be mixed freely within the same token group.
 
 ### Static (string)
 
@@ -532,7 +532,7 @@ Generates semantic variable + day/night primitives + `prefers-color-scheme` medi
 ### Mixed Example
 
 ```ts
-createTokens({
+setTokens({
   gap: {
     none: "0",                                  // static
     base: { phone: "24px", laptop: "32px" },    // responsive

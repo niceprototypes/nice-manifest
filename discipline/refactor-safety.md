@@ -103,7 +103,7 @@ If any answer is no, **reorder before continuing**.
 
 ## Honest accounting on failure
 
-If you break the build mid-refactor and the user notices (HMR error, dev-server crash, broken page in the browser), append a Mistake block to the current session log entry per `../edit/session-log.md` with:
+If you break the build mid-refactor and the user notices (HMR error, dev-server crash, broken page in the browser), append a Mistake block to the relevant package's `.nice/bump.md` per `../edit/session-log.md` with:
 
 - The order you used.
 - The order you should have used.

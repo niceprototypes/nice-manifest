@@ -131,7 +131,7 @@ The following logic exists in packages but may be underdocumented or missing fro
 ### Context Layer
 
 #### nice-react-styles
-- `createTokens()` auto-override detection for "app" prefix
+- `setTokens()` auto-override detection for "app" prefix
 - Font loading utilities in `src/utilities/`: `parseGoogleFontsUrl()`, `getWeightAxis()`, `supportsVariableWeight()`
 - `tokenStyleSheet.ts` utility for runtime CSS injection via shared `<style data-nice-tokens>` element
 - Token resolution fallback: custom tokens → core Theme tokens
@@ -199,7 +199,7 @@ The following logic exists in packages but may be underdocumented or missing fro
 
 #### nice-website-2025
 - `/src/nice/` wrapper component pattern
-- Token override architecture via `createTokens()`
+- Token override architecture via `setTokens()`
 - Provider composition order: StylesProvider → DeviceProvider → ScrollProvider → StickyProvider
 - `.symlink-trigger.js` pattern for CRA HMR with linked packages
 

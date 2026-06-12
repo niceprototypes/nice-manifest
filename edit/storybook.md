@@ -268,7 +268,7 @@ React/
 ├── Styles/
 │   ├── StylesProvider
 │   ├── getToken
-│   └── createTokens
+│   └── setTokens
 ├── Components/
 │   ├── Button, Flex, Icon, Lightbox
 │   ├── Scroll, Slider, Tile, Typography

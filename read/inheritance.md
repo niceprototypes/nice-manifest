@@ -45,7 +45,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 │  nice-react-styles (React bridge)     │
 │  └─ StylesProvider                    │
 │  └─ Theme (data-theme pin wrapper)     │
-│  └─ createTokens (React shim)         │
+│  └─ setTokens (React shim)            │
 │  └─ withBreakpoints / useBreakpoint   │
 └───────────────────────────────────────┘
                   ▼
@@ -73,11 +73,11 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 **Import guidance:** React projects should import nice-styles assets from `nice-react-styles`, which re-exports the entire nice-styles public API. Import directly from `nice-styles` only when working outside the React framework (e.g., vanilla JS, build scripts, non-React tooling).
 
 **Exports:**
-- Token getters: `getToken()` / `getTokenKey()` / `getTokenValue()` (registry-aware, runtime-extensible via `createTokens`); convenience wrappers `getThemeToken*`, `getBreakpointToken*`, `getComponentToken*` with the same three-form pattern.
+- Token getters: `getToken()` / `getTokenKey()` / `getTokenValue()` (registry-aware, runtime-extensible via `setTokens`); convenience wrappers `getThemeToken*`, `getBreakpointToken*`, `getComponentToken*` with the same three-form pattern.
 - CSS-variable name constructor: `getConstant()`.
 - Breakpoint helpers: `getBreakpoint()` (returns `@media` string), `getBreakpointValue()` (returns pixel number).
 - Setters: `setCoreTokens`, `setThemeTokens`, `setBreakpointTokens`, `setBreakpoints`, `registerTokens`.
-- Generators: `generateTokenCSS()` (pure JS core of `createTokens`), `injectTokenCSS()` (singleton `<style data-nice-tokens>` writer).
+- Generators: `generateTokenCSS()` (pure JS core of `setTokens`), `injectTokenCSS()` (singleton `<style data-nice-tokens>` writer).
 - Registry: `registry`, `seedDimensionedTokens()`.
 - Style-value helpers: `isStyleValue()`, plus types `ThemeValue`, `BreakpointValue`, `StyleValueKind`.
 - Constants: `NAMESPACE` (`"np"`), `DEFAULT_THEME`, `DEFAULT_BREAKPOINT`, `STYLE_VALUE_KEYS`, `BREAKPOINT_PHONE/TABLET/LAPTOP/DESKTOP`, `BREAKPOINTS`.
@@ -166,11 +166,11 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 - `react-dom` (>=19.2.0)
 - `styled-components` (>=6.1.18)
 
-**Role-statement:** A *thin React-bridge package.* All framework-agnostic logic lives in `nice-styles`. nice-react-styles owns the React-only surface: a `ThemeProvider`-backed `StylesProvider`, a `Theme` pin component, a `useBreakpoint` hook, a `withBreakpoints` HOC, and a `createTokens` React wrapper.
+**Role-statement:** A *thin React-bridge package.* All framework-agnostic logic lives in `nice-styles`. nice-react-styles owns the React-only surface: a `ThemeProvider`-backed `StylesProvider`, a `Theme` pin component, a `useBreakpoint` hook, a `withBreakpoints` HOC, and a `setTokens` React wrapper.
 
 **Exports:**
 - Component: `StylesProvider`, `FontLoader` (internal to StylesProvider's font-loading path), `Theme` (pins a subtree to a theme via `data-theme`).
-- React wrapper: `createTokens()` — calls `generateTokenCSS` + `injectTokenCSS` from nice-styles. Returns nothing; CSS is injected synchronously at call time.
+- React wrapper: `setTokens()` — calls `generateTokenCSS` + `injectTokenCSS` from nice-styles. Returns nothing; CSS is injected synchronously at call time.
 - React HOC + hook: `withBreakpoints`, `useBreakpoint`.
 - Type: `Breakpoints<T>` (React-prop responsive shape).
 - Re-exports the entire nice-styles public API (all token getters, setters, constants, types) so consumers can import everything from `"nice-react-styles"`.
@@ -178,7 +178,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 **Internal structure:**
 - `src/components/StylesProvider/` — `StylesProvider.tsx`, `StylesProvider.styled.ts`, `StylesProvider.types.ts`, `index.ts`.
 - `src/components/FontLoader/` — async font-link injection.
-- `src/services/createTokens/index.ts` — ~56-line React shim calling `generateTokenCSS` + `injectTokenCSS`.
+- `src/services/setTokens/index.ts` — ~56-line React shim calling `generateTokenCSS` + `injectTokenCSS`.
 - `src/services/withBreakpoints/` — HOC + `useBreakpoint` hook.
 - `src/types.ts` — `Breakpoints<T>` only; all token-system types live in nice-styles.
 

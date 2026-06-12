@@ -83,7 +83,7 @@ If any answer is no, **stop and read the source**.
 
 ## Honest accounting on failure
 
-When an invented value reaches production and breaks the build or the runtime, append a Mistake block to the current session log entry per `../edit/session-log.md` with:
+When an invented value reaches production and breaks the build or the runtime, append a Mistake block to the relevant package's `.nice/bump.md` per `../edit/session-log.md` with:
 
 - The call that was hallucinated.
 - What was actually in the registry.

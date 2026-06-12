@@ -774,7 +774,7 @@ Canonical scripts per package class. Each script must be both (a) appropriate fo
 
 **Forbidden everywhere:**
 
-- `"prepare": "npm run build"` — npm runs `prepare` on every `file:` install in every consumer, cascading into a full rebuild of every linked package on every `npm i` in every project. `prepublishOnly` covers the publish path; `ntk --build-all` covers the explicit workspace rebuild. See `manifest/.nice/reports/npm-install-breaks-consumers.md`.
+- `"prepare": "npm run build"` — npm runs `prepare` on every `file:` install in every consumer, cascading into a full rebuild of every linked package on every `npm i` in every project. `prepublishOnly` covers the publish path; `ntk --build-all` covers the explicit workspace rebuild. See `manifest/.nice/reports/npm-install-breaks-consumers.md`. Exception: `nice-configuration` carries `prepare` by deliberate choice (its `dist/` is committed, so this rebuilds it on install); no other package opts in.
 - Convenience aliases like `build:watch`, `test:watch`, `test:coverage`, `lint:fix`, `clean`, `build:types`. These add maintenance surface for marginal value.
 
 **Non-component package classes** (these don't follow the component template; the canonical sets below are the documented variant per class):
@@ -783,7 +783,7 @@ Canonical scripts per package class. Each script must be both (a) appropriate fo
 |---|---|---|
 | `nice-styles` (foundation) | bespoke generator pipeline | `clean` + `build:tokens` + `build:types` + `build:css` + `build:ts` + `build:post` chained from `build`; `dev` runs them in `--watch` mode; `prepublishOnly` and `test` (placeholder) for the publish chain. |
 | `nice-icons` (foundation) | gen script | `build`, `dev` (with `--watch`), `prepublishOnly`. No `prepare`. |
-| `nice-configuration` (foundation/CLI) | `tsc` | `build`, `prepublishOnly`. No `prepare`. |
+| `nice-configuration` (foundation/CLI) | `tsc` | `build`, `prepublishOnly`, `prepare` (deliberate exception — see "Forbidden everywhere" note below). |
 | `nice-vite-watcher` (plugin) | `tsup` | `build`, `dev`, `prepublishOnly`. No `prepare`. |
 | `nice-toolkit` (CLI) | no build | `test` (smoke). |
 
