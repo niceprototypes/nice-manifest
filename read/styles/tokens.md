@@ -76,7 +76,8 @@ ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated
 |-------|----------|-------|
 | `animationDuration` | `animation-duration` | base, slow |
 | `animationEasing` | `animation-easing` | base |
-| `backgroundColor` | `background-color` | base, alternate |
+| `backgroundColor` | `background-color` | base, dark, success, warning, error, link |
+| `backgroundColorInverse` | `background-color-inverse` | base, dark, success, warning, error, link (inverse-theme — see Inverse Colors) |
 | `backgroundSize` | `background-size` | contain, cover, fill, none, scale-down |
 | `borderColor` | `border-color` | base, dark, darker |
 | `borderRadius` | `border-radius` | smaller, small, base, large, larger |
@@ -87,8 +88,41 @@ ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated
 | `fontSize` | `font-size` | smaller, small, base, large, larger |
 | `fontWeight` | `font-weight` | light, base, medium, semibold, bold, extrabold, black |
 | `color` | `color` | base, light, lighter, lightest, disabled, link, success, warning, error |
+| `colorInverse` | `color-inverse` | base, light, lighter, lightest, disabled, link, success, warning, error (inverse-theme — see Inverse Colors) |
 | `gap` | `gap` | none, smaller, small, base, large, larger |
 | `lineHeight` | `line-height` | condensed, base, expanded |
+
+---
+
+## Inverse Colors
+
+`colorInverse` and `backgroundColorInverse` mirror `color` / `backgroundColor`
+variant-for-variant, but each variant holds the **opposite theme's** value:
+
+| | day value | night value |
+|---|---|---|
+| `color--base` | dark (`hsla(210,5%,5%,1)`) | light (`hsla(210,5%,95%,1)`) |
+| `colorInverse--base` | light (`hsla(210,5%,95%,1)`) | dark (`hsla(210,5%,5%,1)`) |
+
+So in day mode `--np--color-inverse--base` is the night color, and in night mode
+it is the day color — and because the inverse is a normal themed token, it still
+flips via `@media (prefers-color-scheme: dark)` and `[data-theme]` pins. A region
+styled with the inverse pair renders as the opposite theme **without** a JS
+`data-theme` wrapper to toggle, and it does not break when more themes are added.
+
+**Seeded as string literals, not `var()` references.** `colorInverse--base`'s day
+value is the literal `hsla(210,5%,95%,1)`, *not* `var(--np--color--base--night)`.
+This is deliberate — inverse colors usually need subtle per-variant tweaking, so
+each is an editable value rather than a hard alias of its source. Keep them
+hand-synced with `color` / `backgroundColor` when those change, or tweak freely.
+
+**Adding a 3rd theme:** give each inverse module a `$themes.{name}` entry whose
+values are the inverse you want for that theme — there is no automatic "opposite"
+beyond day↔night. Source: `nice-styles/src/tokens/modules/colorInverse.json` and
+`backgroundColorInverse.json`.
+
+Usage mirrors any color token: `getToken("colorInverse", "base")`,
+`getToken("backgroundColorInverse", "error")`.
 
 ---
 
