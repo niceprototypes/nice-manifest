@@ -9,7 +9,7 @@ Understanding the Nice ecosystem's existing structure.
 | File | Contents |
 |------|----------|
 | `inheritance.md` | Package hierarchy, dependency graph, layered system design |
-| `audit.md` | The three audits — manifest / storybook / consumer — their trigger phrases and scope, plus known manifest gaps |
+| `audit.md` | The audits — architecture (manifest ↔ architecture ↔ stories) and full (architecture + all consumers), built from the manifest / storybook / consumer audits — their trigger phrases and scope, plus known manifest gaps |
 | `projects/storybook.md` | nice-storybook structure and scripts |
 | `projects/website.md` | nice-website-2025 structure and scripts |
 | `styles/tokens.md` | Token naming conventions, getToken usage |

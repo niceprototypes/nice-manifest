@@ -1,26 +1,43 @@
 # Audit
 
-There are **three distinct audits**. Each takes one artifact and compares it
-against the ecosystem, reporting where they diverge. The **ecosystem — the
-`nice-*` package source — is the source of truth** for all three: when a doc, a
-story, or a consumer disagrees with the code, the code wins (unless the audit
-surfaces an actual code bug, which is itself a separate, explicit finding).
+Each audit takes one artifact and compares it against the **architecture — the
+`nice-*` package source**, which is the source of truth: when a doc, a story, or
+a consumer disagrees with the code, the code wins (unless the audit surfaces an
+actual code bug, which is itself a separate, explicit finding).
+
+The audits compose into two aggregates:
+
+- **Architecture audit** — the `manifest ↔ architecture ↔ stories` triangle.
+  **Three components:** the **manifest audit** and the **storybook audit**, both
+  checked against the **architecture** (the package code) sitting between them.
+  Run together they confirm the manifest *documents* and the stories *demonstrate*
+  exactly what the code *is*. Scope stops at the ecosystem — no consumers.
+- **Full audit** — the architecture audit **+ all consumers**. Everything above,
+  plus a consumer audit of every consuming project. This is the whole system.
 
 Say which audit you want. These trigger phrases disambiguate:
 
 | Audit | Triggered by | Answers | Subject (audited) | Reference (truth) |
 |-------|--------------|---------|-------------------|-------------------|
-| **Manifest** | `manifest audit` | Does the manifest line up with the ecosystem? | this manifest's docs | `nice-*` package source |
-| **Storybook** | `storybook audit` | Do the stories accurately and fully report the ecosystem? | `nice-storybook` stories | `nice-*` public API, props, tokens |
+| **Architecture** | `architecture audit` | Do the manifest and stories match the architecture? | manifest docs **+** storybook stories | `nice-*` package source (architecture) |
+| **Manifest** | `manifest audit` | Does the manifest line up with the architecture? | this manifest's docs | `nice-*` package source |
+| **Storybook** | `storybook audit` | Do the stories accurately and fully report the architecture? | `nice-storybook` stories | `nice-*` public API, props, tokens |
 | **Consumer** | `audit <project>`, `consumer audit of <project>`, `audit all consumers` | Does a consuming project use the ecosystem correctly? | one consumer project's code | ecosystem conventions + this manifest |
+| **Full** | `full audit` | Is the entire system — architecture **and** every consumer — consistent? | architecture audit **+** all consumers | `nice-*` package source + conventions |
+
+The **Architecture** and **Full** rows are aggregates: running one runs its
+components (Architecture = Manifest + Storybook; Full = Architecture + every
+consumer). The Manifest, Storybook, and Consumer audits are detailed in the
+numbered sections below.
 
 A bare, unqualified **`audit`** — no type and no project named — does **not**
 default to any one audit. Respond like `npm help`: list the audit types (the
 table above), each with its trigger phrase and one-line scope, and ask which to
 run. Do **not** pick one and start. Only a qualified phrase runs an audit:
-`manifest audit`, `storybook audit`, `audit <project>` /
-`consumer audit of <project>` (a consumer audit of that project), or
-`audit all consumers` (the consumer audit across every consumer project).
+`architecture audit`, `full audit`, `manifest audit`, `storybook audit`,
+`audit <project>` / `consumer audit of <project>` (a consumer audit of that
+project), or `audit all consumers` (the consumer audit across every consumer
+project).
 
 ---
 
