@@ -29,7 +29,7 @@ nice-manifest/
 ├── read/                          # UNDERSTANDING existing systems
 │   ├── README.md                  # Index
 │   ├── inheritance.md             # Package hierarchy, dependency graph, layers
-│   ├── audit.md                   # Consistency audit, improvements, documentation gaps
+│   ├── audit.md                   # Three audits: manifest / storybook / consumer (triggers + scope)
 │   ├── projects/
 │   │   ├── README.md              # Index
 │   │   ├── storybook.md           # nice-storybook structure

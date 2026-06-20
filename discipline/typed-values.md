@@ -28,7 +28,7 @@ This applies to, at minimum:
 
 ### 1. Read the type or registry before writing the call
 
-Before writing `getToken("group", "variant")`:
+Before writing `getToken("group", { variant: "…" })`:
 
 - Read `nice-styles/src/generated/types.ts` for the variant union, OR
 - Read `nice-styles/src/tokens/{module}.json` for the live values, OR

@@ -121,23 +121,23 @@ import { getToken } from "nice-react-styles"
 
 export const twoDots = [
   {
-    color: getToken("color", "error"),
-    height: getToken("cellHeight", "smaller"),
-    width: getToken("cellHeight", "smaller"),
+    color: getToken("color", { variant: "error" }),
+    height: getToken("cellHeight", { variant: "smaller" }),
+    width: getToken("cellHeight", { variant: "smaller" }),
   },
   {
-    color: getToken("color", "warning"),
-    height: getToken("cellHeight", "smaller"),
-    width: getToken("cellHeight", "smaller"),
+    color: getToken("color", { variant: "warning" }),
+    height: getToken("cellHeight", { variant: "smaller" }),
+    width: getToken("cellHeight", { variant: "smaller" }),
   },
 ]
 
 export const threeDots = [
   ...twoDots,
   {
-    color: getToken("color", "link"),
-    height: getToken("cellHeight", "smaller"),
-    width: getToken("cellHeight", "smaller"),
+    color: getToken("color", { variant: "link" }),
+    height: getToken("cellHeight", { variant: "smaller" }),
+    width: getToken("cellHeight", { variant: "smaller" }),
   },
 ]
 ```

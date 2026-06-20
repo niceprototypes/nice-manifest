@@ -407,7 +407,7 @@ getComponentToken() from nice-styles
 get{Component}Token.ts (thin wrapper)
     │
     │  Example: getButtonToken("size", "base")
-    │  Calls getComponentToken("button", "size", "base")
+    │  Calls getComponentToken("button", { token: "size", variant: "base" })
     │
     ▼
 {Component}.tsx

@@ -436,9 +436,9 @@ const CodeBlock = ({ children }: { children: string }) => (
     code
     style={{
       display: "block",
-      backgroundColor: getToken("backgroundColor", "alternate"),
-      padding: getToken("gap", "base"),
-      borderRadius: getToken("borderRadius", "base"),
+      backgroundColor: getToken("backgroundColor", { variant: "dark" }),
+      padding: getToken("gap"),
+      borderRadius: getToken("borderRadius"),
       whiteSpace: "pre",
       overflow: "auto",
     }}

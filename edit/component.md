@@ -217,10 +217,11 @@ import { getComponentToken, type TokenResult } from "nice-react-styles"
  * ```
  */
 export function getTypographyToken(nameOrPath: string | string[], variantOrMode?: string, mode?: string): TokenResult {
+  // Path branch: the wrapper's `variantOrMode` is the theme; flat branch: the variant.
   if (Array.isArray(nameOrPath)) {
-    return getComponentToken("typography", nameOrPath, variantOrMode)
+    return getComponentToken("typography", { token: nameOrPath, mode: variantOrMode })
   }
-  return getComponentToken("typography", nameOrPath, variantOrMode, mode)
+  return getComponentToken("typography", { token: nameOrPath, variant: variantOrMode, mode })
 }
 ```
 

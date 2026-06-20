@@ -1,95 +1,145 @@
 # Audit
 
-## Purpose of This Document
+There are **three distinct audits**. Each takes one artifact and compares it
+against the ecosystem, reporting where they diverge. The **ecosystem — the
+`nice-*` package source — is the source of truth** for all three: when a doc, a
+story, or a consumer disagrees with the code, the code wins (unless the audit
+surfaces an actual code bug, which is itself a separate, explicit finding).
 
-This manifest is a **comprehensive living guide** designed to give AI instances full context into the Nice ecosystem and its related projects and components.
+Say which audit you want. These trigger phrases disambiguate:
 
----
+| Audit | Triggered by | Answers | Subject (audited) | Reference (truth) |
+|-------|--------------|---------|-------------------|-------------------|
+| **Manifest** | `manifest audit` | Does the manifest line up with the ecosystem? | this manifest's docs | `nice-*` package source |
+| **Storybook** | `storybook audit` | Do the stories accurately and fully report the ecosystem? | `nice-storybook` stories | `nice-*` public API, props, tokens |
+| **Consumer** | `audit <project>`, `consumer audit of <project>`, `audit all consumers` | Does a consuming project use the ecosystem correctly? | one consumer project's code | ecosystem conventions + this manifest |
 
-## Two Parallel Tasks
-
-When improving the Nice ecosystem, execute both tasks simultaneously:
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  ┌─────────────────────┐       ┌─────────────────────────────┐  │
-│  │  Task 1:            │       │  Task 2:                    │  │
-│  │  Consistency Audit  │       │  Improvement Collection     │  │
-│  │                     │       │                             │  │
-│  │  Compare packages   │  ───► │  Note patterns, gaps,       │  │
-│  │  against docs       │       │  and opportunities          │  │
-│  │                     │       │                             │  │
-│  └─────────────────────┘       └─────────────────────────────┘  │
-│                                                                 │
-│                              ▼                                  │
-│                                                                 │
-│                 ┌─────────────────────────┐                     │
-│                 │  Update Manifest        │                     │
-│                 │  Documentation          │                     │
-│                 └─────────────────────────┘                     │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
-```
+A bare, unqualified **`audit`** — no type and no project named — does **not**
+default to any one audit. Respond like `npm help`: list the audit types (the
+table above), each with its trigger phrase and one-line scope, and ask which to
+run. Do **not** pick one and start. Only a qualified phrase runs an audit:
+`manifest audit`, `storybook audit`, `audit <project>` /
+`consumer audit of <project>` (a consumer audit of that project), or
+`audit all consumers` (the consumer audit across every consumer project).
 
 ---
 
-## Task 1: Consistency Audit
+## 1. Manifest audit
 
-Review all nice-* packages and verify alignment with manifest documentation.
+**Question:** does every claim in this manifest still match the `nice-*` source,
+and does the manifest cover the patterns the code actually uses?
 
-### Packages to Audit
+Two directions, run together:
 
-| Layer | Packages |
-|-------|----------|
-| Foundation | nice-styles, nice-icons, nice-configuration, nice-toolkit, nice-vite-watcher |
-| Context | nice-react-styles |
-| Utility | nice-react-flex, nice-react-typography, nice-react-tile, nice-react-scroll, nice-react-slider, nice-react-device-detector, nice-react-image |
-| Feature | nice-react-icon, nice-react-button |
-| Application | nice-storybook, nice-website-2025 |
+- **Accuracy** — every documented pattern / value / API in the manifest is checked
+  against the code. A mismatch is a finding.
+- **Coverage** — logic that exists in the code but is absent from the manifest is a
+  finding (see *Known manifest gaps* below).
 
-### Audit Checklist
+### Checklist (manifest claim → code)
 
-| Check | Files to Review | Documentation Reference |
-|-------|-----------------|------------------------|
+| Check | Code to read | Manifest reference |
+|-------|--------------|--------------------|
 | Folder structure | `src/` layout | `edit/component.md` → Folder Structure |
 | Export rules | `index.ts` files | `README.md` → Export Rules |
 | Type naming | `*.types.ts` files | `edit/component.md` → Type Naming Convention |
 | Token structure | `src/tokens/` files | `edit/component.md` → src/tokens |
-| CSS variable naming | Token maps, styled-components | `read/styles/tokens.md` |
+| CSS variable naming | token JSON, styled-components | `read/styles/tokens.md` |
 | Dependency declarations | `package.json` files | `edit/component.md` → Local Development Dependencies |
 | Build config | `rollup.config.js`, `tsconfig.json` | `edit/component.md` → Rollup Configuration |
 
-### Deviation Categories
+### Finding categories
 
-- **Code needs fix**: Implementation violates documented pattern
-- **Docs need update**: Documentation doesn't reflect intentional pattern
-- **Decision needed**: Ambiguous case requiring clarification
+- **Docs need update** — the manifest is wrong/stale; fix the manifest (code wins).
+- **Code needs fix** — the code violates a deliberate documented pattern; flag it
+  for the package. Do **not** silently rewrite the doc to match a regression.
+- **Decision needed** — ambiguous; surface for the user.
 
----
-
-## Task 2: Improvement Collection
-
-Gather enhancements from manifest analysis and package implementations.
-
-### Output Format
-
-```markdown
-### [Category]
-
-#### [Title]
-- **Package(s)**: affected packages
-- **Current**: how it works now
-- **Proposed**: suggested change
-- **Impact**: what this improves
-- **Priority**: low | medium | high
-```
+**Output:** a deviation report (manifest location → code reality → category) plus the
+manifest edits that resolve every "Docs need update" finding.
 
 ---
 
-## Known Documentation Gaps
+## 2. Storybook audit
 
-The following logic exists in packages but may be underdocumented or missing from manifest:
+**Question:** do `nice-storybook`'s stories report the ecosystem **accurately** and
+**fully**?
+
+- **Accuracy** — every story shows the real current API: correct prop names/types,
+  correct token names/values, correct usage. A story demoing a removed prop, a
+  renamed token, or a stale signature is a finding.
+- **Completeness** — every public surface is represented: each component has a story;
+  each documented prop / variant / token group is demoed; new tokens (e.g.
+  `colorInverse`) and new components are covered. A missing story, missing variant,
+  or undemoed token is a finding.
+
+Reference: the `nice-*` public API + `read/styles/tokens.md` (token groups) +
+`edit/storybook.md` (story conventions). Convention-violating stories are findings too.
+
+**Output:** report of inaccurate / incomplete / convention-violating stories, with the
+fix per item. Reports by default; only edits the stories when asked.
+
+---
+
+## 3. Consumer audit
+
+**Question:** does a **consuming project** (an app that depends on `nice-*`) use the
+ecosystem correctly and idiomatically?
+
+Triggered by naming the project — `audit website-viveka`, `do a consumer audit of
+website-viveka`. `audit all consumers` runs it for every project below.
+
+### Consumer projects
+
+| Project | Notes |
+|---------|-------|
+| `nice-website-2025` (`website`) | CRA |
+| `website-viveka` | CRA / craco |
+| `website-ocean` | CRA / craco |
+
+`nice-storybook` is a consumer too, but it is covered by the **storybook audit**, not here.
+
+### What a consumer audit checks
+
+- **Correct API usage** — components / services / tokens called with valid names and
+  props; no invented token variants (every `getToken` argument exists), no removed
+  props, no stale signatures.
+- **Idiomatic usage over inlined logic** — the project reaches for the ecosystem
+  service instead of re-implementing it. Examples: hand-rolled `data-theme` toggling
+  where `colorInverse` / `backgroundColorInverse` now exist; manual `var(--np--…)`
+  strings where `getConstant` / `getCssConstant` belong; bespoke responsive code the
+  breakpoint helpers already cover.
+- **Consumer patterns** — the `src/nice/` wrapper convention, provider composition
+  order, `file:` / semver dependency correctness, and `setTokens` override placement
+  (per `read/projects/*` and the `edit/` docs).
+- **Drift** — the project's `nice-*` versions and assumptions match the current
+  ecosystem.
+
+**Output:** a per-project report of misuse + idiomatic-improvement opportunities, each
+with the concrete fix. For a durable record, write it under
+`manifest/reports/audit/{project}.md` per the Artifact Convention.
+
+---
+
+## Status & exclusions (all audits)
+
+| Package | Status | Notes |
+|---------|--------|-------|
+| nice-react-input | Stub | Placeholder component (`<div>{children}</div>`, one prop). Exclude from audits until implementation begins. |
+| nice-react-image | Stub | No git repo or GitHub remote. Needs infrastructure setup before auditing. |
+| nice-website-2023 | Legacy | Gatsby project, intentionally omitted |
+| nice-website-2024 | Legacy | Gatsby project, intentionally omitted |
+
+Packages marked **Stub** are not production-ready and are excluded from the manifest
+and storybook audits. They still receive structural scaffolding (package.exports.json,
+token wrappers) so they conform when implementation begins.
+
+---
+
+## Known manifest gaps (manifest-audit reference)
+
+Logic that exists in the packages but the manifest under-documents — standing
+**manifest-audit** findings to close as the docs catch up.
 
 ### Foundation Layer
 
@@ -202,27 +252,3 @@ The following logic exists in packages but may be underdocumented or missing fro
 - Token override architecture via `setTokens()`
 - Provider composition order: StylesProvider → DeviceProvider → ScrollProvider → StickyProvider
 - `.symlink-trigger.js` pattern for CRA HMR with linked packages
-
-### Package Status
-
-| Package | Status | Notes |
-|---------|--------|-------|
-| nice-react-input | Stub | Placeholder component (`<div>{children}</div>`, one prop). Exclude from audits until implementation begins. |
-| nice-react-image | Stub | No git repo or GitHub remote. Needs infrastructure setup before auditing. |
-| nice-website-2023 | Legacy | Gatsby project, intentionally omitted |
-| nice-website-2024 | Legacy | Gatsby project, intentionally omitted |
-
-Packages marked **Stub** are not production-ready and should be excluded from consistency audits. They still receive structural scaffolding (package.exports.json, token wrappers) so they conform when implementation begins.
-
----
-
-## Trigger
-
-To execute these tasks:
-
-```
-Review all nice-* packages at ~/Code/nice-* for consistency with nice-manifest documentation.
-Collect improvement opportunities in parallel.
-Update manifest documentation with any missing patterns or logic.
-Output: deviation report + improvement backlog + documentation updates.
-```

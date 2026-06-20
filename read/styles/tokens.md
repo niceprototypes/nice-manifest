@@ -53,10 +53,13 @@ getToken("borderRadius")
 
 ### Token Items (camelCase or kebab)
 
+The token name is the only positional argument; the variant goes in the
+options object (`{ variant }`, default `"base"`).
+
 ```ts
-getToken("fontSize", "base")
-getToken("fontSize", "large")
-getToken("color", "link")
+getToken("fontSize", { variant: "base" })
+getToken("fontSize", { variant: "large" })
+getToken("color", { variant: "link" })
 ```
 
 ### Type Names (PascalCase + Type suffix)
@@ -121,8 +124,13 @@ values are the inverse you want for that theme — there is no automatic "opposi
 beyond day↔night. Source: `nice-styles/src/tokens/modules/colorInverse.json` and
 `backgroundColorInverse.json`.
 
-Usage mirrors any color token: `getToken("colorInverse", "base")`,
-`getToken("backgroundColorInverse", "error")`.
+Two ways to read an inverse. The `inverse` option on the normal group —
+`getToken("color", { inverse: true })`,
+`getToken("backgroundColor", { inverse: true, variant: "error" })` — which
+resolves the matching `…Inverse` module. Or address that module directly:
+`getToken("colorInverse", { variant: "base" })`. Both are equivalent; the
+`inverse` option is the readable form. It only applies to `color` /
+`backgroundColor` (throws on groups with no inverse module).
 
 ---
 
@@ -271,21 +279,29 @@ import { getToken, getBreakpoint, type FontSizeType } from "nice-styles"
 
 Unified token accessor. Reads from the runtime registry (seeded at module load from the generated token data, runtime-extensible via `setTokens`). Throws on unknown tokens.
 
-Three sibling functions cover the three accessor forms:
+The token name is the only positional argument; `variant` / `theme` / `inverse`
+go in an options object (all optional; `variant` defaults `"base"`). Three
+sibling functions cover the three accessor forms:
 
-- `getToken(name, variant?, mode?)` — `var(--np--…)` reference (the common case).
-- `getTokenKey(name, variant?, mode?)` — bare CSS variable name (no `var(...)` wrapper).
-- `getTokenValue(name, variant?, mode?)` — raw underlying value (e.g. `"16px"`).
+- `getToken(name, options?)` — `var(--np--…)` reference (the common case).
+- `getTokenKey(name, options?)` — bare CSS variable name (no `var(...)` wrapper).
+- `getTokenValue(name, options?)` — raw underlying value (e.g. `"16px"`).
+
+`options`: `{ variant?: string; theme?: string; inverse?: boolean }`.
 
 ```ts
 import { getToken, getTokenKey, getTokenValue } from "nice-react-styles"
 
-getToken("fontSize", "base")          // → "var(--np--font-size--base)"
-getTokenKey("fontSize", "base")       // → "--np--font-size--base"
-getTokenValue("fontSize", "base")     // → "16px"
+getToken("fontSize")                            // → "var(--np--font-size--base)"  (base default)
+getToken("fontSize", { variant: "large" })      // → "var(--np--font-size--large)"
+getTokenKey("fontSize", { variant: "base" })    // → "--np--font-size--base"
+getTokenValue("fontSize", { variant: "base" })  // → "16px"
 
-// Theme-pinned primitives
-getToken("color", "base", "night")   // → "var(--np--color--base--night)"
+// Theme-pinned primitive
+getToken("color", { variant: "base", theme: "night" })   // → "var(--np--color--base--night)"
+
+// Inverse module (color / backgroundColor only)
+getToken("backgroundColor", { inverse: true })           // → "var(--np--background-color-inverse--base)"
 ```
 
 ### Usage in styled-components
@@ -294,8 +310,8 @@ getToken("color", "base", "night")   // → "var(--np--color--base--night)"
 import { getToken } from "nice-react-styles"
 
 const StyledDiv = styled.div`
-  font-size: ${getToken("fontSize", "large")};
-  color: ${getToken("color", "light")};
+  font-size: ${getToken("fontSize", { variant: "large" })};
+  color: ${getToken("color", { variant: "light" })};
 `
 ```
 
@@ -343,12 +359,17 @@ Component-scoped token accessor. Reads from auto-generated component token data.
 
 ### Signature
 
+Only the component `prefix` is positional; everything else is in the options
+object. `token` may be a string (flat lookup) or a path array (nested lookup).
+
 ```ts
 getComponentToken(
   prefix: ComponentPrefix,  // "button" | "icon" | "tile" | "typography" | …
-  tokenName: string,
-  variant?: string,         // defaults to "base"
-  mode?: string
+  options: {
+    token: string | string[]  // token name, or a path array for nested tokens
+    variant?: string          // flat lookups only; defaults to "base"
+    mode?: string             // theme/mode pin (e.g. "night")
+  }
 ): string
 ```
 
@@ -359,11 +380,15 @@ getComponentToken(
 ```ts
 import { getComponentToken } from "nice-react-styles"
 
-getComponentToken("button", "size", "base")
+getComponentToken("button", { token: "size", variant: "base" })
 // → "var(--np--button--size--base)"
 
-getComponentToken("icon", "color", "error")
+getComponentToken("icon", { token: "color", variant: "error" })
 // → "var(--np--icon--color--error)"
+
+// Nested path lookup
+getComponentToken("button", { token: ["status", "primary", "backgroundColor", "base"] })
+// → "var(--np--button--status--primary--background-color--base)"
 ```
 
 TypeScript enforces valid prefixes via `ComponentPrefix` (auto-generated from `src/tokens/components/*.json` filenames).
@@ -382,15 +407,15 @@ Queries the runtime registry. Core tokens work immediately. Custom tokens availa
 import { getToken } from "nice-react-styles"
 
 // Core tokens (always available)
-getToken("fontSize", "base")          // → --np--font-size--base
-getToken("color", "link")   // → --np--color--link
+getToken("fontSize", { variant: "base" })   // → --np--font-size--base
+getToken("color", { variant: "link" })       // → --np--color--link
 
 // Theme-specific primitives
-getToken("backgroundColor", "base", "day")    // → --np--background-color--base--day
-getToken("backgroundColor", "base", "night")  // → --np--background-color--base--night
+getToken("backgroundColor", { variant: "base", theme: "day" })    // → --np--background-color--base--day
+getToken("backgroundColor", { variant: "base", theme: "night" })  // → --np--background-color--base--night
 
 // Custom tokens (after registration)
-getToken("brandColor", "primary")     // → --np--brand-color--primary
+getToken("brandColor", { variant: "primary" })   // → --np--brand-color--primary
 ```
 
 ### setTokens — Register + Generate CSS
