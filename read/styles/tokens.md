@@ -368,7 +368,7 @@ getComponentToken(
   options: {
     token: string | string[]  // token name, or a path array for nested tokens
     variant?: string          // flat lookups only; defaults to "base"
-    mode?: string             // theme/mode pin (e.g. "night")
+    theme?: string             // theme/mode pin (e.g. "night")
   }
 ): string
 ```
@@ -646,7 +646,7 @@ Visual components (Typography, Tile, Button, Icon, Image, Input) implement their
 
 ### Escape hatch — explicit primitive
 
-The third `mode?` argument on `getToken(name, variant, mode)` returns the bare mode-primitive reference (`var(--np--…--day)` or `--night`) — bypassing the cascade entirely. Use only when an element inside a pinned region needs the opposite mode regardless of any ancestor pin (e.g. Button's inverted-mode text contrast).
+The `theme` option on `getToken(name, { theme })` returns the bare mode-primitive reference (`var(--np--…--day)` or `--night`) — bypassing the cascade entirely. Use only when an element inside a pinned region needs the opposite mode regardless of any ancestor pin (e.g. Button's inverted-mode text contrast).
 
 ### ThemeType (nice-styles)
 
