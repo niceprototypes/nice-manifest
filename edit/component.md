@@ -488,7 +488,7 @@ Why this is required:
 - Styled-components stay simpler — no `$theme` transient prop, no `theme` option on `getToken`. Semantic tokens resolve via cascade.
 - The escape hatch (component renders a direct-primitive reference that bypasses the cascade) is reserved for explicit inverted-theme needs like Button's text contrast.
 
-Styled-components: do not declare `$theme?: ThemeType` in transient props, and do not pass the `theme` option to `getToken`. Use `getToken(name, { variant })` only. The `getStatusToken` utility on Button and Input dropped its `theme` parameter for the same reason.
+Styled-components: do not declare `$theme?: ThemeType` in transient props, and do not pass the `theme` option to `getToken`. Use `getToken(name, variant)` only. The `getStatusToken` utility on Button and Input dropped its `theme` parameter for the same reason.
 
 ### {Component}.test.tsx
 
