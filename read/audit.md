@@ -86,9 +86,9 @@ manifest edits that resolve every "Docs need update" finding.
   correct token names/values, correct usage. A story demoing a removed prop, a
   renamed token, or a stale signature is a finding.
 - **Completeness** — every public surface is represented: each component has a story;
-  each documented prop / variant / token group is demoed; new tokens (e.g.
-  `colorInverse`) and new components are covered. A missing story, missing variant,
-  or undemoed token is a finding.
+  each documented prop / variant / token group is demoed; new tokens (e.g. the
+  `$inverse` color dimension) and new components are covered. A missing story,
+  missing variant, or undemoed token is a finding.
 
 Reference: the `nice-*` public API + `read/styles/tokens.md` (token groups) +
 `edit/storybook.md` (story conventions). Convention-violating stories are findings too.
@@ -123,7 +123,7 @@ website-viveka`. `audit all consumers` runs it for every project below.
   props, no stale signatures.
 - **Idiomatic usage over inlined logic** — the project reaches for the ecosystem
   service instead of re-implementing it. Examples: hand-rolled `data-theme` toggling
-  where `colorInverse` / `backgroundColorInverse` now exist; manual `var(--np--…)`
+  where the inverse-color dimension (`getToken(group, undefined, { inverse: true })`) now exists; manual `var(--np--…)`
   strings where `getConstant` / `getCssConstant` belong; bespoke responsive code the
   breakpoint helpers already cover.
 - **Consumer patterns** — the `src/nice/` wrapper convention, provider composition

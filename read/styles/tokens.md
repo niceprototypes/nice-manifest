@@ -53,13 +53,14 @@ getToken("borderRadius")
 
 ### Token Items (camelCase or kebab)
 
-The token name is the only positional argument; the variant goes in the
-options object (`{ variant }`, default `"base"`).
+For `getToken`, the variant is the second positional argument (default
+`"base"`); theme / inverse / pristine stay in the trailing options object.
+(`getTokenKey` / `getTokenValue` keep the variant inside their options object.)
 
 ```ts
-getToken("fontSize", { variant: "base" })
-getToken("fontSize", { variant: "large" })
-getToken("color", { variant: "link" })
+getToken("fontSize", "base")
+getToken("fontSize", "large")
+getToken("color", "link")
 ```
 
 ### Type Names (PascalCase + Type suffix)
@@ -79,8 +80,7 @@ ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated
 |-------|----------|-------|
 | `animationDuration` | `animation-duration` | base, slow |
 | `animationEasing` | `animation-easing` | base |
-| `backgroundColor` | `background-color` | base, dark, success, warning, error, link |
-| `backgroundColorInverse` | `background-color-inverse` | base, dark, success, warning, error, link (inverse-theme — see Inverse Colors) |
+| `backgroundColor` | `background-color` | base, dark, success, warning, error, link (+ `$inverse` — see Inverse Colors) |
 | `backgroundSize` | `background-size` | contain, cover, fill, none, scale-down |
 | `borderColor` | `border-color` | base, dark, darker |
 | `borderRadius` | `border-radius` | smaller, small, base, large, larger |
@@ -90,8 +90,7 @@ ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated
 | `fontFamily` | `font-family` | base, code, heading |
 | `fontSize` | `font-size` | smaller, small, base, large, larger |
 | `fontWeight` | `font-weight` | light, base, medium, semibold, bold, extrabold, black |
-| `color` | `color` | base, light, lighter, lightest, disabled, link, success, warning, error |
-| `colorInverse` | `color-inverse` | base, light, lighter, lightest, disabled, link, success, warning, error (inverse-theme — see Inverse Colors) |
+| `color` | `color` | base, light, lighter, lightest, disabled, link, success, warning, error (+ `$inverse` — see Inverse Colors) |
 | `gap` | `gap` | none, smaller, small, base, large, larger |
 | `lineHeight` | `line-height` | condensed, base, expanded |
 
@@ -99,38 +98,58 @@ ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated
 
 ## Inverse Colors
 
-`colorInverse` and `backgroundColorInverse` mirror `color` / `backgroundColor`
-variant-for-variant, but each variant holds the **opposite theme's** value:
+The inverse of a color is the **opposite theme's** value — in day mode the night
+color, in night mode the day color. `color` and `backgroundColor` carry an inverse
+for every variant.
 
-| | day value | night value |
-|---|---|---|
-| `color--base` | dark (`hsla(210,5%,5%,1)`) | light (`hsla(210,5%,95%,1)`) |
-| `colorInverse--base` | light (`hsla(210,5%,95%,1)`) | dark (`hsla(210,5%,5%,1)`) |
+**Data — the `$inverse` reserved key.** Inverse values live inside the base
+module (`color.json` / `backgroundColor.json`) under a reserved `$inverse` key,
+a sibling of `$themes` / `$breakpoints`. It is a self-contained sub-module —
+base (day) variants plus its own `$themes.night` — holding the swapped values:
 
-So in day mode `--np--color-inverse--base` is the night color, and in night mode
-it is the day color — and because the inverse is a normal themed token, it still
-flips via `@media (prefers-color-scheme: dark)` and `[data-theme]` pins. A region
-styled with the inverse pair renders as the opposite theme **without** a JS
-`data-theme` wrapper to toggle, and it does not break when more themes are added.
+```jsonc
+// modules/color.json
+{
+  "base": "hsla(210,5%,5%,1)", …,                 // color day
+  "$themes": { "night": { "base": "hsla(210,5%,95%,1)", … } },
+  "$inverse": {
+    "base": "hsla(210,5%,95%,1)", …,              // inverse day  = color night
+    "$themes": { "night": { "base": "hsla(210,5%,5%,1)", … } }  // inverse night = color day
+  }
+}
+```
 
-**Seeded as string literals, not `var()` references.** `colorInverse--base`'s day
-value is the literal `hsla(210,5%,95%,1)`, *not* `var(--np--color--base--night)`.
-This is deliberate — inverse colors usually need subtle per-variant tweaking, so
-each is an editable value rather than a hard alias of its source. Keep them
-hand-synced with `color` / `backgroundColor` when those change, or tweak freely.
+There are **no** `colorInverse` / `backgroundColorInverse` modules — inverse is a
+dimension of the base group, not a separate group.
 
-**Adding a 3rd theme:** give each inverse module a `$themes.{name}` entry whose
-values are the inverse you want for that theme — there is no automatic "opposite"
-beyond day↔night. Source: `nice-styles/src/tokens/modules/colorInverse.json` and
-`backgroundColorInverse.json`.
+**Var structure — `inverse` is a trailing `--inverse` segment** (a plain
+double-dashed segment after the theme, *not* a camelCase fusion):
 
-Two ways to read an inverse. The `inverse` option on the normal group —
-`getToken("color", { inverse: true })`,
-`getToken("backgroundColor", { inverse: true, variant: "error" })` — which
-resolves the matching `…Inverse` module. Or address that module directly:
-`getToken("colorInverse", { variant: "base" })`. Both are equivalent; the
-`inverse` option is the readable form. It only applies to `color` /
-`backgroundColor` (throws on groups with no inverse module).
+```
+--np--color--base--inverse          semantic (reactive — flips with the theme)
+--np--color--base--day--inverse     day primitive   = color night value
+--np--color--base--night--inverse   night primitive = color day value
+```
+
+The semantic `--np--color--base--inverse` flips via `@media (prefers-color-scheme:
+dark)` and `[data-theme]` pins exactly like a normal token, so a region styled with
+the inverse pair renders as the opposite theme **without** a JS `data-theme`
+wrapper, and it doesn't break when more themes are added.
+
+**Seeded as string literals, not `var()`** — `$inverse.base` (day) is the literal
+`hsla(210,5%,95%,1)`, not `var(--np--color--base--night)`. Inverse colors usually
+need per-variant tweaking, so each is an editable value. Keep them hand-synced
+with `color` / `backgroundColor`, or tweak freely.
+
+**Reading an inverse:** the `inverse` option on the getter —
+`getToken("color", undefined, { inverse: true })` → `var(--np--color--base--inverse)`,
+`getToken("backgroundColor", "error", { inverse: true })`. Valid for
+`color` / `backgroundColor` only (throws on groups with no `$inverse`). The
+generated `{Group}InverseType` (`ColorInverseType`, …) is the inverse variant union.
+
+**Adding a 3rd theme:** add a `$themes.{name}` entry inside each `$inverse` block
+with the inverse you want for that theme — there is no automatic opposite beyond
+day↔night.
 
 ---
 
@@ -279,29 +298,32 @@ import { getToken, getBreakpoint, type FontSizeType } from "nice-styles"
 
 Unified token accessor. Reads from the runtime registry (seeded at module load from the generated token data, runtime-extensible via `setTokens`). Throws on unknown tokens.
 
-The token name is the only positional argument; `variant` / `theme` / `inverse`
-go in an options object (all optional; `variant` defaults `"base"`). Three
-sibling functions cover the three accessor forms:
+The token name is always positional. For `getToken` the `variant` is the
+second positional argument (default `"base"`); `theme` / `inverse` / `pristine`
+stay in a trailing options object. `getTokenKey` / `getTokenValue` keep the
+variant inside their options object. Three sibling functions cover the three
+accessor forms:
 
-- `getToken(name, options?)` — `var(--np--…)` reference (the common case).
+- `getToken(name, variant?, options?)` — `var(--np--…)` reference (the common case).
 - `getTokenKey(name, options?)` — bare CSS variable name (no `var(...)` wrapper).
 - `getTokenValue(name, options?)` — raw underlying value (e.g. `"16px"`).
 
-`options`: `{ variant?: string; theme?: string; inverse?: boolean }`.
+`getToken` options: `{ theme?: string; inverse?: boolean; pristine?: boolean }`.
+`getTokenKey` / `getTokenValue` options: `{ variant?: string; theme?: string; inverse?: boolean; pristine?: boolean }`.
 
 ```ts
 import { getToken, getTokenKey, getTokenValue } from "nice-react-styles"
 
 getToken("fontSize")                            // → "var(--np--font-size--base)"  (base default)
-getToken("fontSize", { variant: "large" })      // → "var(--np--font-size--large)"
+getToken("fontSize", "large")                   // → "var(--np--font-size--large)"
 getTokenKey("fontSize", { variant: "base" })    // → "--np--font-size--base"
 getTokenValue("fontSize", { variant: "base" })  // → "16px"
 
 // Theme-pinned primitive
-getToken("color", { variant: "base", theme: "night" })   // → "var(--np--color--base--night)"
+getToken("color", "base", { theme: "night" })            // → "var(--np--color--base--night)"
 
-// Inverse module (color / backgroundColor only)
-getToken("backgroundColor", { inverse: true })           // → "var(--np--background-color-inverse--base)"
+// Inverse color (color / backgroundColor only) — trailing --inverse segment
+getToken("backgroundColor", undefined, { inverse: true }) // → "var(--np--background-color--base--inverse)"
 ```
 
 ### Usage in styled-components
@@ -310,8 +332,8 @@ getToken("backgroundColor", { inverse: true })           // → "var(--np--backg
 import { getToken } from "nice-react-styles"
 
 const StyledDiv = styled.div`
-  font-size: ${getToken("fontSize", { variant: "large" })};
-  color: ${getToken("color", { variant: "light" })};
+  font-size: ${getToken("fontSize", "large")};
+  color: ${getToken("color", "light")};
 `
 ```
 
@@ -407,15 +429,15 @@ Queries the runtime registry. Core tokens work immediately. Custom tokens availa
 import { getToken } from "nice-react-styles"
 
 // Core tokens (always available)
-getToken("fontSize", { variant: "base" })   // → --np--font-size--base
-getToken("color", { variant: "link" })       // → --np--color--link
+getToken("fontSize", "base")   // → --np--font-size--base
+getToken("color", "link")       // → --np--color--link
 
 // Theme-specific primitives
-getToken("backgroundColor", { variant: "base", theme: "day" })    // → --np--background-color--base--day
-getToken("backgroundColor", { variant: "base", theme: "night" })  // → --np--background-color--base--night
+getToken("backgroundColor", "base", { theme: "day" })    // → --np--background-color--base--day
+getToken("backgroundColor", "base", { theme: "night" })  // → --np--background-color--base--night
 
 // Custom tokens (after registration)
-getToken("brandColor", { variant: "primary" })   // → --np--brand-color--primary
+getToken("brandColor", "primary")   // → --np--brand-color--primary
 ```
 
 ### setTokens — Register + Generate CSS
@@ -646,7 +668,7 @@ Visual components (Typography, Tile, Button, Icon, Image, Input) implement their
 
 ### Escape hatch — explicit primitive
 
-The `theme` option on `getToken(name, { theme })` returns the bare mode-primitive reference (`var(--np--…--day)` or `--night`) — bypassing the cascade entirely. Use only when an element inside a pinned region needs the opposite mode regardless of any ancestor pin (e.g. Button's inverted-mode text contrast).
+The `theme` option on `getToken(name, variant, { theme })` returns the bare mode-primitive reference (`var(--np--…--day)` or `--night`) — bypassing the cascade entirely. Use only when an element inside a pinned region needs the opposite mode regardless of any ancestor pin (e.g. Button's inverted-mode text contrast).
 
 ### ThemeType (nice-styles)
 
