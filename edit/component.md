@@ -172,13 +172,13 @@ Token values live in `nice-styles/src/tokens/components/{prefix}.json`. Values a
   "size": {
     "smaller": "var(--np--cell-height--smaller)",
     "small": "var(--np--cell-height--small)",
-    "base": "var(--np--cell-height--base)",
+    "base": "var(--np--cell-height)",
     "large": "var(--np--cell-height--large)",
     "larger": "var(--np--cell-height--larger)"
   },
   "borderRadius": {
     "small": "var(--np--border-radius--small)",
-    "base": "var(--np--border-radius--base)",
+    "base": "var(--np--border-radius)",
     "large": "var(--np--border-radius--large)"
   }
 }
@@ -186,7 +186,7 @@ Token values live in `nice-styles/src/tokens/components/{prefix}.json`. Values a
 
 These become CSS custom properties in `dist/tokens.css`:
 ```css
---np--button--size--base: var(--np--cell-height--base);
+--np--button--size: var(--np--cell-height);
 --np--button--border-radius--small: var(--np--border-radius--small);
 ```
 

@@ -261,7 +261,7 @@ Outside the scope of this report. Today the base theme is called `"day"` at ever
 - CSS primitive suffix `--day` in `dist/tokens.css`
 - `<Theme name="day">` / `[data-theme="day"]` attribute
 - `getConstant(token, variant, { theme: "day" })` arg
-- Five `var(--np--color--base--day)` cross-references inside `component.json` itself
+- Five `var(--np--color--day)` cross-references inside `component.json` itself
 
 A future rename ("day" → "base", or some other neutral term) needs to land all five at once. It is **explicitly deferred** by this proposal — the JSON merge here does not touch the name. The day-content moves into `module.json` and the `day` wrapper key disappears, but everywhere else `"day"` still names the base theme.
 

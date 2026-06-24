@@ -172,6 +172,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 - Component: `StylesProvider`, `FontLoader` (internal to StylesProvider's font-loading path), `Theme` (pins a subtree to a theme via `data-theme`).
 - React wrapper: `setTokens()` — calls `generateTokenCSS` + `injectTokenCSS` from nice-styles. Returns nothing; CSS is injected synchronously at call time.
 - React HOC + hook: `withBreakpoints`, `useBreakpoint`.
+- Device/theme detection (opt-in, folded into `StylesProvider` — no separate provider needed when already inside one): the `detectDevice` prop runs `useDeviceDetector` (from `nice-react-device-detector`) once and publishes `{ isMobile }` through context, read via the `useDevice()` hook; the `detectTheme` prop publishes `{ theme }` (follows OS `prefers-color-scheme`), read via `useTheme()`. Both default `false` and are inert when off — `useDevice()` → `{ isMobile: false }`, `useTheme()` → `DEFAULT_THEME` — registering no resize / media-query listener. Use a standalone `DeviceProvider` only outside a `StylesProvider`.
 - Type: `Breakpoints<T>` (React-prop responsive shape).
 - Re-exports the entire nice-styles public API (all token getters, setters, constants, types) so consumers can import everything from `"nice-react-styles"`.
 
@@ -180,6 +181,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 - `src/components/FontLoader/` — async font-link injection.
 - `src/services/setTokens/index.ts` — ~56-line React shim calling `generateTokenCSS` + `injectTokenCSS`.
 - `src/services/withBreakpoints/` — HOC + `useBreakpoint` hook.
+- `src/components/StylesProvider/DeviceContext.tsx` — `useDevice()` hook + `DeviceDetectionProvider` (wraps `useDeviceDetector`, mounted by `StylesProvider` only when `detectDevice` is set); `ThemeContext.tsx` — `useTheme()` hook + theme detection (mounted only when `detectTheme` is set).
 - `src/types.ts` — `Breakpoints<T>` only; all token-system types live in nice-styles.
 
 **Inheritors:** `nice-react-typography`, `nice-react-icon`, `nice-react-button`

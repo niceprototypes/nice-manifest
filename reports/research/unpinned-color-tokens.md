@@ -5,7 +5,7 @@
 
 ## Why this exists
 
-After auto dark mode landed in `nice-styles@10.0.0` (the merge of `color-scheme.css` into `variables.css`), the *semantic* CSS variable for every mode-aware token — `--np--foreground-color--base`, `--np--background-color--base`, etc. — reassigns itself to the night primitive under `@media (prefers-color-scheme: dark)`. Any reference to the semantic variable, including via `getToken("foregroundColor", "base")`, follows that switch.
+After auto dark mode landed in `nice-styles@10.0.0` (the merge of `color-scheme.css` into `variables.css`), the *semantic* CSS variable for every mode-aware token — `--np--foreground-color`, `--np--background-color`, etc. — reassigns itself to the night primitive under `@media (prefers-color-scheme: dark)`. Any reference to the semantic variable, including via `getToken("foregroundColor", "base")`, follows that switch.
 
 To pin a value, pass an explicit mode as the third argument:
 

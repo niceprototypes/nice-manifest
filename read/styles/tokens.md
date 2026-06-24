@@ -23,17 +23,17 @@ Design token naming patterns in nice-styles.
 ### Core Token Examples
 
 ```
---np--font-size--base
+--np--font-size
 --np--color--link
 --np--border-radius--larger
---np--background-color--base--day      (mode primitive)
---np--color--base--night     (mode primitive)
+--np--background-color--day      (mode primitive)
+--np--color--night     (mode primitive)
 ```
 
 ### Component Token Examples
 
 ```
---np--button--size--base
+--np--button--size
 --np--button--status-primary-base--background-color
 --np--icon--color--error
 --np--typography--font-size--larger
@@ -126,23 +126,23 @@ dimension of the base group, not a separate group.
 double-dashed segment after the theme, *not* a camelCase fusion):
 
 ```
---np--color--base--inverse          semantic (reactive — flips with the theme)
---np--color--base--day--inverse     day primitive   = color night value
---np--color--base--night--inverse   night primitive = color day value
+--np--color--inverse          semantic (reactive — flips with the theme)
+--np--color--day--inverse     day primitive   = color night value
+--np--color--night--inverse   night primitive = color day value
 ```
 
-The semantic `--np--color--base--inverse` flips via `@media (prefers-color-scheme:
+The semantic `--np--color--inverse` flips via `@media (prefers-color-scheme:
 dark)` and `[data-theme]` pins exactly like a normal token, so a region styled with
 the inverse pair renders as the opposite theme **without** a JS `data-theme`
 wrapper, and it doesn't break when more themes are added.
 
 **Seeded as string literals, not `var()`** — `$inverse.base` (day) is the literal
-`hsla(210,5%,95%,1)`, not `var(--np--color--base--night)`. Inverse colors usually
+`hsla(210,5%,95%,1)`, not `var(--np--color--night)`. Inverse colors usually
 need per-variant tweaking, so each is an editable value. Keep them hand-synced
 with `color` / `backgroundColor`, or tweak freely.
 
 **Reading an inverse:** the `inverse` option on the getter —
-`getToken("color", undefined, { inverse: true })` → `var(--np--color--base--inverse)`,
+`getToken("color", undefined, { inverse: true })` → `var(--np--color--inverse)`,
 `getToken("backgroundColor", "error", { inverse: true })`. Valid for
 `color` / `backgroundColor` only (throws on groups with no `$inverse`). The
 generated `{Group}InverseType` (`ColorInverseType`, …) is the inverse variant union.
@@ -248,7 +248,7 @@ Themes are emitted last in `dist/tokens.css`, so on overlap (a token overridden 
 
   ```json
   {
-    "size": { "base": "var(--np--cell-height--base)", ... },
+    "size": { "base": "var(--np--cell-height)", ... },
     "$breakpoints": {
       "laptop": { "size": { "base": "var(--np--cell-height--large)" } }
     },
@@ -314,16 +314,16 @@ accessor forms:
 ```ts
 import { getToken, getTokenKey, getTokenValue } from "nice-react-styles"
 
-getToken("fontSize")                            // → "var(--np--font-size--base)"  (base default)
+getToken("fontSize")                            // → "var(--np--font-size)"  (base default)
 getToken("fontSize", "large")                   // → "var(--np--font-size--large)"
-getTokenKey("fontSize", { variant: "base" })    // → "--np--font-size--base"
+getTokenKey("fontSize", { variant: "base" })    // → "--np--font-size"
 getTokenValue("fontSize", { variant: "base" })  // → "16px"
 
 // Theme-pinned primitive
-getToken("color", "base", { theme: "night" })            // → "var(--np--color--base--night)"
+getToken("color", "base", { theme: "night" })            // → "var(--np--color--night)"
 
 // Inverse color (color / backgroundColor only) — trailing --inverse segment
-getToken("backgroundColor", undefined, { inverse: true }) // → "var(--np--background-color--base--inverse)"
+getToken("backgroundColor", undefined, { inverse: true }) // → "var(--np--background-color--inverse)"
 ```
 
 ### Usage in styled-components
@@ -356,15 +356,15 @@ import { getConstant } from "nice-react-styles"
 
 // Core token
 getConstant("backgroundColor", "base")
-// → { key: "--np--background-color--base", var: "var(--np--background-color--base)" }
+// → { key: "--np--background-color", var: "var(--np--background-color)" }
 
 // Force day mode primitive
 getConstant("backgroundColor", "base", { mode: "day" })
-// → { key: "--np--background-color--base--day", var: "var(--np--background-color--base--day)" }
+// → { key: "--np--background-color--day", var: "var(--np--background-color--day)" }
 
 // Force night mode primitive
 getConstant("color", "base", { mode: "night" })
-// → { key: "--np--color--base--night", var: "var(--np--color--base--night)" }
+// → { key: "--np--color--night", var: "var(--np--color--night)" }
 
 // Component token
 getConstant("height", "small", { pkg: "button" })
@@ -403,14 +403,14 @@ getComponentToken(
 import { getComponentToken } from "nice-react-styles"
 
 getComponentToken("button", { token: "size", variant: "base" })
-// → "var(--np--button--size--base)"
+// → "var(--np--button--size)"
 
 getComponentToken("icon", { token: "color", variant: "error" })
 // → "var(--np--icon--color--error)"
 
 // Nested path lookup
 getComponentToken("button", { token: ["status", "primary", "backgroundColor", "base"] })
-// → "var(--np--button--status--primary--background-color--base)"
+// → "var(--np--button--status--primary--background-color)"
 ```
 
 TypeScript enforces valid prefixes via `ComponentPrefix` (auto-generated from `src/tokens/components/*.json` filenames).
@@ -429,12 +429,12 @@ Queries the runtime registry. Core tokens work immediately. Custom tokens availa
 import { getToken } from "nice-react-styles"
 
 // Core tokens (always available)
-getToken("fontSize", "base")   // → --np--font-size--base
+getToken("fontSize", "base")   // → --np--font-size
 getToken("color", "link")       // → --np--color--link
 
 // Theme-specific primitives
-getToken("backgroundColor", "base", { theme: "day" })    // → --np--background-color--base--day
-getToken("backgroundColor", "base", { theme: "night" })  // → --np--background-color--base--night
+getToken("backgroundColor", "base", { theme: "day" })    // → --np--background-color--day
+getToken("backgroundColor", "base", { theme: "night" })  // → --np--background-color--night
 
 // Custom tokens (after registration)
 getToken("brandColor", "primary")   // → --np--brand-color--primary
@@ -467,15 +467,15 @@ export { getToken }
 **Generated CSS:**
 ```css
 :root {
-  --np--font-size--base: 20px;
+  --np--font-size: 20px;
   --np--font-size--larger: 40px;
   --np--brand-color--primary: #dc0000;
-  --np--header-color--base: #000;
-  --np--header-color--base--night: #fff;
+  --np--header-color: #000;
+  --np--header-color--night: #fff;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --np--header-color--base: var(--np--header-color--base--night);
+    --np--header-color: var(--np--header-color--night);
   }
 }
 ```
@@ -544,19 +544,19 @@ Each file's top-level keys hold the group's base variants: static groups (`gap`,
 ```css
 :root {
   --np--gap--none: 0;
-  --np--font-size--base: 14px;
-  --np--color--base: hsla(210, 5%, 5%, 1);
-  --np--color--base--day: hsla(210, 5%, 5%, 1);
-  --np--color--base--night: hsla(210, 5%, 95%, 1);
+  --np--font-size: 14px;
+  --np--color: hsla(210, 5%, 5%, 1);
+  --np--color--day: hsla(210, 5%, 5%, 1);
+  --np--color--night: hsla(210, 5%, 95%, 1);
 }
 @media (min-width: 1280px) {
-  :root { --np--font-size--base: var(--np--font-size--base--laptop); }
+  :root { --np--font-size: var(--np--font-size--laptop); }
 }
 @media (min-width: 1720px) {
-  :root { --np--font-size--base: var(--np--font-size--base--desktop); }
+  :root { --np--font-size: var(--np--font-size--desktop); }
 }
 @media (prefers-color-scheme: dark) {
-  :root { --np--color--base: var(--np--color--base--night); }
+  :root { --np--color: var(--np--color--night); }
 }
 ```
 
@@ -644,8 +644,8 @@ setTokens({
 `tokens.css` also emits two attribute-selector blocks that override the OS-preference cascade:
 
 ```css
-[data-theme="day"]   { color-scheme: light; --np--color--base: var(--np--color--base--day);   /* …all mode vars */ }
-[data-theme="night"] { color-scheme: dark;  --np--color--base: var(--np--color--base--night); /* …all mode vars */ }
+[data-theme="day"]   { color-scheme: light; --np--color: var(--np--color--day);   /* …all mode vars */ }
+[data-theme="night"] { color-scheme: dark;  --np--color: var(--np--color--night); /* …all mode vars */ }
 ```
 
 The attribute selector outranks `@media (prefers-color-scheme: dark)`, so when `data-theme` is set on an element the pin wins. The reassignments cascade to every descendant — nice components, raw markup, third-party widgets that read `var(--np--…)` alike.

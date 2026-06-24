@@ -27,8 +27,10 @@ Say which audit you want. These trigger phrases disambiguate:
 
 The **Architecture** and **Full** rows are aggregates: running one runs its
 components (Architecture = Manifest + Storybook; Full = Architecture + every
-consumer). The Manifest, Storybook, and Consumer audits are detailed in the
-numbered sections below.
+consumer). Each component audit still writes to its own `.nice/` folder. The
+aggregate itself writes a summary to `~/nice/.nice/audit-{YYYY-MM-DD}.md`. The
+Manifest, Storybook, and Consumer audits are detailed in the numbered sections
+below.
 
 A bare, unqualified **`audit`** — no type and no project named — does **not**
 default to any one audit. Respond like `npm help`: list the audit types (the
@@ -73,7 +75,8 @@ Two directions, run together:
 - **Decision needed** — ambiguous; surface for the user.
 
 **Output:** a deviation report (manifest location → code reality → category) plus the
-manifest edits that resolve every "Docs need update" finding.
+manifest edits that resolve every "Docs need update" finding. Write the report to
+`manifest/.nice/audit-{YYYY-MM-DD}.md`.
 
 ---
 
@@ -94,7 +97,8 @@ Reference: the `nice-*` public API + `read/styles/tokens.md` (token groups) +
 `edit/storybook.md` (story conventions). Convention-violating stories are findings too.
 
 **Output:** report of inaccurate / incomplete / convention-violating stories, with the
-fix per item. Reports by default; only edits the stories when asked.
+fix per item. Reports by default; only edits the stories when asked. Write the report
+to `nice-storybook/.nice/audit-{YYYY-MM-DD}.md`.
 
 ---
 
@@ -133,8 +137,9 @@ website-viveka`. `audit all consumers` runs it for every project below.
   ecosystem.
 
 **Output:** a per-project report of misuse + idiomatic-improvement opportunities, each
-with the concrete fix. For a durable record, write it under
-`manifest/reports/audit/{project}.md` per the Artifact Convention.
+with the concrete fix. Write the report to `{project}/.nice/audit-{YYYY-MM-DD}.md`.
+When running `audit all consumers`, write one file per project in its own `.nice/`
+folder.
 
 ---
 
