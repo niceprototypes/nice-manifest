@@ -108,15 +108,25 @@ override it at runtime.
 
 ## API reference
 
-### `getBreakpoint(name, exact?)`
+### `getBreakpoint(key)`
 
-Returns the `@media` query string (including the `@media` prefix).
+Returns the `@media` query string (including the `@media` prefix). The `key`
+uses the same `+`/`-`/bare grammar as the `breakpoints` prop and setTokens
+`$breakpoints`:
+
+- bare (`"tablet"`): exact — only that breakpoint's band.
+- `"+"` (`"tablet+"`): up — that breakpoint and every larger (min-width).
+- `"-"` (`"tablet-"`): down — that breakpoint and every smaller (max-width).
 
 ```ts
-getBreakpoint("phone")             // → "@media (max-width: 640px)"
-getBreakpoint("laptop")            // → "@media (min-width: 1280px)"
-getBreakpoint("tablet", true)      // → "@media (min-width: 641px) and (max-width: 1279px)"
+getBreakpoint("phone")    // → "@media (max-width: 640px)"   (exact band)
+getBreakpoint("laptop+")  // → "@media (min-width: 1280px)"  (up)
+getBreakpoint("tablet")   // → "@media (min-width: 641px) and (max-width: 1279px)"  (exact band)
+getBreakpoint("tablet-")  // → "@media (max-width: 1279px)"  (down)
 ```
+
+Base-spanning keys (`"phone+"`, `"desktop-"`) cover every viewport and resolve
+to an always-true `@media (min-width: 0px)`.
 
 ### `getBreakpointValue(name)`
 
