@@ -262,6 +262,37 @@ Themes are emitted last in `dist/tokens.css`, so on overlap (a token overridden 
 
 Adding a new component package = drop one `components/{prefix}.json`. The build picks it up automatically via filename glob — no script edits.
 
+#### Component alias auto-propagation (theme / breakpoint reactivity)
+
+A component token whose value is a **bare alias** to a core token —
+`"light": "var(--np--color--light)"` — automatically tracks every scope the
+referenced core participates in. The generator (`scripts/css/emitComponentAliases.ts`)
+emits a parallel reassignment of the component var into each
+`[data-theme="day"]` / `[data-theme="night"]` pin, the
+`@media (prefers-color-scheme: dark)` block, and any `@media (min-width)`
+breakpoint block, pointing at the core's stable primitive
+(`var(--np--color--light--night)`, `var(--np--font-size--laptop)`, …). No new
+primitives are minted — it reuses the core's.
+
+**Why it exists:** a component alias declared only at `:root` freezes its
+`var()` at `:root` scope (CSS custom-property substitution), so a
+`[data-theme="night"]` pin — which reassigns the *core* token, not the
+component token — never reaches it. The component color would silently follow
+`:root`/OS instead of the pin. Auto-propagation closes that gap so **every
+component token is theme- and breakpoint-correct without per-file authoring**.
+
+**Precedence:** authored `$themes.{theme}` / `$breakpoints.{bp}` overrides win
+per-variant — the auto pass skips any path+scope an authored override owns, so
+partial authoring composes (authored variants use the authored value, the rest
+auto-propagate). Component tokens holding a **distinct literal** value (e.g.
+button `status` colors) have no core counterpart to derive from and so still
+require authored `$themes` to theme — that path is unchanged.
+
+**Convention:** component styles should resolve through their own component
+token (`get{Component}Token`), never a core/root `getToken` var directly. Core
+vars are for loose use in consumer/app code. Because aliases now auto-propagate,
+routing a component prop through its component token is always theme-correct.
+
 ### Auto-Generated Files
 
 Build scripts (`scripts/generate*/`) read the JSON sources and output:
