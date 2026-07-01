@@ -93,6 +93,7 @@ ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated
 | `color` | `color` | base, light, lighter, lightest, disabled, link, success, warning, error (+ `$inverse` — see Inverse Colors) |
 | `gap` | `gap` | none, smaller, small, base, large, larger |
 | `lineHeight` | `line-height` | condensed, base, expanded |
+| `zIndex` | `z-index` | base, low, medium, high, higher |
 
 ---
 
@@ -178,7 +179,7 @@ nice-styles/src/tokens/
 │   ├── fontSize.json            ← $breakpoints only (no top-level base)
 │   ├── gap.json
 │   ├── borderRadius.json
-│   └── …                        ← one per group (16 today)
+│   └── …                        ← one per group (18 today)
 ├── breakpoints.json             ← breakpoint pixel thresholds (separate concern)
 └── components/
     ├── button.json              ← per-component base + $themes (alt themes inline)
