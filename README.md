@@ -25,7 +25,8 @@ nice-manifest/
 │   ├── verification.md            # Verify before claiming; tag confidence
 │   ├── disclosure.md              # Tag every factual claim by evidence source
 │   ├── typed-values.md            # Never invent a typed/enumerated value — read the registry
-│   └── refactor-safety.md         # Keep every intermediate save compiling during refactors
+│   ├── refactor-safety.md         # Keep every intermediate save compiling during refactors
+│   └── offboarding.md             # Reconcile manifest↔project discrepancies your change opened, before finishing
 ├── read/                          # UNDERSTANDING existing systems
 │   ├── README.md                  # Index
 │   ├── inheritance.md             # Package hierarchy, dependency graph, layers
@@ -124,6 +125,7 @@ After dependency changes, run `ntk --dedupe`. After source changes that consumer
 | Build config issue | `edit/configuration.md` |
 | Linked package not updating | `build/symlinks.md` or `build/vite.md` |
 | Committing work | `publish/git.md` → `publish/bump-intent.md` |
+| Finishing a unit of work | `discipline/offboarding.md` |
 | Publishing | `publish/npm.md` |
 | Understanding dependencies | `read/inheritance.md` |
 | Token naming / CSS variables | `read/styles/tokens.md` |

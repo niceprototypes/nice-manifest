@@ -12,6 +12,7 @@ Behavioral rules for AI instances working in this ecosystem. These are not phase
 | `disclosure.md` | Tag every factual claim by evidence source (`[verified: <source>]` / `[inferred from <source>]` / `[guess]`). Hedges like "probably" / "likely" do not substitute for the tag. |
 | `typed-values.md` | Never invent a value that has an enumerated type or registry definition. Read the type or registry first; tagging a guess does not authorize it. |
 | `refactor-safety.md` | Cross-file refactors must keep every intermediate save in a compiling state. Add the new before deleting the old. Remove instances before removing imports. |
+| `offboarding.md` | Before finishing a unit of work, reconcile every new discrepancy your change opened between the manifest and the project. The per-change, self-reviewed subset of the manifest audit. |
 
 ## Why a separate folder
 

@@ -379,6 +379,24 @@ Applied for both `as="img"` and `as="div"` rendering paths via the shared style 
 
 ---
 
+### nice-react-tooltip (v0.1.0)
+
+**Role:** Tooltip wrapper — wraps any element and shows an inverse-themed bubble on hover or click
+
+**Dependencies:**
+- `nice-react-styles`
+
+**Peer Dependencies:**
+- `react`, `react-dom`, `styled-components`
+
+**Exports:**
+- Component: `Tooltip`
+- Types: `TooltipProps`, `TooltipTriggerType`, `TooltipPositionType`, `TooltipContentType`, `TooltipDelayType`, `TooltipClassNameType`
+
+**Notes:** Colored with the inverse dimension of the `color` / `backgroundColor` tokens, so the bubble renders as the opposite theme and flips with the cascade. Bubble is portal-rendered (`position: fixed` at `<body>`) so it is never clipped by an overflow ancestor. Props: `content`, `trigger` (`hover` default / `click`), `position` (`top` default / `bottom` / `left` / `right`), `delayShow` / `delayHide` (ms). No component-token file — styled from module tokens only.
+
+---
+
 ## Token Inheritance Chain
 
 Components inherit design tokens through a specific chain:
@@ -444,6 +462,7 @@ All nice-* interdependencies use `file:` references for local development.
 | nice-react-button | nice-react-styles, nice-react-typography | nice-react-flex, nice-react-icon, react, styled-components |
 | nice-react-lightbox | nice-react-styles | react, react-dom, styled-components |
 | nice-react-image | nice-react-styles | react, react-dom, styled-components |
+| nice-react-tooltip | nice-react-styles | react, react-dom, styled-components |
 
 ### Transitive Dependencies
 
@@ -551,6 +570,7 @@ export default createConfiguration({
 | **Layout** | nice-react-flex, nice-react-tile | Flexbox/grid layout |
 | **Content** | nice-react-typography | Text rendering |
 | **Interaction** | nice-react-button, nice-react-scroll, nice-react-slider | User interactions |
+| **Overlay** | nice-react-lightbox, nice-react-tooltip | Portal-rendered overlays |
 | **Assets** | nice-react-icon, nice-react-image | Icon/image rendering |
 | **Detection** | nice-react-device-detector | Device/environment detection |
 | **Applications** | nice-storybook, nice-website-* | Consumer applications |
