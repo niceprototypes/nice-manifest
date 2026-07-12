@@ -2,14 +2,14 @@
 
 Standards for creating new assets in the Nice ecosystem.
 
-> **READ-ALL DIRECTIVE:** "Read the manifest" (or any variant) means read every file listed in the top-level `README.md` → "Read Manifest" section, in order, without asking for clarification.
+> **LOAD MODEL:** "Read the manifest" loads the Core (all of `discipline/` + the root `README.md` discovery index), then lazy-loads topic files on demand — see root `README.md` → "Manifest Load Model". Files in this folder are topic references: load the one your task or the index points to, not all of them.
 
 ## Files
 
 | File | Contents |
 |------|----------|
 | `component.md` | Component package structure, types, tokens |
-| `configuration.md` | Build config patterns (rollup, tsconfig, jest), deviation audit |
+| build config → [`topics/build-config.md`](../topics/build-config.md) | Config packages, standards (rollup/tsconfig/jest), deviation audit — **moved** to its single-home topic |
 | `comments.md` | Inline code comment standards for AI readability |
 | `session-log.md` | **Deprecated.** Session logs are now handled by per-package `.nice/bump.md` files; this file records what moved and keeps the mistake-reporting format. See [`publish/bump-intent.md`](../publish/bump-intent.md). |
 | `storybook.md` | Story file patterns for nice-storybook |

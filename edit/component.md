@@ -109,25 +109,23 @@ export type { FadeOnScrollProps } from "./components/FadeOnScroll"
 
 ### Hook-Only Package Structure
 
-Reference implementation: **nice-react-device-detector**
-
-Packages that provide only hooks and context providers — no styled-components, no tokens, no component folder structure.
+Packages that provide only hooks and context providers — no styled-components, no tokens, no component folder structure. No package currently ships this shape (the former standalone device-detection hook package was retired and its logic internalized into `nice-react-styles`' `StylesProvider`); this documents the pattern for any future hook-only package.
 
 ```
-nice-react-device-detector/
+nice-react-{name}/
 └── src/
     ├── hooks/
-    │   └── useDeviceDetector.ts
+    │   └── use{Hook}.ts
     ├── components/
-    │   └── DeviceProvider/
+    │   └── {Provider}/
     └── index.ts
 ```
 
 **Export pattern:**
 
 ```ts
-export { useDeviceDetector, default } from "./hooks/useDeviceDetector"
-export { DeviceProvider, useDevice } from "./components/DeviceProvider"
+export { use{Hook}, default } from "./hooks/use{Hook}"
+export { {Provider}, use{Context} } from "./components/{Provider}"
 ```
 
 **Key differences from component packages:**
@@ -431,7 +429,7 @@ import type { ButtonProps } from "./types"
 
 #### `className` prop — required for every visual component
 
-Every nice-react-* component that renders any DOM **must** accept an optional `className?: string` prop and forward it to the rendered root element. Non-visual components (pure context providers like `ScrollProvider`, hooks-only packages like `nice-react-device-detector`) are exempt.
+Every nice-react-* component that renders any DOM **must** accept an optional `className?: string` prop and forward it to the rendered root element. Non-visual components (pure context providers like `ScrollProvider`, hook-only packages with no rendered output) are exempt.
 
 ```tsx
 // In {Component}.types.ts — declare on the public props
@@ -530,7 +528,7 @@ export { default as TypographyTypes } from "./types"
 
 **When to skip the wrap:**
 
-- Hook-only packages (no rendered output) — see `nice-react-device-detector`.
+- Hook-only packages (no rendered output).
 - Pure context providers with no DOM (`StylesProvider`, `ScrollProvider`).
 - Multi-component packages where each component would need its own wrap;
   decide per component, not at the package level (`nice-react-scroll`).
@@ -593,7 +591,6 @@ New packages must include this file alongside a `"generate-exports"` script in `
 |---------|--------|
 | nice-react-styles | Bridge package — re-exports the entire nice-styles API. Hand-written. |
 | nice-react-scroll | Multi-component package — phase 2. |
-| nice-react-device-detector | Hook-only package — phase 2. |
 
 ## TypeScript Configuration
 
@@ -630,16 +627,16 @@ For local development, all nice-* package interdependencies use `file:` referenc
 ```json
 {
   "dependencies": {
-    "nice-styles": "file:../nice-styles",
-    "nice-react-styles": "file:../nice-react-styles"
+    "nice-styles": "file:../styles",
+    "nice-react-styles": "file:../react-styles"
   },
   "peerDependencies": {
     "nice-react-flex": ">=1.0.0",
     "react": ">=19.2.0"
   },
   "devDependencies": {
-    "nice-configuration": "file:../nice-configuration",
-    "nice-react-flex": "file:../nice-react-flex"
+    "nice-configuration": "file:../configuration",
+    "nice-react-flex": "file:../react-flex"
   }
 }
 ```
@@ -695,27 +692,7 @@ Peer-dependency externalization is handled inline by `createExternals` in `nice-
 
 ### Watch Mode Configuration
 
-The configuration includes optimized watch settings for reliable hot-reload:
-
-```js
-{
-  cache: false,  // Disable rollup's internal caching
-  watch: {
-    buildDelay: 200,  // Debounce rapid changes
-    clearScreen: false,
-    chokidar: {
-      awaitWriteFinish: {
-        stabilityThreshold: 150,
-        pollInterval: 50
-      },
-      usePolling: true,
-      interval: 100
-    }
-  }
-}
-```
-
-These settings prevent the "off by one" caching issue where file changes would appear one save behind. The `awaitWriteFinish` option ensures files are fully written before rollup reads them.
+Optimized watch settings (cache off, `awaitWriteFinish`, polling) ship inside `createConfiguration()` and prevent the "off by one" caching issue where changes appear one save behind. Full block + rationale: [`topics/build-config.md`](../topics/build-config.md) → Canonical rollup.config.js.
 
 ### Auto-Externalized Packages
 
@@ -804,7 +781,7 @@ Before publishing, `file:` dependency references must be replaced with semver ra
 
 ```json
 // Local development
-"nice-react-styles": "file:../nice-react-styles"
+"nice-react-styles": "file:../react-styles"
 
 // Before npm publish
 "nice-react-styles": "^4.0.0"

@@ -28,7 +28,7 @@ Say which audit you want. These trigger phrases disambiguate:
 The **Architecture** and **Full** rows are aggregates: running one runs its
 components (Architecture = Manifest + Storybook; Full = Architecture + every
 consumer). Each component audit still writes to its own `.nice/` folder. The
-aggregate itself writes a summary to `~/nice/.nice/audit-{YYYY-MM-DD}.md`. The
+aggregate itself writes a summary to `manifest/.reports/audit/audit-{YYYY-MM-DD}.md`. The
 Manifest, Storybook, and Consumer audits are detailed in the numbered sections
 below.
 
@@ -76,7 +76,7 @@ Two directions, run together:
 
 **Output:** a deviation report (manifest location → code reality → category) plus the
 manifest edits that resolve every "Docs need update" finding. Write the report to
-`manifest/.nice/audit-{YYYY-MM-DD}.md`.
+`manifest/.reports/audit/audit-{YYYY-MM-DD}.md`.
 
 ---
 
@@ -176,10 +176,13 @@ Logic that exists in the packages but the manifest under-documents — standing
 - Build scripts: `scripts/generateTokens.ts`, `scripts/generateTypes.ts`, `scripts/generateCss.ts`, `scripts/postBuild.ts`
 
 #### nice-icons
-- Auto-generated `index.js` via `scripts/generateIndex.js`
-- Icon discovery pattern: folders with `stroke.svg` and `fill.svg`
+- Auto-generated `index.js` + `index.d.ts` + data-only `catalog.js`/`catalog.d.ts` via `scripts/generateIndex.js`
+- `src/`-based layout (like nice-styles): `.ai` sources in `src/source/{category}/{icon}/`, generated SVG set + index in `src/generated/` (the published surface). `--convert [path]` turns `.ai` → SVG via nice-svg-generator (a folder or single `.ai`; omit for all); build never deletes SVGs so hand-authored icons persist
+- Icon discovery pattern: `src/generated/{category}/{icon}/` folders (categories `base/`, `brands/`) with `stroke.svg` and `fill.svg`; icons named by leaf only, cross-category name collisions rejected at build time
 - PascalCase conversion for export names
-- 31 icons with stroke/fill variants (62 total exports)
+- `iconCategories` grouping export (internal/presentation only) alongside `iconNames`; both live in `nice-icons/catalog`
+- SVG scrubber (`scripts/scrubSvg.js` + `svgStyle.config.js`) applies semantic classes per variant
+- 51 icons with stroke/fill variants (102 total exports; 39 base + 12 brands)
 
 #### nice-configuration
 - `isNiceExternal()` function for dependency detection
@@ -239,15 +242,11 @@ Logic that exists in the packages but the manifest under-documents — standing
 - Hardcoded 300ms animation duration (CSS and JS must match)
 - `styleHideScrollbar` utility for cross-browser scrollbar hiding
 
-#### nice-react-device-detector
-- Debug mode: `localStorage.getItem("debug-mobile")` or `?mobile=true` URL param
-- Detection priority: debug flags → user agent → touch + screen size
-- Breakpoint: 480px for mobile threshold
-
 ### Feature Layer
 
 #### nice-react-icon
 - `buildIconMap()` helper: dynamically imports from nice-icons
+- `iconNames` / `IconNameType` derive from nice-icons' generated export (`src/constants.ts` re-exports `iconNames` from `nice-icons`); no hand-maintained name list, and `src/icons.d.ts` no longer declares the `nice-icons` module (that package now ships its own types)
 - Icon naming convention: `{IconName}StrokeIcon`, `{IconName}FillIcon`
 - Spinner icon auto-rotation animation
 - `vector-effect: non-scaling-stroke` for stroke width preservation
@@ -272,5 +271,5 @@ Logic that exists in the packages but the manifest under-documents — standing
 #### nice-website-2025
 - `/src/nice/` wrapper component pattern
 - Token override architecture via `setTokens()`
-- Provider composition order: StylesProvider → DeviceProvider → ScrollProvider → StickyProvider
+- Provider composition order: StylesProvider → ScrollProvider → StickyProvider (device detection is folded into StylesProvider via `detectDevice`)
 - `.symlink-trigger.js` pattern for CRA HMR with linked packages

@@ -5,13 +5,13 @@
 > **AI OPTIMIZATION NOTES:** 
 > - This documentation prioritizes machine parsing over human readability
 > - When updating, optimize for AI comprehension by using terse descriptions, avoid prose, prefer structured data
-> - If told to "read manifest" with no further context, then read this entire project 
+> - "Read the manifest" loads the always-on **Core**, then lazy-loads topics on demand — see "Manifest Load Model" below. It does *not* mean read all 40+ files.
 
 **This is a comprehensive living guide designed to give AI instances full context into the Nice ecosystem and its related projects and components.**
 
 Every pattern, convention, and piece of logic that an AI assistant might need when working on nice-* packages should be documented here. If it's not in this documentation, an AI instance won't know it exists.
 
-Context manifest for AI assistants working on Nice Prototypes ecosystem (`nice-*` packages at `~/Code/nice-*`).
+Context manifest for AI assistants working on Nice Prototypes ecosystem (`nice-*` packages at `~/nice/*`).
 
 ---
 
@@ -22,11 +22,13 @@ nice-manifest/
 ├── README.md                      # THIS FILE - entry point, quick reference
 ├── discipline/                    # HIGHEST-PRIORITY behavioral rules — read first
 │   ├── README.md                  # Index
-│   ├── verification.md            # Verify before claiming; tag confidence
-│   ├── disclosure.md              # Tag every factual claim by evidence source
-│   ├── typed-values.md            # Never invent a typed/enumerated value — read the registry
+│   ├── responsiveness.md          # Never go unresponsive; no foreground subagents; match effort to task size
+│   ├── grounding.md               # Never present a guess as fact: verify before claiming, tag evidence, never invent typed values
 │   ├── refactor-safety.md         # Keep every intermediate save compiling during refactors
-│   └── offboarding.md             # Reconcile manifest↔project discrepancies your change opened, before finishing
+│   ├── offboarding.md             # Reconcile manifest↔project discrepancies your change opened, before finishing
+│   ├── scope.md                   # Do exactly what was asked — no unrequested rewrites/abstractions/extra files
+│   ├── communication.md           # No sycophancy/lecturing/unsolicited caveats; announce long or hanging ops
+│   └── stale-first.md             # Rule out stale state (tab, dev server, un-rebuilt package) before debugging code
 ├── read/                          # UNDERSTANDING existing systems
 │   ├── README.md                  # Index
 │   ├── inheritance.md             # Package hierarchy, dependency graph, layers
@@ -41,19 +43,46 @@ nice-manifest/
 │   ├── README.md                  # Index
 │   ├── comments.md                # Inline code comment standards for AI readability
 │   ├── component.md               # Component package structure, types, tokens
-│   ├── configuration.md           # Build config patterns, deviation audit
 │   └── storybook.md               # Story file patterns
 ├── build/                         # LOCAL DEVELOPMENT
 │   ├── README.md                  # Index
 │   ├── symlinks.md                # file: references, nice-toolkit CLI commands
 │   ├── vite.md                    # nice-vite-watcher usage
 │   └── image-compressor.md        # nice-image-compressor CLI for PNG compression
-└── publish/                       # RELEASING
-    ├── README.md                  # Index
-    ├── git.md                     # Commit format, ntk --commit workflow
-    ├── bump-intent.md             # .nice/bump.md format, ✓ marker, --commit ↔ --publish relationship
-    └── npm.md                     # Version bumping, publish order, peer deps
+├── publish/                       # RELEASING
+│   ├── README.md                  # Index
+│   ├── git.md                     # Commit format, ntk --commit workflow
+│   ├── bump-intent.md             # .nice/bump.md format, ✓ marker, --commit ↔ --publish relationship
+│   └── npm.md                     # Version bumping, publish order, peer deps
+└── topics/                        # SINGLE-HOME reference topics (lazy-loaded; #8 in progress)
+    └── build-config.md            # Config packages, standards, deviation audit (was edit/configuration.md)
 ```
+
+---
+
+## Manifest Load Model
+
+"Read the manifest" does **not** mean read all 40+ files. It means **load the always-on Core, then lazy-load topic files on demand.** The Core carries *awareness* of everything; topic bodies are fetched only when the task touches them.
+
+### Core — always loaded
+- **`discipline/`** — every behavioral rule (grounding, scope, communication, stale-first, refactor-safety, responsiveness, offboarding). Applied to all work, always.
+- **This `README.md`** — the discovery index: the File Tree (every file + one-line purpose), "Reading Order by Task", "Package Layers", and the "Config Surfaces" catalog below.
+
+### Topics — loaded on demand
+The `read/`, `edit/`, `build/`, `publish/` files. You are *aware* they exist from the File Tree; load a body only when the task or the Reading-Order table points to it. Do not front-load them.
+
+### Why a discovery index, not a subset
+An agent cannot load a topic it does not know exists, and must not depend on the user naming it. The File Tree and the catalogs list the **name + trigger** of every topic and reference surface, so the right doc is always discoverable from the Core — including surfaces the user never mentions.
+
+### Config Surfaces — so config issues are always discoverable
+When a build/config-related package misbehaves, a config doc exists; you do not need to be told:
+
+| Surface | Where it lives | Read |
+|---------|----------------|------|
+| Shared build config | `nice-configuration` → `typescript/`, `rollup/`, `jest/` subpaths (lint/prettier pending alignment) | `topics/build-config.md` |
+| Per-package config files | each package's `tsconfig.json`, `rollup.config.js`, `jest.config.js`, `.eslintrc`, `.prettierrc` | `topics/build-config.md`; `README.md` → Alignment Principle |
+| Vite / dev server / watcher | `nice-vite-watcher`; storybook `.storybook/main.ts` | `build/vite.md`, `build/symlinks.md` |
+| Cache / singleton / build triad | `ntk --clean` / `--dedupe` / `--build-all` | `build/symlinks.md`, `discipline/stale-first.md` |
 
 ---
 
@@ -99,7 +128,7 @@ Foundation   →  nice-styles, nice-icons, nice-configuration
 ### Local Dependencies
 
 ```json
-"nice-styles": "file:../nice-styles"
+"nice-styles": "file:../styles"
 ```
 
 ### Workspace operations
@@ -107,12 +136,14 @@ Foundation   →  nice-styles, nice-icons, nice-configuration
 Three non-overlapping `ntk` commands cover the workspace-level concerns:
 
 ```bash
-ntk --clean-caches    # kill dev-server ports + wipe consumer build-tool caches
-ntk --dedupe       # remove duplicate singletons from linked packages
+ntk --clean           # kill dev-server ports + wipe consumer build-tool caches
+ntk --dedupe          # remove duplicate singletons from linked packages
 ntk --build-all       # rebuild every linked package's dist in tier order
 ```
 
-After dependency changes, run `ntk --dedupe`. After source changes that consumers don't see, `ntk --clean-caches`. After a foundation refactor or on a fresh clone, `ntk --build-all`. Full topology and recipes in `build/symlinks.md` and `.nice/reports/caches.md`.
+After dependency changes, run `ntk --dedupe`. After source changes that consumers don't see, `ntk --clean`. After a foundation refactor or on a fresh clone, `ntk --build-all`. Full topology and recipes in `build/symlinks.md` and `.nice/reports/caches.md`.
+
+For a change scoped to one foundation package, `ntk --build-icons` rebuilds just `nice-icons` and its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — the targeted build after editing an SVG, avoiding a full `--build-all`.
 
 ---
 
@@ -122,7 +153,7 @@ After dependency changes, run `ntk --dedupe`. After source changes that consumer
 |------|------------|
 | New component package | `read/inheritance.md` → `edit/component.md` |
 | New story | `edit/storybook.md` |
-| Build config issue | `edit/configuration.md` |
+| Build config issue | `topics/build-config.md` |
 | Linked package not updating | `build/symlinks.md` or `build/vite.md` |
 | Committing work | `publish/git.md` → `publish/bump-intent.md` |
 | Finishing a unit of work | `discipline/offboarding.md` |
@@ -152,8 +183,8 @@ The `~/nice/*` packages are not independent projects that happen to live in adja
 | Resource | Source | Target | Status |
 |----------|--------|--------|--------|
 | TypeScript version | each package's `devDependencies` | `^6.0.0` (matches nice-configuration) | in-progress — pilot in react-lightbox first |
-| TypeScript config | each package's `tsconfig.json` | `extends "nice-configuration/typescript/react"` | partial — see deviations in `edit/configuration.md` |
-| Rollup config | each package's `rollup.config.js` | `nice-configuration/rollup → createConfiguration()` | partial — see deviations in `edit/configuration.md` |
+| TypeScript config | each package's `tsconfig.json` | `extends "nice-configuration/typescript/react"` | partial — see deviations in `topics/build-config.md` |
+| Rollup config | each package's `rollup.config.js` | `nice-configuration/rollup → createConfiguration()` | partial — see deviations in `topics/build-config.md` |
 | Jest config | each package's `jest.config.js` | `nice-configuration/jest/react` | partial — most packages missing |
 | Lint config | each package's `.eslintrc.cjs` | TBD — currently inconsistent | not yet aligned |
 | Prettier config | each package's `.prettierrc` | TBD — currently inconsistent | not yet aligned |
@@ -161,7 +192,7 @@ The `~/nice/*` packages are not independent projects that happen to live in adja
 **Documented exceptions:**
 
 - `website-2025` — CRA 5 pins TypeScript to 4.9.5 and provides its own build pipeline. Treat as out-of-band until CRA is replaced.
-- Justified per-package deviations are listed in `edit/configuration.md → Justified Exceptions`. New deviations require an entry in that table.
+- Justified per-package deviations are listed in `topics/build-config.md → Justified Exceptions`. New deviations require an entry in that table.
 
 **Decision principle:** before adding a new dev dep or config to one package, check whether it belongs in `nice-configuration`. If it does, add it there first.
 
@@ -174,16 +205,25 @@ Two artifact types exist today. Each has a fixed scope — do not mix them.
 | Artifact | Scope | Path | Documented in |
 |----------|-------|------|---------------|
 | Bump intent + change record | per-package | `{package}/.nice/bump.md` | [`publish/bump-intent.md`](publish/bump-intent.md) |
-| Report | workspace-wide (one location) | `manifest/reports/{category}/{slug}.md` | this section |
+| Report | workspace-wide (one location) | `manifest/.reports/{category}/{slug}.md` | this section |
 
 **Bump intent (replaces session logs):** each publishable package keeps its own `.nice/bump.md`. It is both the version-bump intent for `ntk --publish` and the durable per-change record that the old `manifest/.nice/sessions/` logs used to hold — one timestamped entry per publishable change, written in the same commit. The separate per-day session-log convention is retired; see [`edit/session-log.md`](edit/session-log.md) for what moved and for the surviving mistake-reporting format. Empty `bump.md` files are normal (placeholder until the next publishable change).
 
-**Reports:** ad-hoc audits, analyses, or recommendation documents the user asks Claude to produce live as standalone files under `manifest/reports/{category}/` (`research/`, `audit/`, …). One file per report, kebab-case slug (`third-party-libraries.md`, `rimraf-adoption.md`). Reports are workspace-wide — package-scoped findings still belong here, with the package named in the body. Do not create a `reports/` folder under any individual package's `.nice/`.
+**Reports:** ad-hoc audits, analyses, or recommendation documents the user asks Claude to produce live as standalone files under `manifest/.reports/{category}/` (`research/`, `audit/`, …). One file per report, kebab-case slug (`third-party-libraries.md`, `rimraf-adoption.md`). Reports are workspace-wide — package-scoped findings still belong here, with the package named in the body. Do not create a `reports/` folder under any individual package's `.nice/`.
+
+**Trigger phrases → destination (fixed, do not ask):**
+
+| User says | Write to |
+|-----------|----------|
+| "audit report", "audit the …", "write up an audit" | `manifest/.reports/audit/{slug}.md` |
+| "research report", "research …", "look into … and write it up" | `manifest/.reports/research/{slug}.md` |
+
+When the user asks for an **audit report**, the file goes in `manifest/.reports/audit/`. When the user asks for a **research report**, it goes in `manifest/.reports/research/`. Do not place these at the manifest root, under a package `.nice/`, or in a `manifest/reports/` folder (no such folder — the directory is dot-prefixed `.reports`). Pick the `{slug}` from the topic, kebab-case.
 
 ### What this convention does NOT cover
 
 - Reports are not change-record entries. A report is a single durable document on a topic; a `bump.md` entry is a one-line record of a shipped change. If the user asks for an audit, write a report. If a change is publishable, append a `bump.md` entry. Do not duplicate the same content across both.
-- Older `claude.md/` folders, any `.nice/sessions/` folder, and the former `manifest/.nice/reports/` location are migration artifacts. If encountered, fold session content into the relevant package's `.nice/bump.md`, move reports into `manifest/reports/{category}/`, and delete the source.
+- Older `claude.md/` folders, any `.nice/sessions/` folder, and the former `manifest/.nice/reports/` location are migration artifacts. If encountered, fold session content into the relevant package's `.nice/bump.md`, move reports into `manifest/.reports/{category}/`, and delete the source.
 
 ---
 

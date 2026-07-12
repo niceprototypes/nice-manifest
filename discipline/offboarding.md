@@ -45,7 +45,7 @@ that changes no documented behavior, a comment, a test).
 | New / renamed / removed export, prop, token, service | the package's section in `read/`, plus `edit/component.md` and `read/styles/tokens.md` as applicable |
 | New convention or pattern | the relevant `edit/` / `build/` / `publish/` file |
 | Moved / renamed file or folder | every manifest path that cites it |
-| Version / build / config change | `README.md` → Alignment Principle table, `edit/configuration.md` |
+| Version / build / config change | `README.md` → Alignment Principle table, `topics/build-config.md` |
 
 ---
 

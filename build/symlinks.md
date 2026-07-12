@@ -7,13 +7,13 @@ All nice-* interdependencies use `file:` references for local development:
 ```json
 {
   "dependencies": {
-    "nice-styles": "file:../nice-styles"
+    "nice-styles": "file:../styles"
   },
   "peerDependencies": {
     "react": ">=19.2.0"
   },
   "devDependencies": {
-    "nice-configuration": "file:../nice-configuration"
+    "nice-configuration": "file:../configuration"
   }
 }
 ```
@@ -40,6 +40,7 @@ These three operations target distinct layers and do not overlap. Each addresses
 | `ntk --clean` | each consumer's `node_modules/.cache` + `.vite`; also kills processes on discovered dev-server ports (parsed from `.env` `PORT=` and `package.json` `-p`/`--port` flags) | Dev server is serving stale code after a linked-package source change |
 | `ntk --dedupe` | duplicate singletons (react, styled-components, etc.) inside each linked package's `node_modules` | "Invalid hook call" or styled-components context mismatch |
 | `ntk --build-all` | walks registry tier order, runs `npm run build` in every linked nice-* package | Fresh clone; after `--dedupe`; after a foundation-package refactor |
+| `ntk --build-icons` | rebuilds only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order, resolved via the same reverse-dependency graph `--publish` uses. Auto-stops a concurrent dev watcher: if a running `ntk --dev`/`--watch` is detected (both rebuild the same dist and would race), it stops it first — the same reflex as the `--vite` port-kill — then builds. Pass `--no-kill` to build anyway. Also accepts `--convert [path]` (nice-svg-generator `.source` `.ai` → svg first; path = a folder or a single `.ai` file, omit for all) | Changed an SVG / icon asset and want a targeted build instead of a full `--build-all` |
 
 Common reset: `ntk --reset` (chains `--build-all → --dedupe → --clean`), then restart any dev server. The individual flags can also be run separately if you only need one.
 

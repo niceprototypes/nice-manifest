@@ -2,7 +2,7 @@
 
 Local development build processes for the Nice ecosystem.
 
-> **READ-ALL DIRECTIVE:** "Read the manifest" (or any variant) means read every file listed in the top-level `README.md` → "Read Manifest" section, in order, without asking for clarification.
+> **LOAD MODEL:** "Read the manifest" loads the Core (all of `discipline/` + the root `README.md` discovery index), then lazy-loads topic files on demand — see root `README.md` → "Manifest Load Model". Files in this folder are topic references: load the one your task or the index points to, not all of them.
 
 ## Files
 

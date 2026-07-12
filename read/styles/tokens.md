@@ -378,7 +378,7 @@ Constructs CSS variable strings following the `--np--` convention. Does not look
 ### Signature
 
 ```ts
-getConstant(token: string, param: string, options?: { mode?: string; pkg?: string }): CssConstantResult
+getConstant(token: string, param: string, options?: { theme?: string; breakpoint?: string; pkg?: string; inverse?: boolean }): CssConstantResult
 ```
 
 ### Examples
@@ -390,12 +390,12 @@ import { getConstant } from "nice-react-styles"
 getConstant("backgroundColor", "base")
 // → { key: "--np--background-color", var: "var(--np--background-color)" }
 
-// Force day mode primitive
-getConstant("backgroundColor", "base", { mode: "day" })
+// Force day theme primitive
+getConstant("backgroundColor", "base", { theme: "day" })
 // → { key: "--np--background-color--day", var: "var(--np--background-color--day)" }
 
-// Force night mode primitive
-getConstant("color", "base", { mode: "night" })
+// Force night theme primitive
+getConstant("color", "base", { theme: "night" })
 // → { key: "--np--color--night", var: "var(--np--color--night)" }
 
 // Component token
@@ -690,13 +690,13 @@ Three ways consumers pin:
 | Subtree via React | `<Theme name="day">{children}</Theme>` from `nice-react-styles` | Pin a region; uses a `<div style="display:contents">` so layout is unaffected. |
 | Subtree via raw HTML | `<section data-theme="day">…</section>` | Same mechanism without React. |
 
-### Component `mode` prop
+### Component `theme` prop
 
 Visual components (Typography, Tile, Button, Icon, Image, Input) implement their `theme` prop by wrapping their rendered output in `<Theme name={theme}>` when the prop is set. Consequences:
 
-- Descendants of `<Tile mode="night">` automatically inherit night via the cascade — no need to set `mode` on each child.
-- A child with its own `mode` prop pins itself (and its descendants), overriding the ancestor.
-- Internal styled-components do **not** thread `$mode`; they reference semantic vars and rely on the cascade.
+- Descendants of `<Tile theme="night">` automatically inherit night via the cascade — no need to set `theme` on each child.
+- A child with its own `theme` prop pins itself (and its descendants), overriding the ancestor.
+- Internal styled-components do **not** thread `$theme`; they reference semantic vars and rely on the cascade.
 
 ### Escape hatch — explicit primitive
 
@@ -704,7 +704,7 @@ The `theme` option on `getToken(name, variant, { theme })` returns the bare mode
 
 ### ThemeType (nice-styles)
 
-Core type for mode props across the ecosystem. Extensible for consumer-defined custom modes.
+Core type for theme props across the ecosystem. Extensible for consumer-defined custom themes.
 
 ```ts
 import type { ThemeType } from "nice-react-styles"
@@ -725,6 +725,6 @@ Higher-level components (app code, wrapper components) import `ThemeType` from n
 import type { ThemeType } from "nice-react-styles"
 
 interface MyComponentProps {
-  mode?: ThemeType
+  theme?: ThemeType
 }
 ```

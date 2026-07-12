@@ -245,7 +245,7 @@ Each entry in registry.json is an object with metadata:
 
 ```json
 {
-  "basePath": "~/Code",
+  "basePath": "~/nice",
   "tiers": [
     [
       { "name": "nice-styles", "type": "foundation", "sourceAliasable": false },
@@ -293,9 +293,10 @@ Append a new entry by hand to `nice-toolkit/registry.json`, placing it in the ap
 
 | Command | Description |
 |---------|-------------|
-| `ntk --clean-caches` | Wipe `node_modules/.cache` + `.vite` across every consumer; first kills any process bound to a dev-server port discovered from `.env` `PORT=` entries or `package.json` `-p`/`--port` flags. `--no-kill` to skip the kill phase. |
+| `ntk --clean` | Wipe `node_modules/.cache` + `.vite` across every consumer; first kills any process bound to a dev-server port discovered from `.env` `PORT=` entries or `package.json` `-p`/`--port` flags. `--no-kill` to skip the kill phase. |
 | `ntk --dedupe` | Recursively clean singletons (react, styled-components, etc.) from all linked packages' `node_modules` |
 | `ntk --build-all` | Walk registry tier order and run `npm run build` in every linked nice-* package |
+| `ntk --build-icons` | Rebuild only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — targeted build after an SVG/icon change, resolved via the reverse-dependency graph. If a `ntk --dev`/`--watch` is running (it rebuilds the same dist and would race), prompts `[k]` stop-and-continue / `[c]` cancel; non-interactive shells cancel |
 
 **Linking / dev / publish**
 
@@ -305,7 +306,7 @@ Append a new entry by hand to `nice-toolkit/registry.json`, placing it in the ap
 | `ntk --watch` | Watch dist folders and trigger recompilation |
 | `ntk --dev --watch` | Combined (recommended for CRA/webpack) |
 | `ntk --unlink` | Restore packages to npm versions |
-| `ntk --clean-only <path>` | Clean singletons in a specific package without linking |
+| `ntk --dedupe <path>` | Clean singletons in a specific package without linking |
 | `ntk --publish pkg1,pkg2` | Publish with automatic dependency cascade |
 | `ntk --publish --no-npm` | Bump, build, commit, push — skip npm |
 | `ntk --publish --otp-window 45` | Custom OTP expiry window (default: 30s) |
@@ -669,11 +670,7 @@ export { default } from "nice-configuration/jest/react"
 
 ### Packages Using Non-Standard Rollup Config
 
-| Package | Issue |
-|---------|-------|
-| nice-react-device-detector | Raw config array, manual plugin setup |
-
-**Normalization:** Replace with `createConfiguration()`.
+No packages currently deviate. (nice-react-icon's custom rollup plugins are a *justified* exception for SVGR — see Justified Exceptions.)
 
 ### Packages Using Non-Standard TypeScript Config
 
@@ -681,7 +678,6 @@ export { default } from "nice-configuration/jest/react"
 |---------|--------|
 | nice-react-icon | `target: es5`, `jsx: react`, `noEmit: true`, `moduleResolution: node` |
 | nice-react-flex | `target: ES2018`, `jsx: react`, `moduleResolution: node`, redundant strict options |
-| nice-react-device-detector | `target: es5`, `noEmit: true`, missing excludes |
 
 **Normalization:** Extend `nice-configuration/typescript/react`, use standard output paths.
 

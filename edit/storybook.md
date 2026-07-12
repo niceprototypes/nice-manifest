@@ -273,7 +273,9 @@ React/
 │   ├── Button, Flex, Icon, Lightbox
 │   ├── Scroll, Slider, Tile, Typography
 └── Hooks/
-    └── useDeviceDetector
+    ├── useBreakpoint
+    ├── useDevice
+    └── useTheme
 Configuration/
 ├── NPM
 ├── Vite

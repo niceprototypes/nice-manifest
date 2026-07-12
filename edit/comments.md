@@ -40,7 +40,7 @@ if (typeof value === 'string') {
 } else if (typeof value === 'object' && value !== null) {
 
 // Day primitive — stable reference that is never reassigned by media queries
-const dayCssVar = getConstant(cssName, variantName, { mode: "day" })
+const dayCssVar = getConstant(cssName, variantName, { theme: "day" })
 
 // Only react to JSON token file changes
 if (!filename?.endsWith('.json')) return
@@ -59,7 +59,7 @@ console.error('Error regenerating CSS:', error)
 if (typeof value === 'string') {
 
 // Call getConstant
-const dayCssVar = getConstant(cssName, variantName, { mode: "day" })
+const dayCssVar = getConstant(cssName, variantName, { theme: "day" })
 
 // Loop through entries
 for (const [key, value] of Object.entries(dayNode)) {
