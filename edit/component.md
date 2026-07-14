@@ -17,6 +17,25 @@ src/publisher/
 
 This is not a strict rule. Complex functions that are long but cohesive should stay in one file. The trigger is when a file becomes a collection of loosely related functions that are hard to index at a glance. The goal is AI parsability — a future Claude instance should be able to read a file and understand its scope without scrolling past unrelated logic.
 
+### Lists of exports are the strict case — always split
+
+The one place decomposition **is** a hard rule: a file that is an indefinitely-growing **list of independent exports** — a registry/catalog of sibling `export const` objects (table configs, example definitions, token entries, fixtures, route maps, etc.). Each such export gets **its own file named after it**, re-exported by an `index.ts` that also builds any aggregate (the `{ ... } satisfies Record<...>` map, the `Object.values(...)` list).
+
+```
+# Before — one file that only ever grows
+data/tables/tokens.tsx   (18 export const configs, 500+ lines)
+
+# After — one file per export, aggregated by the index
+data/tables/moduleTokenTable/
+├── index.ts             # imports each, builds `tokenTables` + `tokenTableList`, re-exports
+├── types.ts             # the shared config type
+├── animationDuration.tsx
+├── color.tsx
+└── … one file per config
+```
+
+Unlike a cohesive complex function — which has internal cohesion worth preserving — a catalog has **no cohesion to protect**: every entry is independent, and the list only ever grows. Co-locating them guarantees the file eventually becomes unindexable, and every addition produces a churny diff against an ever-larger file instead of a clean new file. Split on the first sign of a growing list, not after it has already sprawled. Group the per-export files by **context** (the consumer they feed) rather than by incidental type, so the folder name states what the catalog is for.
+
 ---
 
 ## ES Module Standards
