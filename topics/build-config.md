@@ -188,7 +188,7 @@ export { default } from "nice-configuration/jest/react"
 
 ## nice-toolkit
 
-CLI tool for managing local package links and resolving dependency conflicts. CLI binaries: `nice-toolkit` (long form) and `ntk` (short alias).
+CLI tool for managing local package links and resolving dependency conflicts. CLI binaries: `nice-toolkit` (long form) and `nicely` (short alias).
 
 ### Structure
 
@@ -228,7 +228,7 @@ nice-toolkit/
 {
   "bin": {
     "nice-toolkit": "nice-toolkit",
-    "ntk": "nice-toolkit"
+    "nicely": "nice-toolkit"
   }
 }
 ```
@@ -237,7 +237,7 @@ The bin script is the extensionless file `nice-toolkit` at the package root, wit
 
 ### Registry
 
-`registry.json` is the single source of truth for which packages belong to the Nice ecosystem. Packages not in the registry are invisible to all `ntk` operations. The `--create` command is the standard way to add new packages.
+`registry.json` is the single source of truth for which packages belong to the Nice ecosystem. Packages not in the registry are invisible to all `nicely` operations. The `--create` command is the standard way to add new packages.
 
 #### Registry Schema
 
@@ -293,23 +293,23 @@ Append a new entry by hand to `nice-toolkit/registry.json`, placing it in the ap
 
 | Command | Description |
 |---------|-------------|
-| `ntk --clean` | Wipe `node_modules/.cache` + `.vite` across every consumer; first kills any process bound to a dev-server port discovered from `.env` `PORT=` entries or `package.json` `-p`/`--port` flags. `--no-kill` to skip the kill phase. |
-| `ntk --dedupe` | Recursively clean singletons (react, styled-components, etc.) from all linked packages' `node_modules` |
-| `ntk --build-all` | Walk registry tier order and run `npm run build` in every linked nice-* package |
-| `ntk --build-icons` | Rebuild only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — targeted build after an SVG/icon change, resolved via the reverse-dependency graph. If a `ntk --dev`/`--watch` is running (it rebuilds the same dist and would race), prompts `[k]` stop-and-continue / `[c]` cancel; non-interactive shells cancel |
+| `nicely --clean` | Wipe `node_modules/.cache` + `.vite` across every consumer; first kills any process bound to a dev-server port discovered from `.env` `PORT=` entries or `package.json` `-p`/`--port` flags. `--no-kill` to skip the kill phase. |
+| `nicely --dedupe` | Recursively clean singletons (react, styled-components, etc.) from all linked packages' `node_modules` |
+| `nicely --build-all` | Walk registry tier order and run `npm run build` in every linked nice-* package |
+| `nicely --build-icons` | Rebuild only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — targeted build after an SVG/icon change, resolved via the reverse-dependency graph. If a `nicely --dev`/`--watch` is running (it rebuilds the same dist and would race), prompts `[k]` stop-and-continue / `[c]` cancel; non-interactive shells cancel |
 
 **Linking / dev / publish**
 
 | Command | Description |
 |---------|-------------|
-| `ntk --dev` | Run dev scripts in all linked packages |
-| `ntk --watch` | Watch dist folders and trigger recompilation |
-| `ntk --dev --watch` | Combined (recommended for CRA/webpack) |
-| `ntk --unlink` | Restore packages to npm versions |
-| `ntk --dedupe <path>` | Clean singletons in a specific package without linking |
-| `ntk --publish pkg1,pkg2` | Publish with automatic dependency cascade |
-| `ntk --publish --no-npm` | Bump, build, commit, push — skip npm |
-| `ntk --publish --otp-window 45` | Custom OTP expiry window (default: 30s) |
+| `nicely --dev` | Run dev scripts in all linked packages |
+| `nicely --watch` | Watch dist folders and trigger recompilation |
+| `nicely --dev --watch` | Combined (recommended for CRA/webpack) |
+| `nicely --unlink` | Restore packages to npm versions |
+| `nicely --dedupe <path>` | Clean singletons in a specific package without linking |
+| `nicely --publish pkg1,pkg2` | Publish with automatic dependency cascade |
+| `nicely --publish --no-npm` | Bump, build, commit, push — skip npm |
+| `nicely --publish --otp-window 45` | Custom OTP expiry window (default: 30s) |
 
 ### Default Excluded Packages
 
@@ -361,7 +361,7 @@ import { viteWatcher, getSourceAliases } from "nice-vite-watcher"
 | Project Type | Tool | Usage |
 |--------------|------|-------|
 | Vite/Storybook | nice-vite-watcher | Plugin in vite.config.ts |
-| CRA/webpack | `nice-toolkit --dev --watch` (or `ntk --dev --watch`) | CLI in separate terminal |
+| CRA/webpack | `nice-toolkit --dev --watch` (or `nicely --dev --watch`) | CLI in separate terminal |
 
 ---
 

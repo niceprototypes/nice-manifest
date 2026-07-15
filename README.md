@@ -51,7 +51,7 @@ nice-manifest/
 │   └── image-compressor.md        # nice-image-compressor CLI for PNG compression
 ├── publish/                       # RELEASING
 │   ├── README.md                  # Index
-│   ├── git.md                     # Commit format, ntk --commit workflow
+│   ├── git.md                     # Commit format, nicely --commit workflow
 │   ├── bump-intent.md             # .nice/bump.md format, ✓ marker, --commit ↔ --publish relationship
 │   └── npm.md                     # Version bumping, publish order, peer deps
 └── topics/                        # SINGLE-HOME reference topics (lazy-loaded; #8 in progress)
@@ -82,7 +82,7 @@ When a build/config-related package misbehaves, a config doc exists; you do not 
 | Shared build config | `nice-configuration` → `typescript/`, `rollup/`, `jest/` subpaths (lint/prettier pending alignment) | `topics/build-config.md` |
 | Per-package config files | each package's `tsconfig.json`, `rollup.config.js`, `jest.config.js`, `.eslintrc`, `.prettierrc` | `topics/build-config.md`; `README.md` → Alignment Principle |
 | Vite / dev server / watcher | `nice-vite-watcher`; storybook `.storybook/main.ts` | `build/vite.md`, `build/symlinks.md` |
-| Cache / singleton / build triad | `ntk --clean` / `--dedupe` / `--build-all` | `build/symlinks.md`, `discipline/stale-first.md` |
+| Cache / singleton / build triad | `nicely --clean` / `--dedupe` / `--build-all` | `build/symlinks.md`, `discipline/stale-first.md` |
 
 ---
 
@@ -133,17 +133,17 @@ Foundation   →  nice-styles, nice-icons, nice-configuration
 
 ### Workspace operations
 
-Three non-overlapping `ntk` commands cover the workspace-level concerns:
+Three non-overlapping `nicely` commands cover the workspace-level concerns:
 
 ```bash
-ntk --clean           # kill dev-server ports + wipe consumer build-tool caches
-ntk --dedupe          # remove duplicate singletons from linked packages
-ntk --build-all       # rebuild every linked package's dist in tier order
+nicely --clean           # kill dev-server ports + wipe consumer build-tool caches
+nicely --dedupe          # remove duplicate singletons from linked packages
+nicely --build-all       # rebuild every linked package's dist in tier order
 ```
 
-After dependency changes, run `ntk --dedupe`. After source changes that consumers don't see, `ntk --clean`. After a foundation refactor or on a fresh clone, `ntk --build-all`. Full topology and recipes in `build/symlinks.md` and `.nice/reports/caches.md`.
+After dependency changes, run `nicely --dedupe`. After source changes that consumers don't see, `nicely --clean`. After a foundation refactor or on a fresh clone, `nicely --build-all`. Full topology and recipes in `build/symlinks.md` and `.nice/reports/caches.md`.
 
-For a change scoped to one foundation package, `ntk --build-icons` rebuilds just `nice-icons` and its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — the targeted build after editing an SVG, avoiding a full `--build-all`.
+For a change scoped to one foundation package, `nicely --build-icons` rebuilds just `nice-icons` and its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — the targeted build after editing an SVG, avoiding a full `--build-all`.
 
 ---
 
@@ -207,7 +207,7 @@ Two artifact types exist today. Each has a fixed scope — do not mix them.
 | Bump intent + change record | per-package | `{package}/.nice/bump.md` | [`publish/bump-intent.md`](publish/bump-intent.md) |
 | Report | workspace-wide (one location) | `manifest/.reports/{category}/{slug}.md` | this section |
 
-**Bump intent (replaces session logs):** each publishable package keeps its own `.nice/bump.md`. It is both the version-bump intent for `ntk --publish` and the durable per-change record that the old `manifest/.nice/sessions/` logs used to hold — one timestamped entry per publishable change, written in the same commit. The separate per-day session-log convention is retired; see [`edit/session-log.md`](edit/session-log.md) for what moved and for the surviving mistake-reporting format. Empty `bump.md` files are normal (placeholder until the next publishable change).
+**Bump intent (replaces session logs):** each publishable package keeps its own `.nice/bump.md`. It is both the version-bump intent for `nicely --publish` and the durable per-change record that the old `manifest/.nice/sessions/` logs used to hold — one timestamped entry per publishable change, written in the same commit. The separate per-day session-log convention is retired; see [`edit/session-log.md`](edit/session-log.md) for what moved and for the surviving mistake-reporting format. Empty `bump.md` files are normal (placeholder until the next publishable change).
 
 **Reports:** ad-hoc audits, analyses, or recommendation documents the user asks Claude to produce live as standalone files under `manifest/.reports/{category}/` (`research/`, `audit/`, …). One file per report, kebab-case slug (`third-party-libraries.md`, `rimraf-adoption.md`). Reports are workspace-wide — package-scoped findings still belong here, with the package named in the body. Do not create a `reports/` folder under any individual package's `.nice/`.
 

@@ -1,8 +1,8 @@
 # Git
 
-Committing is plain `git`. The toolkit records bump intent (`ntk --bump`) and
-runs its own commit during `ntk --publish`, but it does **not** wrap an
-everyday `git commit` — the old `ntk --commit` was removed.
+Committing is plain `git`. The toolkit records bump intent (`nicely --bump`) and
+runs its own commit during `nicely --publish`, but it does **not** wrap an
+everyday `git commit` — the old `nicely --commit` was removed.
 
 ## Workflow
 
@@ -10,7 +10,7 @@ everyday `git commit` — the old `ntk --commit` was removed.
    [`bump-intent.md`](./bump-intent.md) → "When to write an entry"):
 
    ```bash
-   ntk --bump minor "Add useBreakpoint hook"
+   nicely --bump minor "Add useBreakpoint hook"
    ```
 
    This appends one timestamped line to the package's `.nice/bump.md` and
@@ -40,14 +40,14 @@ commit in each affected package separately.
 ## Before Committing
 
 ```bash
-ntk --dedupe
+nicely --dedupe
 npm run build
 npm test
 ```
 
 ## Publishing
 
-`ntk --publish` makes its own commit as part of the release: it reads each
+`nicely --publish` makes its own commit as part of the release: it reads each
 affected package's `.nice/bump.md`, computes the version bump, builds,
 publishes, truncates the bump file, and commits the version changes (commit
 message = the new version + the entries' narrative). See

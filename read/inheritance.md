@@ -136,7 +136,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 **Role:** Development utility for local package linking and conflict resolution
 
-**Exports:** CLI commands `nice-toolkit` (long form) and `ntk` (short alias).
+**Exports:** CLI commands `nice-toolkit` (long form) and `nicely` (short alias).
 
 **Key Commands:**
 - `--clean`: Kill dev-server ports (discovered from each consumer's `.env` / package.json) and wipe `node_modules/.cache` + `.vite` across the workspace

@@ -17,9 +17,9 @@ When something that worked moments ago "just broke" — a link, token, style, im
 | # | Suspect | Tell | Fix |
 |---|---------|------|-----|
 | 1 | Stale browser tab | worked seconds ago, no logic changed | hard-reload (Cmd-Shift-R) |
-| 2 | Stale dev server / Vite dep cache (`?v=hash`) | you just renamed / moved a file | `ntk --clean` |
-| 3 | Un-rebuilt linked package | consumer sees old `dist/` | `ntk --build-all` (or `--build-icons`) |
-| 4 | Duplicate singleton after a dep change | multiple React / styled-components instances | `ntk --dedupe` |
+| 2 | Stale dev server / Vite dep cache (`?v=hash`) | you just renamed / moved a file | `nicely --clean` |
+| 3 | Un-rebuilt linked package | consumer sees old `dist/` | `nicely --build-all` (or `--build-icons`) |
+| 4 | Duplicate singleton after a dep change | multiple React / styled-components instances | `nicely --dedupe` |
 | 5 | Only after 1–4 are clear | — | **then** read the source |
 
 ---
@@ -45,8 +45,8 @@ When something that worked moments ago "just broke" — a link, token, style, im
 
 1. Did this work recently with the same code?
 2. Did I just rename / move / build something?
-3. Have I ruled out the tab and the `ntk --clean` / `--dedupe` / `--build-all` triad?
+3. Have I ruled out the tab and the `nicely --clean` / `--dedupe` / `--build-all` triad?
 
 If 1–2 are "yes" and 3 is "no" → **check freshness before reading code.**
 
-Cross-reference: `../build/symlinks.md` (the `ntk` triad), the `Configuration/Caches` story.
+Cross-reference: `../build/symlinks.md` (the `nicely` triad), the `Configuration/Caches` story.

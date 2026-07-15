@@ -7,19 +7,19 @@ Bump decisions are driven by per-package `.nice/bump.md` files. See
 
 ```bash
 # Publish all changed packages (interactive prompts for version bumps and OTP)
-ntk --publish
+nicely --publish
 
 # Publish specific packages
-ntk --publish nice-styles,nice-react-styles
+nicely --publish nice-styles,nice-react-styles
 
 # Preview what would be published
-ntk --publish --dry-run
+nicely --publish --dry-run
 
 # Bump and build without publishing to npm
-ntk --publish --no-npm
+nicely --publish --no-npm
 
 # Bump, build, and skip npm (e.g., only push to GitHub)
-ntk --publish nice-react-styles --no-npm
+nicely --publish nice-react-styles --no-npm
 ```
 
 The `--publish` command handles the full workflow:
@@ -46,7 +46,7 @@ When the user specifies changed packages, the tool automatically resolves which 
 #### Input
 
 ```
-ntk --publish nice-react-styles,nice-react-button
+nicely --publish nice-react-styles,nice-react-button
 ```
 
 This means: "I made changes to nice-react-styles and nice-react-button."
@@ -350,10 +350,10 @@ options.otpWindow = parseInt(getArg(args, '--otp-window') || '30', 10)
 
 ```bash
 # Custom OTP window (default: 30 seconds)
-ntk --publish --otp-window 20
+nicely --publish --otp-window 20
 
 # Longer window for slower connections
-ntk --publish --otp-window 45
+nicely --publish --otp-window 45
 ```
 
 Passed to publisher as `publish: !options.noNpm, otpWindow: options.otpWindow`.
