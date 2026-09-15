@@ -52,33 +52,39 @@ After rebuild: hard-reload the consumer so the new `tokens.css` is fetched.
 
 ## Customizing — runtime
 
-Use `setBreakpoints` from `nice-styles` (or `nice-react-styles`). Same shape
-as `setBreakpointTokens` / `setThemeTokens`: additive, partial map.
+Set thresholds with the reserved `breakpoints` key of `setTokens`
+(`nice-react-styles`) or `generateTokenCSS` (`nice-styles`) — the same call
+that sets tokens. Partial and additive: omitted breakpoints are preserved.
 
 ```ts
-import { setBreakpoints } from "nice-styles"
+import { setTokens } from "nice-react-styles"
 
-setBreakpoints({
-  laptop: 1100,
-  desktop: 1800,
+setTokens({
+  breakpoints: { laptop: 1100, desktop: 1800 },
+  fontSize: { base: { phone: "16px", "laptop+": "20px" } },
 })
 ```
 
 Effects, in this order:
 
-1. Mutates `BREAKPOINTS` in place — `getBreakpoint`, `getBreakpointValue`, and
-   any other reader pick up the new values immediately.
-2. Re-emits the size-token `@media` cascade and injects it into a
-   `<style data-nice-breakpoints>` element appended to `<head>`. The injected
-   stylesheet has higher cascade weight than `tokens.css` (later in source
-   order), so semantic vars start switching at the new thresholds.
+1. **Validates** — only `tablet` / `laptop` / `desktop`, positive numbers,
+   ascending after the merge. `phone`, unknown names, non-numbers, or
+   out-of-order thresholds throw.
+2. **Applies before the rest of the map** — mutates `BREAKPOINTS` in place, so
+   `getBreakpoint`, `getBreakpointValue`, `useBreakpoint`, and the breakpoint
+   values in the same call use the new thresholds.
+3. **Re-emits the generated breakpoint cascade** — core breakpoint tokens and
+   component aliases to them — into a `<style data-nice-breakpoints>` element
+   (later in source order than `tokens.css`, so it wins).
+4. **Regenerates earlier `setTokens` stylesheets** — every previously injected
+   token map (last per prefix) is rebuilt, so its `+` / `-` breakpoint blocks
+   move to the new thresholds.
 
-Omitted breakpoints are preserved.
+`breakpoints: {}` or unchanged values are a no-op. There is no separate
+breakpoint setter.
 
-`setBreakpoints` is the only runtime path. `setTokens` does not accept a
-`breakpoints` key — one in a token map is ignored with a console warning.
-Call `setBreakpoints` before `setTokens` so responsive tokens emit against the
-new thresholds.
+The custom-media aliases in `breakpoints.custom-media.css` resolve at the
+consumer's build time and do not change with runtime thresholds.
 
 ---
 
@@ -87,7 +93,7 @@ new thresholds.
 | You want… | Use |
 |-----------|-----|
 | Frozen thresholds shipped in `dist/tokens.css` | `tokens/breakpoints.json` + rebuild |
-| Live overrides without rebuilding | `setBreakpoints` at app startup |
+| Live overrides without rebuilding | `setTokens({ breakpoints })` at app startup |
 
 The two paths are layered: runtime overrides win over build-time literals via
 cascade order. A consumer can ship a build-time default and let one app
@@ -100,8 +106,8 @@ override it at runtime.
 ### `getBreakpoint(key)`
 
 Returns the `@media` query string (including the `@media` prefix). The `key`
-uses the same `+`/`-`/bare grammar as the `breakpoints` prop and setTokens
-`$breakpoints`:
+uses the same `+`/`-`/bare grammar as the `breakpoints` prop and breakpoint
+values in `setTokens`:
 
 - bare (`"tablet"`): exact — only that breakpoint's band.
 - `"+"` (`"tablet+"`): up — that breakpoint and every larger (min-width).
@@ -127,20 +133,20 @@ getBreakpointValue("laptop")   // → 1280
 getBreakpointValue("phone")    // → 640  (tablet − 1)
 ```
 
-### `setBreakpoints(overrides)`
+### `setTokens({ breakpoints })`
 
-Runtime override. Accepts `Partial<BreakpointValues>` — any subset of the
-editable floors `tablet` / `laptop` / `desktop`. `phone` is the derived base
-and cannot be set.
+Runtime override. `breakpoints` accepts `Partial<BreakpointValues>` — any
+subset of the editable floors `tablet` / `laptop` / `desktop`. `phone` is the
+derived base and cannot be set. See [Customizing — runtime](#customizing--runtime).
 
 ```ts
-setBreakpoints({ tablet: 700, laptop: 1100 })
+setTokens({ breakpoints: { tablet: 700, laptop: 1100 } })
 ```
 
 ### `BREAKPOINTS`
 
 Mutable typed object with stable identity. Readers see overrides without
-re-importing. Do not reassign — call `setBreakpoints` instead.
+re-importing. Do not reassign — set thresholds through `setTokens({ breakpoints })`.
 
 ```ts
 import { BREAKPOINTS } from "nice-styles"

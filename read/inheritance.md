@@ -72,12 +72,12 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 **Import guidance:** React projects should import nice-styles assets from `nice-react-styles`, which re-exports the entire nice-styles public API. Import directly from `nice-styles` only when working outside the React framework (e.g., vanilla JS, build scripts, non-React tooling).
 
 **Exports:**
-- Token getters: `getToken()` / `getTokenKey()` / `getTokenValue()` (registry-aware, runtime-extensible via `setTokens`); convenience wrappers `getThemeToken*`, `getBreakpointToken*`, `getComponentToken*` with the same three-form pattern.
-- CSS-variable name constructor: `getConstant()`.
+- Token getter: `getToken(name | path, variant, { prefix, theme, breakpoint, inverse, pristine, as })` — the single getter for core, custom, theme, breakpoint, inverse, and component tokens (`as`: `"var"` / `"key"` / `"value"`).
+- CSS-variable name constructor: `getConstant()` / `getConstantKey()` (name only, no lookup).
 - Breakpoint helpers: `getBreakpoint()` (returns `@media` string), `getBreakpointValue()` (returns pixel number).
-- Setters: `setCoreTokens`, `setThemeTokens`, `setBreakpointTokens`, `setBreakpoints`, `registerTokens`.
-- Generators: `generateTokenCSS()` (pure JS core of `setTokens`), `injectTokenCSS()` (singleton `<style data-nice-tokens>` writer).
-- Registry: `registry`, `seedDimensionedTokens()`.
+- Setters: `registerTokens` (runtime registry layer). Tokens and breakpoint thresholds are set together through `generateTokenCSS` / nice-react-styles `setTokens` (reserved `breakpoints` key).
+- Generators: `generateTokenCSS()` (registers + builds CSS for `setTokens`), `injectTokenCSS()` (singleton `<style data-nice-tokens>` writer).
+- Registry: `registry` (one store keyed by CSS variable name, seed + runtime layers).
 - Style-value helpers: `isStyleValue()`, plus types `ThemeValue`, `BreakpointValue`, `StyleValueKind`.
 - Constants: `NAMESPACE` (`"np"`), `DEFAULT_THEME`, `DEFAULT_BREAKPOINT`, `STYLE_VALUE_KEYS`, `BREAKPOINT_PHONE/TABLET/LAPTOP/DESKTOP`, `BREAKPOINTS`.
 - Google Fonts: `parseGoogleFontsUrl()`, types `FontAxis`, `GoogleFontMetadata`, `LinkAttributes`, `GoogleFontsConfig`.

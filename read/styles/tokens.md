@@ -474,12 +474,15 @@ getToken("brandColor", "primary")   // → --np--brand-color--primary
 
 ### setTokens — Register + Generate CSS
 
-Registers app-level token overrides and custom tokens in the runtime registry. Injects the generated CSS synchronously at call time; returns nothing. Call it once at module load (typically in `src/nice/tokens.ts`) and import that file for its side effect from your app entry.
+Registers app-level token overrides and custom tokens in the runtime registry, and sets breakpoint thresholds. Injects the generated CSS synchronously at call time; returns nothing. Call it once at module load (typically in `src/nice/tokens.ts`) and import that file for its side effect from your app entry.
 
 ```ts
 import { setTokens, getToken } from "nice-react-styles"
 
 const AppTokenMap = {
+  // Breakpoint thresholds (reserved key) — applied before the rest of the map
+  breakpoints: { laptop: 1100 },
+
   // Override core tokens
   fontSize: { base: "20px", larger: "40px" },
 
@@ -496,19 +499,33 @@ setTokens(AppTokenMap)
 export { getToken }
 ```
 
-**Generated CSS:**
+**`breakpoints` key:** `tablet` / `laptop` / `desktop` pixel floors (`Partial<BreakpointValues>`). Validated (positive, ascending; `phone` and unknown names throw), applied before the rest of the map, and re-emits the breakpoint cascade plus every earlier `setTokens` stylesheet at the new thresholds. See [breakpoints.md](breakpoints.md#customizing--runtime).
+
+**Generated CSS** (same shape as `dist/tokens.css`):
 ```css
 :root {
   --np--font-size: 20px;
   --np--font-size--larger: 40px;
   --np--brand-color--primary: #dc0000;
   --np--header-color: #000;
+  --np--header-color--day: #000;
   --np--header-color--night: #fff;
 }
+
 @media (prefers-color-scheme: dark) {
   :root {
     --np--header-color: var(--np--header-color--night);
   }
+}
+
+[data-theme="day"] {
+  color-scheme: light;
+  --np--header-color: var(--np--header-color--day);
+}
+
+[data-theme="night"] {
+  color-scheme: dark;
+  --np--header-color: var(--np--header-color--night);
 }
 ```
 
@@ -614,7 +631,7 @@ Merge strategy in CSS generation: `{ ...coreTokens, ...themesDay, ...breakpoints
 
 ## Variant Value Formats in setTokens
 
-When calling `setTokens()` from nice-react-styles, variant values can be one of three formats. These can be mixed freely within the same token group.
+When calling `setTokens()` from nice-react-styles, variant values can be one of three formats. These can be mixed freely within the same token group. (Breakpoint *thresholds* are not a variant value — they go under the reserved top-level `breakpoints` key.)
 
 ### Static (string)
 
@@ -624,23 +641,23 @@ When calling `setTokens()` from nice-react-styles, variant values can be one of 
 
 ### Responsive (breakpoint object)
 
-Detected by `isBreakpointValue()` — checks for `phone` key.
+Detected by `isStyleValue("breakpoint", value)` — every key is a breakpoint key: bare (`phone`, exact band), `+` (up), or `-` (down).
 
 ```ts
-{ gap: { base: { phone: "24px", laptop: "32px" } } }
+{ gap: { base: { phone: "24px", "laptop+": "32px" } } }
 ```
 
-Generates a phone-first default + breakpoint primitives + media query reassignment.
+Keys spanning every viewport (`phone+`, `desktop-`) land in `:root`; every other key is emitted in its `@media` block, least to most specific.
 
 ### Theme-aware (theme object)
 
-Detected by `isThemeValue()` — checks for `day` key. Checked after breakpoint (if an object has both `phone` and `day`, breakpoint wins).
+Detected by `isStyleValue("theme", value)` — an object that is not a breakpoint map and has a `day` key. The two shapes are mutually exclusive.
 
 ```ts
 { headerColor: { base: { day: "#000", night: "#fff" } } }
 ```
 
-Generates semantic variable + day/night primitives + `prefers-color-scheme` media query.
+Generates semantic variable + `--day` / `--night` primitives + `prefers-color-scheme` media query + `[data-theme]` pins (extra themes get their own pin).
 
 ### Mixed Example
 
