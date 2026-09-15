@@ -85,9 +85,9 @@ Step 1 — Build reverse dependency map from package.json files:
 
   nice-styles          ← nice-react-styles
   nice-icons           ← nice-react-icon
-  nice-react-styles    ← nice-react-flex, nice-react-typography, nice-react-icon, nice-react-tile, nice-react-button
+  nice-react-styles    ← nice-react-flex, nice-react-ink, nice-react-icon, nice-react-tile, nice-react-button
   nice-react-flex      ← nice-react-tile, nice-react-button
-  nice-react-typography ← nice-react-button
+  nice-react-ink ← nice-react-button
   nice-react-icon      ← nice-react-button
 
 Step 2 — Resolve affected from input ["nice-react-styles", "nice-react-button"]:
@@ -95,7 +95,7 @@ Step 2 — Resolve affected from input ["nice-react-styles", "nice-react-button"
   Start: {nice-react-styles, nice-react-button}
   Process nice-react-styles:
     → nice-react-flex (add, enqueue)
-    → nice-react-typography (add, enqueue)
+    → nice-react-ink (add, enqueue)
     → nice-react-icon (add, enqueue)
     → nice-react-tile (add, enqueue)
     → nice-react-button (already in set)
@@ -104,14 +104,14 @@ Step 2 — Resolve affected from input ["nice-react-styles", "nice-react-button"
   Process nice-react-flex:
     → nice-react-tile (already in set)
     → nice-react-button (already in set)
-  Process nice-react-typography:
+  Process nice-react-ink:
     → nice-react-button (already in set)
   Process nice-react-icon:
     → nice-react-button (already in set)
   Process nice-react-tile:
     → (no dependents)
 
-  Result: {nice-react-styles, nice-react-button, nice-react-flex, nice-react-typography, nice-react-icon, nice-react-tile}
+  Result: {nice-react-styles, nice-react-button, nice-react-flex, nice-react-ink, nice-react-icon, nice-react-tile}
 ```
 
 #### Categorization
@@ -130,7 +130,7 @@ Changed (user specified):
 
 Dependents (auto-resolved):
   nice-react-flex         → auto patch (2.0.1 → 2.0.2)
-  nice-react-typography   → auto patch (5.0.1 → 5.0.2)
+  nice-react-ink   → auto patch (5.0.1 → 5.0.2)
   nice-react-icon         → auto patch (3.0.1 → 3.0.2)
   nice-react-tile         → auto patch (4.1.0 → 4.1.1)
 ```
@@ -366,7 +366,7 @@ Bottom to top per dependency chain:
 
 1. nice-styles, nice-icons, nice-toolkit, nice-vite-watcher
 2. nice-react-styles
-3. nice-react-flex, nice-react-typography
+3. nice-react-flex, nice-react-ink
 4. nice-react-icon, nice-react-tile
 5. nice-react-button
 6. nice-react-scroll, nice-react-slider, nice-react-lightbox, nice-react-image, nice-react-input, nice-react-tooltip
@@ -393,7 +393,7 @@ Bottom to top per dependency chain:
 | Package | Runtime Deps | Peer Deps |
 |---------|--------------|-----------|
 | nice-react-flex | nice-react-styles | react, react-dom, styled-components |
-| nice-react-typography | nice-react-styles | react, react-dom, styled-components |
+| nice-react-ink | nice-react-styles | react, react-dom, styled-components |
 | nice-react-tile | nice-react-styles | **nice-react-flex**, react, react-dom, styled-components |
 | nice-react-icon | nice-icons, nice-react-styles | react, react-dom, styled-components |
 
@@ -401,7 +401,7 @@ Bottom to top per dependency chain:
 
 | Package | Runtime Deps | Peer Deps |
 |---------|--------------|-----------|
-| nice-react-button | nice-react-styles, nice-react-typography | **nice-react-flex**, **nice-react-icon**, **nice-react-typography**, react, react-dom, styled-components |
+| nice-react-button | nice-react-styles, nice-react-ink | **nice-react-flex**, **nice-react-icon**, **nice-react-ink**, react, react-dom, styled-components |
 
 ### Standalone
 
@@ -423,7 +423,7 @@ Bottom to top per dependency chain:
 | styled-components | >=6.1.18 |
 | nice-react-flex | >=2.0.0 |
 | nice-react-icon | >=3.0.0 |
-| nice-react-typography | >=5.0.0 |
+| nice-react-ink | >=5.0.0 |
 
 ---
 

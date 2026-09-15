@@ -221,24 +221,24 @@ Wrapper around `getComponentToken` from nice-styles. Forwards both flat and path
 import { getComponentToken, type TokenResult } from "nice-react-styles"
 
 /**
- * Get a typography component token.
+ * Get an ink component token.
  *
  * Flat lookup — for tokens at depth 1 (e.g., "fontSize", "fontFamily"):
  * ```ts
- * getTypographyToken("fontSize", "base")
+ * getInkToken("fontSize", "base")
  * ```
  *
  * Path lookup — for nested tokens:
  * ```ts
- * getTypographyToken(["group", "variant", "parameter"])
+ * getInkToken(["group", "variant", "parameter"])
  * ```
  */
-export function getTypographyToken(nameOrPath: string | string[], variantOrMode?: string, mode?: string): TokenResult {
+export function getInkToken(nameOrPath: string | string[], variantOrMode?: string, mode?: string): TokenResult {
   // Path branch: the wrapper's `variantOrMode` is the theme; flat branch: the variant.
   if (Array.isArray(nameOrPath)) {
-    return getComponentToken("typography", { token: nameOrPath, mode: variantOrMode })
+    return getComponentToken("ink", { token: nameOrPath, mode: variantOrMode })
   }
-  return getComponentToken("typography", { token: nameOrPath, variant: variantOrMode, mode })
+  return getComponentToken("ink", { token: nameOrPath, variant: variantOrMode, mode })
 }
 ```
 
@@ -299,29 +299,29 @@ When a prop uses a type from nice-styles, create a component-specific alias:
 import type { ColorType, FontSizeType, ThemeType } from "nice-react-styles"
 
 /**
- * TypographyColorType
+ * InkColorType
  *
  * Re-export of ColorType from nice-styles.
  * Text color values using design tokens.
  */
-export type TypographyColorType = ColorType
+export type InkColorType = ColorType
 
 /**
- * TypographySizeType
+ * InkSizeType
  *
  * Re-export of FontSizeType from nice-styles.
  * Font size values using design tokens.
  */
-export type TypographySizeType = FontSizeType
+export type InkSizeType = FontSizeType
 
 /**
- * TypographyThemeType
+ * InkThemeType
  *
  * Re-export of ThemeType from nice-styles.
  * Pin token resolution to a specific theme.
  * Extensible for consumer-defined custom themes.
  */
-export type TypographyThemeType = ThemeType
+export type InkThemeType = ThemeType
 ```
 
 #### JSDoc Documentation
@@ -333,7 +333,7 @@ Every type must have a JSDoc comment with:
 
 ```ts
 /**
- * TypographyWordBreakType
+ * InkWordBreakType
  *
  * Controls line break behavior for overflowing text.
  * Based on CSS word-break property.
@@ -343,7 +343,7 @@ Every type must have a JSDoc comment with:
  * - "break-all": Allow breaks between any two characters
  * - "keep-all": Prevent breaks in CJK text, normal for others
  */
-export type TypographyWordBreakType = "normal" | "break-all" | "keep-all"
+export type InkWordBreakType = "normal" | "break-all" | "keep-all"
 ```
 
 #### Complete Types File Structure
@@ -471,7 +471,7 @@ Why this is required:
 - Without `className`, consumers fall back to ancestor selectors or DOM IDs — both brittle.
 - The class lands alongside whatever styled-components emits, so component-internal styling is unaffected.
 
-This rule applies retroactively — any visual component missing `className` is a bug. The current set covers Typography, Tile, Button, Icon, Image, Input, Flex, Lightbox, LightboxCaption, Slider, FadeOnScroll, Sticky, SectionLinks, StickySection, and Theme.
+This rule applies retroactively — any visual component missing `className` is a bug. The current set covers Ink, Tile, Button, Icon, Image, Input, Flex, Lightbox, LightboxCaption, Slider, FadeOnScroll, Sticky, SectionLinks, StickySection, and Theme.
 
 #### Theme prop — wrap-in-Theme standard (required for visual components)
 
@@ -501,7 +501,7 @@ return withTheme(<StyledImg … />)
 
 Why this is required:
 - One mechanism — `[data-theme]` cascade — handles every level of pinning (whole-page, region, single component).
-- Descendants of a theme-pinned component automatically inherit the pin. `<Tile theme="night">{nested Typography, Icon}</Tile>` works without threading `theme` into the children.
+- Descendants of a theme-pinned component automatically inherit the pin. `<Tile theme="night">{nested Ink, Icon}</Tile>` works without threading `theme` into the children.
 - Styled-components stay simpler — no `$theme` transient prop, no `theme` option on `getToken`. Semantic tokens resolve via cascade.
 - The escape hatch (component renders a direct-primitive reference that bypasses the cascade) is reserved for explicit inverted-theme needs like Button's text contrast.
 
@@ -527,22 +527,22 @@ Styled-components: do not declare `$theme?: ThemeType` in transient props, and d
 prop for free without per-prop plumbing. Pass the explicit prop generic to
 preserve TypeScript inference for downstream `breakpoints` entries.
 
-**Component folder `index.ts` (e.g. `src/components/Typography/index.ts`):**
+**Component folder `index.ts` (e.g. `src/components/Ink/index.ts`):**
 
 ```ts
 import { withBreakpoints } from "nice-react-styles"
-import BaseTypography from "./Typography"
-import type { TypographyProps } from "./types"
+import BaseInk from "./Ink"
+import type { InkProps } from "./types"
 
 // Wrap with withBreakpoints so every prop accepts a per-viewport override
-// via the `breakpoints` array. The explicit generic pins P=TypographyProps
+// via the `breakpoints` array. The explicit generic pins P=InkProps
 // so consumer-side `(base) =>`-style callbacks (and the inferred Partial<P>
 // shape on `props`) stay strongly typed under TS 4.9+.
-const Typography = withBreakpoints<TypographyProps>(BaseTypography)
+const Ink = withBreakpoints<InkProps>(BaseInk)
 
-export default Typography
+export default Ink
 export * from "./types"
-export { default as TypographyTypes } from "./types"
+export { default as InkTypes } from "./types"
 ```
 
 **When to skip the wrap:**
@@ -564,18 +564,18 @@ If skipping, document the reason in the package README.
 
 ```ts
 // Main component export
-export { default } from "./components/Typography"
+export { default } from "./components/Ink"
 
-// All named type exports + TypographyTypes namespace (re-exported from the component index)
-export * from "./components/Typography"
+// All named type exports + InkTypes namespace (re-exported from the component index)
+export * from "./components/Ink"
 
 // Token exports
-export { getTypographyToken } from "./tokens"
+export { getInkToken } from "./tokens"
 ```
 
-**Why `export *` over a selective list:** `types.ts` is the single source of truth for a component's public type surface. Using `export *` makes it impossible for `index.ts` to drift out of sync with `types.ts` when new prop types are added. Both individual imports (`import { TypographyProps } from "nice-react-typography"`) and namespace access (`import { TypographyTypes } from "nice-react-typography"; TypographyTypes.Props`) continue to work.
+**Why `export *` over a selective list:** `types.ts` is the single source of truth for a component's public type surface. Using `export *` makes it impossible for `index.ts` to drift out of sync with `types.ts` when new prop types are added. Both individual imports (`import { InkProps } from "nice-react-ink"`) and namespace access (`import { InkTypes } from "nice-react-ink"; InkTypes.Props`) continue to work.
 
-**Note on `export { default }` vs `export *`:** `export *` re-exports only named exports, never the default. The package's default (the component itself) must be explicitly re-exported with `export { default } from "./components/Typography"`. The namespace is exported as `export { default as TypographyTypes }` at the types.ts level, which becomes a *named* export named `TypographyTypes` that `export *` then carries through.
+**Note on `export { default }` vs `export *`:** `export *` re-exports only named exports, never the default. The package's default (the component itself) must be explicitly re-exported with `export { default } from "./components/Ink"`. The namespace is exported as `export { default as InkTypes }` at the types.ts level, which becomes a *named* export named `InkTypes` that `export *` then carries through.
 
 ### package.exports.json (required)
 
@@ -586,10 +586,10 @@ Every component package must have a `package.exports.json` at the package root. 
 ```json
 {
   "$schema": "../nice-configuration/src/exports/schema.json",
-  "description": "Semantic typography component for nice-react with full token support.",
-  "default": "Typography",
-  "components": ["Typography"],
-  "tokens": ["Typography"]
+  "description": "Semantic ink component for nice-react with full token support.",
+  "default": "Ink",
+  "components": ["Ink"],
+  "tokens": ["Ink"]
 }
 ```
 
@@ -602,7 +602,7 @@ Every component package must have a `package.exports.json` at the package root. 
 | `services` | string[] | optional | Function names exported from `./services`. |
 | `constants` | string[] | optional | Constant names exported from `./constants`. |
 
-New packages must include this file alongside a `"generate-exports"` script in `package.json`. Use the standard-bearer (`nice-react-typography`) as the reference layout.
+New packages must include this file alongside a `"generate-exports"` script in `package.json`. Use the standard-bearer (`nice-react-ink`) as the reference layout.
 
 ### Packages exempt from export generation
 

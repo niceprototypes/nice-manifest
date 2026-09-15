@@ -31,7 +31,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 │───────────────────────────────────────│
 │  nice-react-icon                      │
 │  nice-react-flex                      │
-│  nice-react-typography                │
+│  nice-react-ink                       │
 │  nice-react-tile                      │
 │  nice-react-scroll                    │
 │  nice-react-slider                    │
@@ -43,7 +43,7 @@ The Nice ecosystem follows a strict layered architecture where each layer builds
 │───────────────────────────────────────│
 │  nice-react-styles (React bridge)     │
 │  └─ StylesProvider                    │
-│  └─ Theme (data-theme pin wrapper)     │
+│  └─ Theme (data-theme pin wrapper)    │
 │  └─ setTokens (React shim)            │
 │  └─ withBreakpoints / useBreakpoint   │
 └───────────────────────────────────────┘
@@ -192,7 +192,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 - `src/components/StylesProvider/useDeviceDetection.ts` — internal mobile detection (folded in when the standalone device-detection package was retired); exports `MOBILE_USER_AGENTS` (the default user-agent list) and the `matchesMobileUserAgent` helper.
 - `src/types.ts` — `Breakpoints<T>` only; all token-system types live in nice-styles.
 
-**Inheritors:** `nice-react-typography`, `nice-react-icon`, `nice-react-button`
+**Inheritors:** `nice-react-ink`, `nice-react-icon`, `nice-react-button`
 
 ---
 
@@ -217,9 +217,9 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ---
 
-### nice-react-typography (v4.1.1)
+### nice-react-ink (v4.1.1)
 
-**Role:** Semantic typography component
+**Role:** Semantic ink component
 
 **Dependencies:**
 - `nice-react-styles`
@@ -228,9 +228,9 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 - `react`, `react-dom`, `styled-components`
 
 **Exports:**
-- Component: `Typography`
-- Tokens: `getTypographyToken()`
-- Types: `TypographyProps`, `AsType`, `AlignType`
+- Component: `Ink`
+- Tokens: `getInkToken()`
+- Types: `InkProps`, `AsType`, `AlignType`
 
 **Inheritors:** `nice-react-button`
 
@@ -250,7 +250,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 **Exports:**
 - Component: `Tile`
 - Tokens: `getTileToken()`
-- Types: `TileProps`, `TileMaxWidthType`, `TileMaxWidthValueType`, `TileAlignItemsType`, `TileJustifyContentType`, `TileBackgroundColorType`, `TileColorType`, `TileBackgroundSizeType`, `TileTypographyProps`
+- Types: `TileProps`, `TileMaxWidthType`, `TileMaxWidthValueType`, `TileAlignItemsType`, `TileJustifyContentType`, `TileBackgroundColorType`, `TileColorType`, `TileBackgroundSizeType`, `TileInkProps`
 
 ---
 
@@ -315,12 +315,12 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 **Dependencies:**
 - `nice-react-styles`
-- `nice-react-typography` (>=4.0.0)
+- `nice-react-ink` (>=4.0.0)
 
 **Peer Dependencies:**
 - `nice-react-flex` (>=1.0.0)
 - `nice-react-icon` (>=2.0.0)
-- `nice-react-typography` (>=4.0.0)
+- `nice-react-ink` (>=4.0.0)
 - `react`, `react-dom`, `styled-components`
 
 **Exports:**
@@ -445,12 +445,12 @@ All nice-* interdependencies use `file:` references for local development.
 | nice-configuration | rollup plugins | (none) |
 | nice-react-styles | nice-styles | react, styled-components |
 | nice-react-flex | nice-react-styles | react, styled-components |
-| nice-react-typography | nice-react-styles | react, styled-components |
+| nice-react-ink | nice-react-styles | react, styled-components |
 | nice-react-tile | nice-react-styles | nice-react-flex, react, styled-components |
 | nice-react-scroll | (none) | react, styled-components |
 | nice-react-slider | (none) | react, styled-components |
 | nice-react-icon | nice-icons, nice-react-styles | react, styled-components |
-| nice-react-button | nice-react-styles, nice-react-typography | nice-react-flex, nice-react-icon, react, styled-components |
+| nice-react-button | nice-react-styles, nice-react-ink | nice-react-flex, nice-react-icon, react, styled-components |
 | nice-react-lightbox | nice-react-styles | react, react-dom, styled-components |
 | nice-react-image | nice-react-styles | react, react-dom, styled-components |
 | nice-react-tooltip | nice-react-styles | react, react-dom, styled-components |
@@ -465,7 +465,7 @@ All nice-* interdependencies use `file:` references for local development.
 nice-react-button
 ├── nice-react-styles
 │   └── nice-styles
-├── nice-react-typography
+├── nice-react-ink
 │   └── nice-react-styles
 │       └── nice-styles
 ├── nice-react-flex (peer)
@@ -546,7 +546,7 @@ All packages extend shared build config from `nice-configuration` — `typescrip
 | **Dev Tools** | nice-toolkit, nice-vite-watcher | Development utilities |
 | **Context** | nice-react-styles | React/styled-components bridge |
 | **Layout** | nice-react-flex, nice-react-tile | Flexbox/grid layout |
-| **Content** | nice-react-typography | Text rendering |
+| **Content** | nice-react-ink | Text rendering |
 | **Interaction** | nice-react-button, nice-react-scroll, nice-react-slider | User interactions |
 | **Overlay** | nice-react-lightbox, nice-react-tooltip | Portal-rendered overlays |
 | **Assets** | nice-react-icon, nice-react-image | Icon/image rendering |

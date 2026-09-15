@@ -221,7 +221,7 @@ Logic that exists in the packages but the manifest under-documents — standing
 - Phone-first responsive: simple values only apply at phone breakpoint
 - `styleFlex()` service generates CSS for each breakpoint
 
-#### nice-react-typography
+#### nice-react-ink
 - Smart defaults based on element type (h1-h4 vs p/span)
 - Font family selection: code → heading → base
 - Antialiasing and legibility optimization CSS

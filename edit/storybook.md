@@ -145,16 +145,16 @@ export const threeDots = [
 ```tsx
 // Tile.services.tsx
 import Flex from "nice-react-flex"
-import Typography from "nice-react-typography"
+import Ink from "nice-react-ink"
 
 export const SampleContent = () => (
   <Flex direction="column" gap="small">
-    <Typography as="h2" weight="bold">
+    <Ink as="h2" weight="bold">
       Section Title
-    </Typography>
-    <Typography color="medium">
+    </Ink>
+    <Ink color="medium">
       Lorem ipsum dolor sit amet.
-    </Typography>
+    </Ink>
   </Flex>
 )
 ```
@@ -271,7 +271,7 @@ React/
 │   └── setTokens
 ├── Components/
 │   ├── Button, Flex, Icon, Lightbox
-│   ├── Scroll, Slider, Tile, Typography
+│   ├── Scroll, Slider, Tile, Ink
 └── Hooks/
     ├── useBreakpoint
     ├── useDevice
@@ -372,7 +372,7 @@ Import from `src/services`. Pass a tag name, a props object, and optional `child
 ```tsx
 import { toSource } from '../../../src/services'
 
-<Source language="tsx" code={toSource("Typography", { as: "h1" }, { children: "h1" })} />
+<Source language="tsx" code={toSource("Ink", { as: "h1" }, { children: "h1" })} />
 ```
 
 Formatting rules:

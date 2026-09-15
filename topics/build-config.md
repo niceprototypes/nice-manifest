@@ -386,7 +386,7 @@ Configuration stories use a simplified pattern compared to component stories:
 
 ```tsx
 import type { Meta, StoryObj } from "@storybook/react"
-import Typography from "nice-react-typography"
+import Ink from "nice-react-ink"
 import Flex from "nice-react-flex"
 import { getToken } from "nice-react-styles"
 import { generateDescriptionString } from "../../src/services"
@@ -433,7 +433,7 @@ const storyParameters = {
 
 // Reusable code block component
 const CodeBlock = ({ children }: { children: string }) => (
-  <Typography
+  <Ink
     code
     style={{
       display: "block",
@@ -445,7 +445,7 @@ const CodeBlock = ({ children }: { children: string }) => (
     }}
   >
     {children}
-  </Typography>
+  </Ink>
 )
 
 export const FeatureName: Story = {
@@ -453,10 +453,10 @@ export const FeatureName: Story = {
   parameters: storyParameters,
   render: () => (
     <Flex direction="column" gap="large">
-      <Typography as="h3">Feature Title</Typography>
-      <Typography color="medium">
+      <Ink as="h3">Feature Title</Ink>
+      <Ink color="medium">
         Description of the feature.
-      </Typography>
+      </Ink>
       <CodeBlock>
         {`// Example code
 export default config`}
@@ -472,7 +472,7 @@ export default config`}
 |--------|-------------------|----------------------|
 | Demo component | Actual component | Empty fragment `<></>` |
 | Canvas tab | Visible | Hidden (`previewTabs.canvas.hidden`) |
-| Story structure | Uses `<Story>` component | Direct JSX with `<Flex>` + `<Typography>` |
+| Story structure | Uses `<Story>` component | Direct JSX with `<Flex>` + `<Ink>` |
 | Code display | `code` prop on Story variables | `<CodeBlock>` helper component |
 | File organization | Separate story files in `stories/` | Single file with all stories |
 

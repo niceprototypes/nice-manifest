@@ -75,20 +75,10 @@ Effects, in this order:
 
 Omitted breakpoints are preserved.
 
-### React equivalent — `setTokens`
-
-`setTokens` detects a top-level `breakpoints` key and forwards it to
-`setBreakpoints` internally. Same precedent as component-prefix keys
-(`button`, `icon`, etc.):
-
-```ts
-import { setTokens } from "nice-react-styles"
-
-setTokens({
-  fontSize: { base: "16px" },
-  breakpoints: { laptop: 1100, desktop: 1800 },
-})
-```
+`setBreakpoints` is the only runtime path. `setTokens` does not accept a
+`breakpoints` key — one in a token map is ignored with a console warning.
+Call `setBreakpoints` before `setTokens` so responsive tokens emit against the
+new thresholds.
 
 ---
 
@@ -98,7 +88,6 @@ setTokens({
 |-----------|-----|
 | Frozen thresholds shipped in `dist/tokens.css` | `tokens/breakpoints.json` + rebuild |
 | Live overrides without rebuilding | `setBreakpoints` at app startup |
-| Per-app thresholds in a React project | `setTokens({ breakpoints: … })` |
 
 The two paths are layered: runtime overrides win over build-time literals via
 cascade order. A consumer can ship a build-time default and let one app

@@ -14,7 +14,7 @@ Design token naming patterns in nice-styles.
 | Segment | Format | Examples |
 |---------|--------|----------|
 | np | fixed namespace | always `np` |
-| prefix | kebab-case (component only) | `button`, `icon`, `tile`, `typography` |
+| prefix | kebab-case (component only) | `button`, `icon`, `tile`, `ink` |
 | group | kebab-case | `font-size`, `color`, `border-radius` |
 | item | kebab-case | `base`, `large`, `primary-hover` |
 
@@ -36,7 +36,7 @@ Design token naming patterns in nice-styles.
 --np--button--size
 --np--button--status-primary-base--background-color
 --np--icon--color--error
---np--typography--font-size--larger
+--np--ink--font-size--larger
 ```
 
 ---
@@ -69,7 +69,7 @@ getToken("color", "link")
 FontSizeType        // "smaller" | "small" | "base" | "large" | "larger"
 ColorType // "lighter" | "light" | "medium" | ... | "error"
 BorderRadiusType    // "smaller" | "small" | "base" | "large" | "larger"
-ComponentPrefix     // "button" | "icon" | "tile" | "typography" (auto-generated)
+ComponentPrefix     // "button" | "icon" | "tile" | "ink" (auto-generated)
 ```
 
 ---
@@ -188,7 +188,7 @@ nice-styles/src/tokens/
     ├── input.json
     ├── lightbox.json
     ├── tile.json
-    └── typography.json
+    └── ink.json
 ```
 
 Key order inside each file mirrors the CSS cascade so the JSON reads top-to-bottom in the same direction styles resolve:
@@ -243,7 +243,7 @@ Themes are emitted last in `dist/tokens.css`, so on overlap (a token overridden 
     }
   }
   ```
-  Components with no alt-theme overrides (icon, tile, typography, image, input, lightbox today) simply omit the `$themes` key.
+  Components with no alt-theme overrides (icon, tile, ink, image, input, lightbox today) simply omit the `$themes` key.
 
   **Components support `$breakpoints` too** — the same reserved key modules use, with each breakpoint holding a partial mirror of the (nested) base tree. So both axes are available in both scopes:
 
@@ -418,7 +418,7 @@ object. `token` may be a string (flat lookup) or a path array (nested lookup).
 
 ```ts
 getComponentToken(
-  prefix: ComponentPrefix,  // "button" | "icon" | "tile" | "typography" | …
+  prefix: ComponentPrefix,  // "button" | "icon" | "tile" | "ink" | …
   options: {
     token: string | string[]  // token name, or a path array for nested tokens
     variant?: string          // flat lookups only; defaults to "base"
@@ -692,7 +692,7 @@ Three ways consumers pin:
 
 ### Component `theme` prop
 
-Visual components (Typography, Tile, Button, Icon, Image, Input) implement their `theme` prop by wrapping their rendered output in `<Theme name={theme}>` when the prop is set. Consequences:
+Visual components (Ink, Tile, Button, Icon, Image, Input) implement their `theme` prop by wrapping their rendered output in `<Theme name={theme}>` when the prop is set. Consequences:
 
 - Descendants of `<Tile theme="night">` automatically inherit night via the cascade — no need to set `theme` on each child.
 - A child with its own `theme` prop pins itself (and its descendants), overriding the ancestor.
@@ -714,9 +714,9 @@ import type { ThemeType } from "nice-react-styles"
 Component packages re-export as component-specific aliases:
 
 ```ts
-// nice-react-typography
-import type { TypographyThemeType } from "nice-react-typography"
-// TypographyThemeType = ThemeType
+// nice-react-ink
+import type { InkThemeType } from "nice-react-ink"
+// InkThemeType = ThemeType
 ```
 
 Higher-level components (app code, wrapper components) import `ThemeType` from nice-react-styles:

@@ -18,12 +18,25 @@ Tag any factual claim not directly observed in this session's tool output, file 
 
 An untagged factual claim reads as `[verified]`-grade — so if it is not, it is a violation. Hedges ("probably", "likely", "should", "typically", "I think") do **not** substitute for a tag; they hide the guess instead of disclosing it.
 
+**A diagnosis carries its own tag, separate from the facts under it.** "This cause produces that symptom" is a distinct claim from "this code does that thing", and it inherits nothing from them. True, cited, individually-`[verified]` facts assemble into false causal chains — that is the normal failure, not a rare one. The chain is `[verified]` only when the link itself was observed: the symptom changed when the cause changed. Otherwise tag the chain `[inferred]` or `[guess]` even when every fact inside it is `[verified: file:line]`.
+
 ---
 
 ## Three instances of the one rule
 
 ### 1. Verify before you claim or fix
-Diagnosis comes from reproducing the failure and inspecting state (`cat`, `grep`, `git log`, `--traceResolution`, `lsof`, `readlink`), not from "this kind of error usually means X." A fix resting on `[guess]`/`[inferred]` may **not** be applied before telling the user and getting confirmation:
+Diagnosis comes from reproducing the failure and inspecting state, not from "this kind of error usually means X."
+
+Two kinds of tool, and they are not interchangeable:
+
+| Kind | Tools | Establishes |
+|------|-------|-------------|
+| Static | `cat`, `grep`, `git log`, `git diff`, `--traceResolution`, `lsof`, `readlink` | what the code *says* |
+| Runtime | `console.log` at the boundary, computed style in devtools, actually running it, a failing test | what the code *does* |
+
+**A cause is a runtime claim.** Static reading establishes that a mechanism exists; it cannot establish that this mechanism produced this symptom. A diagnosis backed only by static reading is `[inferred]` at best, however many files it cites — and `[inferred]` does not authorize an edit outside the file you were asked about (`stale-first.md` Gate A).
+
+A fix resting on `[guess]`/`[inferred]` may **not** be applied before telling the user and getting confirmation:
 
 > Unverified hypothesis: {cause}. Proposed fix: {edit}. To verify first: {test}. Apply, test, or stop?
 
@@ -51,6 +64,9 @@ An architectural aside is **context, not a request** (`scope.md`). "Let me inves
 | Tag a `[guess]` value and ship it anyway | Tagging ≠ authorization for typed values. Read or stop. |
 | Tag one sentence, then surround it with untagged prose | Tag-then-bury. Every factual claim carries its own tag. |
 | "Let me verify" → then a still-untagged confident claim | Tool-call theater. The next claim must be tagged. |
+| `[verified]` facts assembled into an untagged causal chain | The facts are not the diagnosis. Tag the link. |
+| Citing file:line for a cause never observed to produce the symptom | Citation density reads as rigor; it is consistency-checking, not falsification. |
+| Reading more files instead of running the cheapest disconfirming test | Static breadth cannot decide a runtime question. |
 
 ---
 
@@ -69,6 +85,8 @@ If a `[guess]`/`[inferred]` claim is contradicted by new evidence or user feedba
 3. For any typed value: did I read the type/registry this session?
 4. Did the user actually ask for the scope I'm proposing?
 5. Reading this 5 minutes from now with no memory of the prior turn, could the user tell what I *know* from what I'm *guessing*?
+6. Is the *causal link* tagged, not just the facts under it — and was it observed at runtime, or only read?
+7. Could I have answered this by logging one value instead of reading N files? If yes, why didn't I?
 
 Any "no" → rewrite before sending.
 

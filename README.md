@@ -23,12 +23,12 @@ nice-manifest/
 ├── discipline/                    # HIGHEST-PRIORITY behavioral rules — read first
 │   ├── README.md                  # Index
 │   ├── responsiveness.md          # Never go unresponsive; no foreground subagents; match effort to task size
-│   ├── grounding.md               # Never present a guess as fact: verify before claiming, tag evidence, never invent typed values
+│   ├── grounding.md               # Never present a guess as fact: verify before claiming, tag evidence, never invent typed values; a causal chain is tagged separately from the facts under it, and static reading cannot establish a cause
 │   ├── refactor-safety.md         # Keep every intermediate save compiling during refactors
 │   ├── offboarding.md             # Reconcile manifest↔project discrepancies your change opened, before finishing
 │   ├── scope.md                   # Do exactly what was asked — no unrequested rewrites/abstractions/extra files
 │   ├── communication.md           # No sycophancy/lecturing/unsolicited caveats; announce long or hanging ops
-│   └── stale-first.md             # Rule out stale state (tab, dev server, un-rebuilt package) before debugging code
+│   └── stale-first.md             # Diagnosis order, all 10 steps: stale state → input arrives? → own diff → call site → file → package → foundation (gated). Gate A: cross-file diagnoses need a runtime observation. Gate B: an unexplained anomaly stops you
 ├── read/                          # UNDERSTANDING existing systems
 │   ├── README.md                  # Index
 │   ├── inheritance.md             # Package hierarchy, dependency graph, layers
@@ -92,10 +92,16 @@ Two packages are designated as the canonical reference implementations for the e
 
 | Role | Package | Audit Target |
 |------|---------|--------------|
-| React component packages | **nice-react-typography** | All `nice-react-*` component packages (Button, Icon, Flex, Tile, Image, Slider, Lightbox, Input, Scroll, etc.) |
+| React component packages | **nice-react-ink** | All `nice-react-*` component packages (Button, Icon, Flex, Tile, Image, Slider, Lightbox, Input, Scroll, etc.) |
 | Configuration / CLI / build-plugin packages | **nice-toolkit** | nice-configuration, nice-vite-watcher, and similar tooling packages |
 
 When the standard bearer itself needs to change, that is a deliberate, separate decision — not something to fold into a normalization audit.
+
+### The token system is the origin pattern
+
+The token generation system in **nice-styles** (token JSON → generated data, types, and CSS → runtime getters/setters, re-exported through nice-react-styles) is where the ecosystem's pattern starts. Every other package — including the standard bearers above — builds on it: component styling, theming, breakpoints, and configuration derive from token system logic rather than re-implementing it.
+
+A package that cannot reach logic it needs through the token system is a **showstopper**, not a workaround opportunity. Examples: a component that has to hardcode a color, duration, or z-index because no token exists; a component that cannot resolve a theme or breakpoint value through a getter; a consumer that has to read raw generated data because no API exposes it. In those cases stop, report the gap, and fix it in the token system first — then build the package on top of the fix.
 
 ---
 
@@ -106,7 +112,7 @@ When the standard bearer itself needs to change, that is a deliberate, separate 
 ```
 Application  →  nice-storybook, nice-website-2025
 Feature      →  nice-react-button
-Utility      →  nice-react-flex, nice-react-typography, nice-react-tile, nice-react-icon
+Utility      →  nice-react-flex, nice-react-ink, nice-react-tile, nice-react-icon
 Context      →  nice-react-styles
 Foundation   →  nice-styles, nice-icons, nice-configuration
 ```
@@ -169,6 +175,10 @@ For a change scoped to one foundation package, `nicely --build-icons` rebuilds j
 ## Mandatory Prerequisites
 
 1. **Read all source files before editing.** No Claude instance may modify a nice-* package without first reading every source file in that package. Trace import chains from the entry point to verify which files the build actually uses. Duplicate or dead files exist — editing the wrong copy wastes time and produces silent failures.
+
+   **Scope of this rule:** it licenses reading *the package you are editing*, and it is a floor on preparation — not a warrant for unbounded search. It does **not** authorize reading outward across packages to build a theory. Which package you are entitled to edit is decided by `discipline/stale-first.md` (check order + Gate A), before this rule applies. Reading is not free: a wrong diagnosis assembled from correctly-read files is the most expensive failure in this workspace's history, and it always begins as diligent reading.
+
+2. **Diagnose before you read.** For a "why isn't X working" question, the first move is confirming X receives its input — not reading how X works. See `discipline/stale-first.md` step 5. "Read the source" is step 5 of 10, not the opening move.
 
 ---
 
