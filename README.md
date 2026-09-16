@@ -43,6 +43,7 @@ nice-manifest/
 │   ├── README.md                  # Index
 │   ├── comments.md                # Inline code comment standards for AI readability
 │   ├── component.md               # Component package structure, types, tokens
+│   ├── generators.md              # Generators & emitters: pipeline, structure, docs standard, node:test snapshots
 │   └── storybook.md               # Story file patterns
 ├── build/                         # LOCAL DEVELOPMENT
 │   ├── README.md                  # Index
@@ -168,6 +169,7 @@ For a change scoped to one foundation package, `nicely --build-icons` rebuilds j
 | Token naming / CSS variables | `read/styles/tokens.md` |
 | Audit / improve ecosystem | `read/audit.md` |
 | Writing implementation logic | `edit/comments.md` |
+| Writing or restructuring a generator / emitter | `edit/generators.md` → `edit/comments.md` |
 | Compressing PNG assets | `build/image-compressor.md` |
 
 ---

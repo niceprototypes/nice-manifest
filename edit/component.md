@@ -69,10 +69,6 @@ nice-react-{component}
     ├── services (optional)
     │   ├── {service1}.ts
     │   └── index.ts
-    ├── tokens
-    │   ├── {Component}Styles.ts
-    │   ├── get{Component}Token.ts
-    │   └── index.ts
     └── index.ts
 ```
 
@@ -82,7 +78,7 @@ nice-react-{component}
 2. **Each component folder contains**: the component file, types, styles, tests, and index
 3. **Supporting files are prefixed with the component name**: `{Component}.styles.ts`, `{Component}.types.ts`, `{Component}.helpers.ts`, `{Component}.services.ts`, etc. Never bare `styles.ts` / `types.ts`. **Why:** an editor open on `Button.styles.ts` and `Tile.styles.ts` is unambiguous; two tabs both labelled `styles.ts` aren't. Grep, find, and AI search land directly on the right file. **How to apply:** any non-`index.ts`, non-`{Component}.tsx` file inside a component folder gets the component-name prefix. PascalCase sibling files (sub-components like `Sticky/StickyProvider.tsx`) keep their own name — they are themselves components, not supporting files.
 4. **Utilities vs Services**: utilities are internal functions, services are exported for consumers
-5. **Tokens folder**: required for all components — token values live as JSON in nice-styles (`src/tokens/components/{prefix}.json`), and each component package provides a thin `get{Component}Token()` wrapper around `getComponentToken()` from nice-styles
+5. **Component tokens**: token values live as JSON in nice-styles (`src/tokens/components/{prefix}.json`); component styles read them with `getToken("{component}.{name}:{variant}")` from nice-react-styles. Packages have no `tokens/` folder and no per-package token getter.
 
 ### Multi-Component Package Structure
 
@@ -187,11 +183,11 @@ Token values live in `nice-styles/src/tokens/components/{prefix}.json`. Values a
 ```json
 {
   "size": {
-    "smaller": "var(--np--cell-height--smaller)",
-    "small": "var(--np--cell-height--small)",
-    "base": "var(--np--cell-height)",
-    "large": "var(--np--cell-height--large)",
-    "larger": "var(--np--cell-height--larger)"
+    "smaller": "var(--np--size--smaller)",
+    "small": "var(--np--size--small)",
+    "base": "var(--np--size)",
+    "large": "var(--np--size--large)",
+    "larger": "var(--np--size--larger)"
   },
   "borderRadius": {
     "small": "var(--np--border-radius--small)",
@@ -203,7 +199,7 @@ Token values live in `nice-styles/src/tokens/components/{prefix}.json`. Values a
 
 These become CSS custom properties in `dist/tokens.css`:
 ```css
---np--button--size: var(--np--cell-height);
+--np--button--size: var(--np--size);
 --np--button--border-radius--small: var(--np--border-radius--small);
 ```
 
@@ -213,42 +209,21 @@ override axes (both partial mirrors of the base tree) — see
 `night` is the OS dark default; other `$themes` names emit `[data-theme]` pins,
 and `$breakpoints` emits per-viewport `min-width` overrides.
 
-#### src/tokens/get{Component}Token.ts
+#### Reading component tokens in styles
 
-Wrapper around `getComponentToken` from nice-styles. Forwards both flat and path-based calling conventions so all components can access nested tokens when their token structure requires it.
-
-```ts
-import { getComponentToken, type TokenResult } from "nice-react-styles"
-
-/**
- * Get an ink component token.
- *
- * Flat lookup — for tokens at depth 1 (e.g., "fontSize", "fontFamily"):
- * ```ts
- * getInkToken("fontSize", "base")
- * ```
- *
- * Path lookup — for nested tokens:
- * ```ts
- * getInkToken(["group", "variant", "parameter"])
- * ```
- */
-export function getInkToken(nameOrPath: string | string[], variantOrMode?: string, mode?: string): TokenResult {
-  // Path branch: the wrapper's `variantOrMode` is the theme; flat branch: the variant.
-  if (Array.isArray(nameOrPath)) {
-    return getComponentToken("ink", { token: nameOrPath, mode: variantOrMode })
-  }
-  return getComponentToken("ink", { token: nameOrPath, variant: variantOrMode, mode })
-}
-```
-
-#### src/tokens/index.ts
-
-Re-exports the per-component token getter:
+Component styles read their tokens with the single getter and the component `prefix`. A nested group is a path array; the variant stays the second argument.
 
 ```ts
-export { getButtonToken } from "./getButtonToken"
+// Button.styles.ts
+import { getToken } from "nice-react-styles"
+
+export const StyledButton = styled.button<{ $size: SizeType }>`
+  height: ${({ $size }) => getToken(`button.size:${$size}`)};
+  --np--icon--size: ${({ $size }) => getToken(`button.icon.size:${$size}`)};
+`
 ```
+
+There is no per-package token getter and no `src/tokens/` folder. See [`read/styles/tokens.md`](../read/styles/tokens.md) → "getToken" and "Component tokens".
 
 #### Component Styles in Applications
 
@@ -568,9 +543,6 @@ export { default } from "./components/Ink"
 
 // All named type exports + InkTypes namespace (re-exported from the component index)
 export * from "./components/Ink"
-
-// Token exports
-export { getInkToken } from "./tokens"
 ```
 
 **Why `export *` over a selective list:** `types.ts` is the single source of truth for a component's public type surface. Using `export *` makes it impossible for `index.ts` to drift out of sync with `types.ts` when new prop types are added. Both individual imports (`import { InkProps } from "nice-react-ink"`) and namespace access (`import { InkTypes } from "nice-react-ink"; InkTypes.Props`) continue to work.
@@ -588,8 +560,7 @@ Every component package must have a `package.exports.json` at the package root. 
   "$schema": "../nice-configuration/src/exports/schema.json",
   "description": "Semantic ink component for nice-react with full token support.",
   "default": "Ink",
-  "components": ["Ink"],
-  "tokens": ["Ink"]
+  "components": ["Ink"]
 }
 ```
 
@@ -598,7 +569,6 @@ Every component package must have a `package.exports.json` at the package root. 
 | `description` | string | optional | Short JSDoc block (max 5 lines, hard-enforced). Long-form content goes in README.md. |
 | `default` | string | optional | Component name to re-export as the package default. Must be listed in `components`. |
 | `components` | string[] | required | Component names. Generator emits `export * from "./components/{Name}"` for each. |
-| `tokens` | string[] | optional | Subset of `components` with token wrappers. Emits `{Name}Styles, get{Name}Token` from `./tokens`. |
 | `services` | string[] | optional | Function names exported from `./services`. |
 | `constants` | string[] | optional | Constant names exported from `./constants`. |
 
@@ -778,7 +748,7 @@ Canonical scripts per package class. Each script must be both (a) appropriate fo
 
 | Package | Build tool | Scripts |
 |---|---|---|
-| `nice-styles` (foundation) | bespoke generator pipeline | `clean` + `build:tokens` + `build:types` + `build:css` + `build:ts` + `build:post` chained from `build`; `dev` runs them in `--watch` mode; `prepublishOnly` and `test` (placeholder) for the publish chain. |
+| `nice-styles` (foundation) | bespoke generator pipeline | `clean` + `build:tokens` + `build:types` + `build:css` + `build:ts` + `build:post` chained from `build`; `dev` runs them in `--watch` mode; `prepublishOnly` (build + test) for the publish chain; `test` (`tsx --test test/*.test.ts`) and `test:update` (rewrites snapshots — the one allowed test alias, required by the snapshot workflow in `edit/generators.md`). |
 | `nice-icons` (foundation) | gen script | `build`, `dev` (with `--watch`), `prepublishOnly`. No `prepare`. |
 | `nice-configuration` (foundation/CLI) | `tsc` | `build`, `prepublishOnly`, `prepare` (deliberate exception — see "Forbidden everywhere" note below). |
 | `nice-vite-watcher` (plugin) | `tsup` | `build`, `dev`, `prepublishOnly`. No `prepare`. |

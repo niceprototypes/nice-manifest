@@ -53,9 +53,9 @@ getToken("borderRadius")
 
 ### Token Items (camelCase or kebab)
 
-For `getToken`, the variant is the second positional argument (default
-`"base"`); theme / inverse / pristine stay in the trailing options object.
-(`getTokenKey` / `getTokenValue` keep the variant inside their options object.)
+The variant is the second positional argument of `getToken` (default
+`"base"`); prefix / theme / breakpoint / inverse / pristine / `as` go in the
+trailing options object.
 
 ```ts
 getToken("fontSize", "base")
@@ -86,7 +86,7 @@ ComponentPrefix     // "button" | "icon" | "tile" | "ink" (auto-generated)
 | `borderRadius` | `border-radius` | smaller, small, base, large, larger |
 | `borderWidth` | `border-width` | base, large |
 | `boxShadow` | `box-shadow` | base, large |
-| `cellHeight` | `cell-height` | smaller, small, base, large, larger |
+| `size` | `size` | smaller, small, base, large, larger |
 | `fontFamily` | `font-family` | base, code, heading |
 | `fontSize` | `font-size` | smaller, small, base, large, larger |
 | `fontWeight` | `font-weight` | light, base, medium, semibold, bold, extrabold, black |
@@ -162,7 +162,7 @@ Standard size progression:
 smaller → small → base → large → larger
 ```
 
-Used by: `borderRadius`, `cellHeight`, `fontSize`, `gap`
+Used by: `borderRadius`, `size`, `fontSize`, `gap`
 
 ---
 
@@ -233,28 +233,28 @@ Themes are emitted last in `dist/tokens.css`, so on overlap (a token overridden 
 - **`components/{prefix}.json`** holds the comprehensive base for one component prefix at the top level. Token values are raw CSS strings; cross-references use `var()`. Alternative themes live under the same reserved `$themes` key as module-level files:
   ```json
   {
-    "size":         { "smaller": "var(--np--cell-height--smaller)", ... },
+    "size":         { "smaller": "var(--np--size--smaller)", ... },
     "borderRadius": { ... },
-    "status":       { "primary": { "base": { ... }, "disabled": { ... }, ... } },
+    "icon":         { "size": { "base": "var(--np--font-size)", ... } },
     "$themes": {
       "night": {
-        "status": { "primary": { ... } }
+        "icon": { "color": { ... } }
       }
     }
   }
   ```
-  Components with no alt-theme overrides (icon, tile, ink, image, input, lightbox today) simply omit the `$themes` key.
+  Every component file today carries an empty `$themes.night`; alias values (`var(--np--…)`) follow the core token's themes automatically (see auto-propagation below).
 
   **Components support `$breakpoints` too** — the same reserved key modules use, with each breakpoint holding a partial mirror of the (nested) base tree. So both axes are available in both scopes:
 
   ```json
   {
-    "size": { "base": "var(--np--cell-height)", ... },
+    "size": { "base": "var(--np--size)", ... },
     "$breakpoints": {
-      "laptop": { "size": { "base": "var(--np--cell-height--large)" } }
+      "laptop": { "size": { "base": "var(--np--size--large)" } }
     },
     "$themes": {
-      "night": { "status": { "primary": { ... } } }
+      "night": { "icon": { "color": { ... } } }
     }
   }
   ```
@@ -267,7 +267,7 @@ Adding a new component package = drop one `components/{prefix}.json`. The build 
 
 A component token whose value is a **bare alias** to a core token —
 `"light": "var(--np--color--light)"` — automatically tracks every scope the
-referenced core participates in. The generator (`scripts/css/emitComponentAliases.ts`)
+referenced core participates in. The generator (`src/utilities/css/componentAliasCss.ts`)
 emits a parallel reassignment of the component var into each
 `[data-theme="day"]` / `[data-theme="night"]` pin, the
 `@media (prefers-color-scheme: dark)` block, and any `@media (min-width)`
@@ -290,9 +290,10 @@ button `status` colors) have no core counterpart to derive from and so still
 require authored `$themes` to theme — that path is unchanged.
 
 **Convention:** component styles should resolve through their own component
-token (`get{Component}Token`), never a core/root `getToken` var directly. Core
-vars are for loose use in consumer/app code. Because aliases now auto-propagate,
-routing a component prop through its component token is always theme-correct.
+token (`getToken("{component}.{name}:{variant}")`), never a core/root
+var directly. Core vars are for loose use in consumer/app code. Because aliases
+auto-propagate, routing a component prop through its component token is always
+theme-correct.
 
 ### Auto-Generated Files
 
@@ -328,35 +329,42 @@ import { getToken, getBreakpoint, type FontSizeType } from "nice-styles"
 
 ## getToken
 
-Unified token accessor. Reads from the runtime registry (seeded at module load from the generated token data, runtime-extensible via `setTokens`). Throws on unknown tokens.
-
-The token name is always positional. For `getToken` the `variant` is the
-second positional argument (default `"base"`); `theme` / `inverse` / `pristine`
-stay in a trailing options object. `getTokenKey` / `getTokenValue` keep the
-variant inside their options object. Three sibling functions cover the three
-accessor forms:
-
-- `getToken(name, variant?, options?)` — `var(--np--…)` reference (the common case).
-- `getTokenKey(name, options?)` — bare CSS variable name (no `var(...)` wrapper).
-- `getTokenValue(name, options?)` — raw underlying value (e.g. `"16px"`).
-
-`getToken` options: `{ theme?: string; inverse?: boolean; pristine?: boolean }`.
-`getTokenKey` / `getTokenValue` options: `{ variant?: string; theme?: string; inverse?: boolean; pristine?: boolean }`.
+The single token getter. Reads one registry — seeded at module load from all generated token data, extended at runtime by `setTokens` — for every token kind: core, custom, theme, breakpoint, inverse, and component.
 
 ```ts
-import { getToken, getTokenKey, getTokenValue } from "nice-react-styles"
-
-getToken("fontSize")                            // → "var(--np--font-size)"  (base default)
-getToken("fontSize", "large")                   // → "var(--np--font-size--large)"
-getTokenKey("fontSize", { variant: "base" })    // → "--np--font-size"
-getTokenValue("fontSize", { variant: "base" })  // → "16px"
-
-// Theme-pinned primitive
-getToken("color", "base", { theme: "night" })            // → "var(--np--color--night)"
-
-// Inverse color (color / backgroundColor only) — trailing --inverse segment
-getToken("backgroundColor", undefined, { inverse: true }) // → "var(--np--background-color--inverse)"
+getToken(
+  name: string | string[],        // token group, or a nested group path (component tokens)
+  variant = "base",
+  options?: {
+    prefix?: string               // component prefix ("button", "icon", …)
+    theme?: string                // pin to a theme primitive
+    breakpoint?: string           // pin to a breakpoint primitive
+    inverse?: boolean             // inverse-color dimension
+    pristine?: boolean            // generated defaults only, ignoring setTokens overrides
+    as?: "var" | "key" | "value"  // default "var"
+  }
+): string
 ```
+
+```ts
+import { getToken } from "nice-react-styles"
+
+getToken("fontSize")                                      // → "var(--np--font-size)"
+getToken("fontSize", "large")                             // → "var(--np--font-size--large)"
+getToken("fontSize", "base", { as: "key" })               // → "--np--font-size"
+getToken("fontSize", "base", { as: "value" })             // → "14px"
+getToken("color", "base", { theme: "night" })             // → "var(--np--color--night)"
+getToken("fontSize", "large", { breakpoint: "laptop" })   // → "var(--np--font-size--large--laptop)"
+getToken("backgroundColor", "base", { inverse: true })    // → "var(--np--background-color--inverse)"
+getToken("button.spacing:large")                          // → "var(--np--button--spacing--large)"
+getToken("button.icon.size:small")                        // → "var(--np--button--icon--size--small)"
+```
+
+Rules:
+- **Layers:** `as: "value"` reads the `setTokens` override first, then the generated default, per theme and per breakpoint — the same order as the injected stylesheet over `tokens.css`.
+- **Unregistered name:** the `var` / `key` forms return the computed name and warn once if it is still unregistered after module loading finishes, so a read that runs before `setTokens` is not an error. The `value` form throws.
+- **Theme pin:** throws when the token has no value for that theme.
+- **Breakpoint pin:** the `var` / `key` forms throw unless a generated `--{breakpoint}` primitive exists; `as: "value"` resolves the value active at that breakpoint.
 
 ### Usage in styled-components
 
@@ -373,103 +381,60 @@ const StyledDiv = styled.div`
 
 ## getConstant (nice-styles)
 
-Constructs CSS variable strings following the `--np--` convention. Does not look up values.
+Builds CSS variable names following the `--np--` convention. Name only — no registry lookup, no validation. To read a registered token, use `getToken`. `getConstantKey` returns the bare name.
 
 ### Signature
 
 ```ts
-getConstant(token: string, param: string, options?: { theme?: string; breakpoint?: string; pkg?: string; inverse?: boolean }): CssConstantResult
+getConstant(token: string | string[], param: string, options?: { theme?: string; breakpoint?: string; pkg?: string; inverse?: boolean }): string
+getConstantKey(token: string | string[], param: string, options?: { theme?: string; breakpoint?: string; pkg?: string; inverse?: boolean }): string
 ```
 
 ### Examples
 
 ```ts
-import { getConstant } from "nice-react-styles"
+import { getConstant, getConstantKey } from "nice-react-styles"
 
-// Core token
-getConstant("backgroundColor", "base")
-// → { key: "--np--background-color", var: "var(--np--background-color)" }
-
-// Force day theme primitive
-getConstant("backgroundColor", "base", { theme: "day" })
-// → { key: "--np--background-color--day", var: "var(--np--background-color--day)" }
-
-// Force night theme primitive
-getConstant("color", "base", { theme: "night" })
-// → { key: "--np--color--night", var: "var(--np--color--night)" }
-
-// Component token
-getConstant("height", "small", { pkg: "button" })
-// → { key: "--np--button--height--small", var: "var(--np--button--height--small)" }
+getConstant("backgroundColor", "base")                   // → "var(--np--background-color)"
+getConstant("backgroundColor", "base", { theme: "day" }) // → "var(--np--background-color--day)"
+getConstant("color", "base", { theme: "night" })         // → "var(--np--color--night)"
+getConstant("size", "small", { pkg: "button" })          // → "var(--np--button--size--small)"
+getConstantKey(["icon", "size"], "base", { pkg: "button" }) // → "--np--button--icon--size"
 ```
 
-**Always use getConstant for CSS variable strings. Never construct manually.**
+`base` contributes no segment anywhere in the name, including inside a group path.
+
+**Never construct `--np--` strings by hand — use `getToken` for registered tokens and `getConstant` / `getConstantKey` for names outside the registry.**
 
 ---
 
-## getComponentToken (nice-styles)
+## Component tokens
 
-Component-scoped token accessor. Reads from auto-generated component token data.
-
-### Signature
-
-Only the component `prefix` is positional; everything else is in the options
-object. `token` may be a string (flat lookup) or a path array (nested lookup).
-
-```ts
-getComponentToken(
-  prefix: ComponentPrefix,  // "button" | "icon" | "tile" | "ink" | …
-  options: {
-    token: string | string[]  // token name, or a path array for nested tokens
-    variant?: string          // flat lookups only; defaults to "base"
-    theme?: string             // theme/mode pin (e.g. "night")
-  }
-): string
-```
-
-`getComponentTokenKey` and `getComponentTokenValue` are sibling functions returning the bare name and raw value respectively, mirroring the `getToken` family pattern.
-
-### Examples
-
-```ts
-import { getComponentToken } from "nice-react-styles"
-
-getComponentToken("button", { token: "size", variant: "base" })
-// → "var(--np--button--size)"
-
-getComponentToken("icon", { token: "color", variant: "error" })
-// → "var(--np--icon--color--error)"
-
-// Nested path lookup
-getComponentToken("button", { token: ["status", "primary", "backgroundColor", "base"] })
-// → "var(--np--button--status--primary--background-color)"
-```
-
-TypeScript enforces valid prefixes via `ComponentPrefix` (auto-generated from `src/tokens/components/*.json` filenames).
-
----
-
-## Token Registry (nice-react-styles)
-
-Runtime token registry that extends nice-styles' static tokens. Core tokens are available immediately; custom tokens are registered via `setTokens()` or `registerTokens()`.
-
-### getToken (nice-react-styles) — Unified Token Accessor
-
-Queries the runtime registry. Core tokens work immediately. Custom tokens available after registration.
+Component tokens are read with `getToken` using an address whose first dotted segment is the component: `"button.icon.size:small"`. Values live in `nice-styles/src/tokens/components/{prefix}.json`. Dots carry the namespace and group path, the first colon carries the variant — group, variant, and effect names never contain a dot or a colon.
 
 ```ts
 import { getToken } from "nice-react-styles"
 
-// Core tokens (always available)
-getToken("fontSize", "base")   // → --np--font-size
-getToken("color", "link")       // → --np--color--link
+getToken("button.size:base")                                    // → "var(--np--button--size)"
+getToken("icon.color:error")                                    // → "var(--np--icon--color--error)"
+getToken("button.icon.size:small")                              // → "var(--np--button--icon--size--small)"
+getToken("lightbox.zIndex:base", { as: "value" })               // → "9999"
+```
 
-// Theme-specific primitives
-getToken("backgroundColor", "base", { theme: "day" })    // → --np--background-color--day
-getToken("backgroundColor", "base", { theme: "night" })  // → --np--background-color--night
+Valid prefixes are listed by the `ComponentPrefix` type (auto-generated from `src/tokens/components/*.json` filenames). Component packages have no per-package `get{Component}Token` wrappers.
 
-// Custom tokens (after registration)
-getToken("brandColor", "primary")   // → --np--brand-color--primary
+---
+
+## Token Registry
+
+One store in nice-styles (`src/registry/`), re-exported by nice-react-styles. Generated tokens are seeded at module load; custom tokens and overrides are added with `setTokens()` or `registerTokens()`. `breakpoints` is a reserved group holding the breakpoint floors (`getToken("breakpoints:laptop")`), seeded from `breakpoints.json` and updated when `setTokens({ breakpoints })` changes one. Read single tokens with [`getToken`](#gettoken) and enumerate with [`listTokens`](#listtokens--enumerate-tokens).
+
+```ts
+import { getToken } from "nice-react-styles"
+
+getToken("fontSize")                                     // "var(--np--font-size)" — seeded, always available
+getToken("backgroundColor", "base", { theme: "night" })  // "var(--np--background-color--night)"
+getToken("brandColor", "primary")                        // "var(--np--brand-color--primary)" — after setTokens
 ```
 
 ### setTokens — Register + Generate CSS
@@ -539,19 +504,64 @@ import { registerTokens } from "nice-react-styles"
 registerTokens({ brandColor: { primary: "#f00" } }, "app")
 ```
 
-**Merge behavior:** Variants are merged, not replaced. Partial overrides preserve existing variants.
+**Layering:** each variant writes the `runtime` layer of the entry for its CSS variable name. The generated `seed` layer is kept, and readers fall back to it for any theme or breakpoint the override does not cover.
 
 ### Direct registry access
 
-The registry itself is exported as a `Map<string, RegistryEntry>` for callers that need lookup or enumeration:
+The registry is exported as a `Map<string, TokenEntry>` keyed by CSS variable name. Each entry holds `prefix`, `path`, `variant`, `inverse`, and two value layers: `seed` (generated default) and `runtime` (`setTokens` / `registerTokens` override).
 
 ```ts
 import { registry } from "nice-react-styles"
 
-registry.has("fontSize")         // true
-registry.has("brandColor")       // true (after registerTokens / setTokens)
-[...registry.keys()]             // ["fontSize", "color", "gap", ...]
+registry.has("--np--font-size")               // true
+registry.get("--np--font-size--large")?.seed  // { phone: "20px", tablet: "20px", laptop: "24px", desktop: "24px" }
 ```
+
+Seeding and `registerTokens` write through one function (`writeToken` in `registry/createRegistry.ts`), so generated and runtime entries carry the same metadata.
+
+### transform — Adjust a colour's channels
+
+`getToken(address, { transform })` adjusts a colour token's hsla channels and returns CSS relative color syntax, so the result stays a `var()` underneath and keeps following the theme cascade:
+
+```ts
+getToken("ink.color:highlight", { transform: [null, null, "*0.55", null] })
+// "hsl(from var(--np--ink--color--highlight) h s calc(l * 0.55))"
+
+getToken("color:base", { theme: "night", as: "value", transform: [null, null, "*0.5", null] })
+// "hsla(210, 5%, 47.5%, 1)"   — the computed counterpart
+```
+
+Channels are `[hue, saturation, lightness, alpha]`. A `number` sets the channel, `"+30"` / `"-30"` shift it, `"*0.55"` scales it, and `null` (or an omitted entry) leaves it alone. Prefer ratios for anything that must hold in both themes — an offset sized for a light value leaves the gamut on its dark counterpart, and the browser saturates rather than failing.
+
+`as: "key"` throws: a transformed colour has no variable name. `transformColor` shares the same channel vocabulary (`src/utilities/css/relativeColor.ts`) but computes a static `hsla()`, which does not follow the theme.
+
+Component colour props take the same thing as an object — `<Ink color={{ name: "highlight", transform: [null, null, 40, null] }} />` — resolved through `resolveColorProp`.
+
+### listTokens — Enumerate tokens
+
+`listTokens(filter?)` lists registered tokens in one pass over the registry — the enumeration counterpart of `getToken`. Exported from nice-styles and nice-react-styles.
+
+```ts
+import { listTokens, getToken } from "nice-react-styles"
+
+listTokens({ prefix: "button" })       // every button component token
+listTokens({ group: "color" })         // color variants, base and inverse
+listTokens({ source: "runtime" })      // tokens only setTokens created
+
+for (const { path, variant, prefix, inverse } of listTokens({ group: "fontSize" })) {
+  getToken(path, variant, { prefix, inverse, as: "value" })
+}
+```
+
+Each listing: `{ key, prefix, path, variant, inverse, themes, breakpoints, source }`.
+
+| Field | Meaning |
+|---|---|
+| `themes` | Theme names with a value in any layer (`[]` if unthemed) |
+| `breakpoints` | Breakpoint keys with a value in any layer, including runtime ranges (`laptop+`) |
+| `source` | `"seed"` (generated only), `"runtime"` (`setTokens` only), or `"both"` |
+
+Filter (all optional, all must match): `prefix` (exact), `group` (first path segment), `variant`, `source` (exact).
 
 ---
 
@@ -615,17 +625,17 @@ A theme override MUST NOT introduce a variant absent from the group's base — t
 
 ### Build Pipeline
 
-Three readers consume the source JSON. Module-level files are discovered via a `modules/*.json` glob and reassembled into the combined shape by the shared `readModuleFolder` reader; per-component files via a `components/*.json` glob. **Both scopes are zero-script-edit — adding a token group or a component package is just a new file.** Both `$breakpoints` and `$themes` overrides are always inline under the parent file — no sibling `module.breakpoints.json` or `.themes.json` files exist.
+One reader, `scripts/shared/readTokenSources.ts`, reads and validates the source JSON and returns a typed `TokenSourceModel` (`scripts/shared/types.ts`); each pipeline maps that model onto its output. Module-level files are discovered via a `modules/*.json` glob and reassembled by `readModuleFolder`; per-component files via a `components/*.json` glob. **Both scopes are zero-script-edit — adding a token group or a component package is just a new file.** `$breakpoints`, `$themes`, and `$inverse` overrides are always inline under the parent file.
 
-| Script | Reads | Outputs |
-|--------|-------|---------|
-| `scripts/generateTokens/` | glob `modules/*.json` (each incl. `$breakpoints` + `$themes`), `breakpoints.json`, glob `components/*.json` (each incl. `$themes`) | `src/generated/tokensData.ts`, `themeTokensData.ts`, `breakpointTokensData.ts`, `componentTokensData.ts`, `breakpointsData.ts` |
-| `scripts/generateCss/` | same set | `dist/tokens.css`, `dist/css/{group}.css` |
-| `scripts/generateTypes/` | same set, just enough to derive type unions | `src/generated/types.ts` |
+| Script | Maps the model to |
+|--------|-------------------|
+| `scripts/generateTokens/` (`writeData.ts`) | `src/generated/tokensData.ts`, `themeTokensData.ts`, `breakpointTokensData.ts`, `inverseTokensData.ts`, `componentTokensData.ts`, `componentBreakpointTokensData.ts`, `breakpointsData.ts` |
+| `scripts/generateTypes/` (`writeTypes.ts`) | `src/generated/types.ts` |
+| `scripts/generateCss/` (`writeCss.ts`) | `dist/tokens.css`, `dist/css/{group}.css`, `dist/breakpoints.css`, `dist/breakpoints.custom-media.css` |
 
-The legacy `{day, night}` shape used by the runtime registry and the generated `themeTokensData.ts` is reconstituted at read time: themed groups (those that appear in any alt theme inside `$themes`) are split out of the reassembled `modules/` base to compute `themesDay`; `$themes.night` (etc.) is passed through unchanged. The breakpoint data is read from `$breakpoints` directly into the same shape that `module.breakpoints.json` previously held.
+Model splits: groups that appear in any `$themes` entry are themed (`themes.day`), the rest are `core`; `night` is `themes.night` and every other theme is `themes.extras` (components split the same way); each `$inverse` sub-module becomes `inverse.day` / `inverse.night`. `generateTokens` writes `themeTokensData.ts` as `{ day, night }`.
 
-Merge strategy in CSS generation: `{ ...coreTokens, ...themesDay, ...breakpointsPhone }` — later keys win on collision. This merged map drives the semantic `:root` variables.
+Semantic defaults (`scripts/shared/semanticDefaults.ts`): `{ ...core, ...themes.day, ...breakpointTokens.phone }` — later keys win on collision. This map drives the semantic `:root` variables and the type unions. It lives outside the reader because it imports `src/constants/breakpoints.ts`, which needs `src/generated/` — only pipelines that run after `build:tokens` may import it.
 
 ---
 

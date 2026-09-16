@@ -73,15 +73,34 @@ Effects, in this order:
 2. **Applies before the rest of the map** — mutates `BREAKPOINTS` in place, so
    `getBreakpoint`, `getBreakpointValue`, `useBreakpoint`, and the breakpoint
    values in the same call use the new thresholds.
-3. **Re-emits the generated breakpoint cascade** — core breakpoint tokens and
-   component aliases to them — into a `<style data-nice-breakpoints>` element
-   (later in source order than `tokens.css`, so it wins).
+3. **Re-emits the generated breakpoint cascade** — the `--np--breakpoints--{name}`
+   threshold declarations, core breakpoint tokens, component `$breakpoints`
+   overrides (`src/generated/componentBreakpointTokensData.ts`), and component
+   aliases to core breakpoint tokens (skipped where a component override is
+   authored) — into a `<style data-nice-breakpoints>` element (later in source
+   order than `tokens.css`, so it wins). The threshold tokens' runtime layer is
+   updated in the same pass, so `getToken` reports the new floor.
 4. **Regenerates earlier `setTokens` stylesheets** — every previously injected
    token map (last per prefix) is rebuilt, so its `+` / `-` breakpoint blocks
    move to the new thresholds.
 
 `breakpoints: {}` or unchanged values are a no-op. There is no separate
 breakpoint setter.
+
+### Floors as tokens
+
+The thresholds are addressable through the getter — reserved group `breakpoints`,
+variant = breakpoint name — and ship as custom properties in `tokens.css`:
+
+```ts
+getToken("breakpoints:laptop")                  // "var(--np--breakpoints--laptop)"
+getToken("breakpoints:laptop", { as: "value" }) // "1280px"
+```
+
+Values carry the `px` unit, so the CSS variable and the JS value agree. Media
+queries cannot read a custom property, so the variable is for `calc()` and width
+rules; use `getBreakpoint()` to build a query. `phone` has no floor of its own and
+is not seeded.
 
 The custom-media aliases in `breakpoints.custom-media.css` resolve at the
 consumer's build time and do not change with runtime thresholds.

@@ -167,13 +167,13 @@ Logic that exists in the packages but the manifest under-documents — standing
 
 #### nice-styles
 - `getBreakpoint()` service with media query generation
-- `camelToKebab()` and `camelToScreaming()` in `src/utilities/`
-- `getTokenFromMap()` engine in `src/utilities/` (used by getToken and getComponentToken)
+- `camelToKebab()` in `src/utilities/`
+- `getToken()` single getter over one registry (`src/registry/`, keyed by CSS variable name, seed + runtime layers)
 - `formatError()` in `src/utilities/` for structured error messages
 - Layout types: `SpacingType`, `SpacingShorthandType`, `SpacingDefinitionType`, `SpacingResponsiveType`
 - Breakpoint system: phone (0–640px), tablet (641–1279px), laptop (1280–1719px), desktop (1720px+)
 - Auto-generated files in `src/generated/`: `types.ts`, `tokensData.ts`, `componentTokensData.ts` from `src/tokens/` JSON
-- Build scripts: `scripts/generateTokens.ts`, `scripts/generateTypes.ts`, `scripts/generateCss.ts`, `scripts/postBuild.ts`
+- Build scripts: `scripts/generateTokens/`, `scripts/generateTypes/`, `scripts/generateCss/`, `scripts/postBuild.ts`; shared CSS emitters in `src/utilities/`; tests in `test/` (`node:test`, see `edit/generators.md`)
 
 #### nice-icons
 - Auto-generated `index.js` + `index.d.ts` + data-only `catalog.js`/`catalog.d.ts` via `scripts/generateIndex.js`
@@ -210,7 +210,7 @@ Logic that exists in the packages but the manifest under-documents — standing
 - Font loading utilities in `src/utilities/`: `parseGoogleFontsUrl()`, `getWeightAxis()`, `supportsVariableWeight()`
 - `tokenStyleSheet.ts` utility for runtime CSS injection via shared `<style data-nice-tokens>` element
 - Token resolution fallback: custom tokens → core Theme tokens
-- Re-exports `getComponentToken` and `ComponentPrefix` from nice-styles
+- Re-exports the nice-styles token API (`getToken`, `getConstant`, `getConstantKey`, `ComponentPrefix`, …) from nice-styles
 - Shared types in `src/types.ts`: `GoogleFontsConfig`, `LinkAttributes`, `GoogleFontMetadata`, `FontAxis`
 
 ### Utility Layer

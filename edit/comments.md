@@ -79,6 +79,8 @@ Build scripts and generators (e.g., `generateCss.ts`, `generateTokens.ts`) shoul
 2. They produce output files that other code depends on — understanding the generation logic is critical for debugging output issues
 3. They tend to have multi-phase pipelines (read → validate → transform → emit) that benefit from phase labels
 
+Module headers, type/field JSDoc, and structure rules for generators are in [`generators.md`](generators.md).
+
 ## Section Comments
 
 For functions with distinct phases, use a blank line + comment to label each phase:

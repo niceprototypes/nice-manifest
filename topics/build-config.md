@@ -694,6 +694,12 @@ Verified 2026-05-20.
 
 **Rule:** `jest.config.js` is only added when test files exist in `src/`. A config without tests adds maintenance surface for no behavior. When the first test is added to a package, also add `jest.config.js` (canonical one-liner below) and the `"test": "jest"` script.
 
+**Generator / non-React packages** use `node:test` through `tsx` instead of jest — no config file, no extra dependency. Standard and layout: [`edit/generators.md`](../edit/generators.md) → Tests.
+
+| Package | Tests | Runner |
+|---------|-------|--------|
+| nice-styles | `test/*.test.ts` — artifact snapshots, runtime fixture snapshots, `getToken` behavior table (verified 2026-09-15) | `tsx --test` |
+
 ```js
 export { default } from "nice-configuration/jest/react"
 ```
@@ -705,7 +711,6 @@ export { default } from "nice-configuration/jest/react"
 | Package | Exception | Justification |
 |---------|-----------|---------------|
 | nice-react-icon | Custom rollup plugins | SVGR required to transform SVG imports from nice-icons into React components |
-| nice-react-button | Extended getButtonToken signature (accepts path arrays) | Status/state token composition requires nested path lookup that flat signatures cannot express |
 | nice-react-styles | Hand-written src/index.ts (no export generator) | Bridge package — re-exports the entire nice-styles API and adds React-specific layers. Future bridge packages (e.g., nice-vue-styles) follow the same exception. |
 
 Add exceptions to this table with clear justification. If no justification exists, normalize the package.
