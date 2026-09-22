@@ -11,7 +11,7 @@
 
 Every pattern, convention, and piece of logic that an AI assistant might need when working on nice-* packages should be documented here. If it's not in this documentation, an AI instance won't know it exists.
 
-Context manifest for AI assistants working on Nice Prototypes ecosystem (`nice-*` packages at `~/nice/*`).
+Context manifest for AI assistants working on the Nice Prototypes ecosystem — a set of independently versioned `nice-*` repositories, each published to npm on its own and cloned alongside each other for local development.
 
 ---
 
@@ -186,7 +186,9 @@ For a change scoped to one foundation package, `nicely --build-icons` rebuilds j
 
 ## Alignment Principle
 
-The `~/nice/*` packages are not independent projects that happen to live in adjacent folders. They are one cohesive system that publishes to npm under separate names for distribution reasons only. There is no implicit reason for any two packages to drift on shared tooling — TypeScript version, build config, lint rules, or shared library versions. Treat any divergence as a defect to fix, not a per-package choice.
+Every `nice-*` package is its own repository — independently versioned, independently published, and consumable on its own. There is no monorepo and no single codebase; a package reaches its foundations through npm exactly as any outside consumer would. Independence is the design, not an accident of folder layout.
+
+That independence is structural. Consistency is deliberate, and has to be maintained rather than inherited: there is no implicit reason for any two packages to drift on shared tooling — TypeScript version, build config, lint rules, or shared library versions — so treat divergence as a defect to fix, not a per-package choice.
 
 **Rule:** Anything shared belongs in `nice-configuration` (or another foundation package). Every consuming package uses that resource at the same version. If one package needs to drift, the change is made in `nice-configuration` first and propagated to all consumers in the same operation.
 

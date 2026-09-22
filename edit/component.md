@@ -157,7 +157,7 @@ export { {Provider}, use{Context} } from "./components/{Provider}"
 
 ### src/utilities
 
-- Functions only used within the project and not exported for consumption
+- Functions only used within the package and not exported for consumption
 - Each function has a separate file
 - No index.ts file, utilities are imported directly
 
@@ -231,7 +231,7 @@ Component CSS custom properties are included automatically via `nice-styles/toke
 
 ### src/constants.ts
 
-- All static values used throughout the project
+- All static values used throughout the package
 - Named exports only:
 
 ```ts

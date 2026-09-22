@@ -16,7 +16,7 @@ This file generalizes that rule to **both directions** — adding as well as rem
 
 ## The rule
 
-**Every save must leave the project in a compiling state.**
+**Every save must leave the package you are editing in a compiling state.**
 
 Not just the final state. The path matters. If steps 1–3 of a five-step change break the build, the user sees broken HMR, broken types, or runtime errors during steps 1–3 — even though the final commit is clean.
 
@@ -83,7 +83,7 @@ Use the duplicate-then-delete pattern (already in CLAUDE.md):
 | 2 | Update every call site to the new name |
 | 3 | Delete the original |
 
-Do **not** use `replace_all` for renames in this codebase — see CLAUDE.md.
+Do **not** use `replace_all` for renames in any `nice-*` repository — see CLAUDE.md.
 
 ### Splitting one file into many
 
@@ -122,7 +122,7 @@ Run this before the **first** edit of any multi-save change, and again before an
 2. Which direction am I in — **adding** (referent first) or **removing** (references first)? Does my planned first edit match that direction?
 3. **Adding:** does the thing I'm about to reference already fully exist — typed *and* implemented, exported *and* in the barrel, authored *and* emitted, on disk at the final path?
 4. **Removing:** have I deleted every reference (calls, JSX, CSS class, `var()`) before the import / definition / file goes?
-5. Will every save between now and the final state leave the project in a compiling state?
+5. Will every save between now and the final state leave the package in a compiling state?
 
 A "no" on 2, 3, or 4 means the order is backwards. Reorder — the fix is always to move the definition earlier (when adding) or the deletion later (when removing).
 

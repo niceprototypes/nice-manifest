@@ -1,12 +1,12 @@
 # Nice Ecosystem Inheritance Tree
 
-This document maps the complete inheritance and dependency relationships across all Nice Prototypes packages.
+This document maps the dependency relationships between the Nice Prototypes packages. Each is its own repository; the layers below describe which packages depend on which, not a shared build or a single tree.
 
 ---
 
 ## Layered Architecture Overview
 
-The Nice ecosystem follows a strict layered architecture where each layer builds upon the one below it.
+Dependencies run in one direction only: a package may depend on packages in the layers below it, never on one above or beside it. The layers are a constraint on the dependency graph between independent repositories, not a description of one application's internal structure.
 
 ```
 ┌───────────────────────────────────────┐

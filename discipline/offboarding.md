@@ -4,7 +4,7 @@
 unit of work done.
 
 The manifest is only useful while it matches the code. Every change risks
-opening a gap between what the manifest says and what the project *is*.
+opening a gap between what the manifest says and what the package *is*.
 Offboarding is the checkpoint that catches that gap at the moment it is created —
 by the instance with the most context (the one that just made the change), not a
 future instance debugging a stale doc.
@@ -15,7 +15,7 @@ future instance debugging a stale doc.
 
 Before finishing a unit of work, review your own changes against the manifest
 and reconcile every **new** discrepancy. A discrepancy is any place the manifest
-now misstates, omits, or contradicts the project after your change.
+now misstates, omits, or contradicts the package after your change.
 
 This is scoped to the discrepancies *your change* introduced — not a full audit
 of the whole manifest. Pre-existing drift you happen to notice is reported, not
