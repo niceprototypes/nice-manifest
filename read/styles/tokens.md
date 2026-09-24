@@ -533,7 +533,7 @@ getToken("color:base", { theme: "night", as: "value", transform: [null, null, "*
 
 Channels are `[hue, saturation, lightness, alpha]`. A `number` sets the channel, `"+30"` / `"-30"` shift it, `"*0.55"` scales it, and `null` (or an omitted entry) leaves it alone. Prefer ratios for anything that must hold in both themes — an offset sized for a light value leaves the gamut on its dark counterpart, and the browser saturates rather than failing.
 
-`as: "key"` throws: a transformed colour has no variable name. `transformColor` shares the same channel vocabulary (`src/utilities/css/relativeColor.ts`) but computes a static `hsla()`, which does not follow the theme.
+`as: "key"` throws: a transformed colour has no variable name. `transformColor(group, { token, theme, inverse, values })` returns the same relative-colour expression — it is this `transform` behind module/token addressing — so it follows the theme too. The static `hsla()` exists only in the `as: "value"` form, for non-CSS consumers.
 
 Component colour props take the same thing as an object — `<Ink color={{ name: "highlight", transform: [null, null, 40, null] }} />` — resolved through `resolveColorProp`.
 
