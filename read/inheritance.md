@@ -379,7 +379,23 @@ Applied for both `as="img"` and `as="div"` rendering paths via the shared style 
 - Component: `Tooltip`
 - Types: `TooltipProps`, `TooltipTriggerType`, `TooltipPositionType`, `TooltipContentType`, `TooltipDelayType`, `TooltipClassNameType`
 
-**Notes:** Colored with the inverse dimension of the `color` / `backgroundColor` tokens, so the bubble renders as the opposite theme and flips with the cascade. Bubble is portal-rendered (`position: fixed` at `<body>`) so it is never clipped by an overflow ancestor. Props: `content`, `trigger` (`hover` default / `click`), `position` (`top` default / `bottom` / `left` / `right`), `delayShow` / `delayHide` (ms). No component-token file — styled from module tokens only.
+**Notes:** Colored with the inverse dimension of the `color` / `backgroundColor` tokens, so the bubble renders as the opposite theme and flips with the cascade. Bubble is portal-rendered (`position: fixed` at `<body>`) so it is never clipped by an overflow ancestor. Props: `content`, `trigger` (`hover` default / `click`), `position` (`top` default / `bottom` / `left` / `right`), `delayShow` / `delayHide` (ms). No component-token file — styled from module tokens only. Positioning comes from `nice-react-popover`'s `computeAnchorPosition` (dependency since 2026-09-24); bubble has `role="tooltip"`, trigger gets `aria-describedby` while shown.
+
+---
+
+## Forms (nice-ui form slice)
+
+Designed as one unit, shipped as separate packages (plan: `manifest/.reports/forms/plan.md`). Input is the field chrome every text-like control overloads; derived packages extend `InputAs{Input|Select|Textarea}Props` and render through `<Input as=…>`, never restyling the chrome. Registry tiers are authoritative for build/publish order (`toolkit/registry.json`); the layer diagram above predates them.
+
+| Package | Tier | Depends on (nice-*) | Exports | Status |
+|---|---|---|---|---|
+| nice-react-popover | 2 | react-styles | `Popover` (portal, anchor positioning, Escape/outside dismiss, focus return), `computeAnchorPosition` | local-only 0.1.0 |
+| nice-react-field | 3 | react-styles, react-ink | `Field`, `Fieldset`, `useField`, `FieldContext`, `mergeDescribedBy` (order: description, error, consumer; deduped) | local-only 0.1.0 |
+| nice-react-input | 5 | react-styles, react-field | `Input`: wrapper chrome around `as="input"\|"select"\|"textarea"`, `ref`, `start`/`end` slots, `width` (character scale), token colour props, `useField` wiring, 16px font floor | unpublished major pending |
+| nice-react-select | 6 | react-input, react-icon, react-styles | `Select`: native select via `<Input as="select">`, `options` / children, placeholder, chevron | local-only 0.1.0 |
+| nice-react-calendar | 6 | react-input, react-popover, react-button, react-icon, react-styles | `Calendar` (ARIA grid, locale week start, RTL-aware keys), `DateField` (picker-only; hidden ISO input) — dates are ISO `YYYY-MM-DD` strings, never `Date` | local-only 0.1.0 |
+
+Component tokens: `input.json` (size, spacing, radius, border, width, fontSize, focusRing, backgroundColor, borderColor), `popover.json`, `field.json`, `select.json`, `calendar.json` in `nice-styles/src/tokens/components/`. Locale/direction for JS: `useLocale()` from nice-react-styles.
 
 ---
 
@@ -437,12 +453,17 @@ All nice-* interdependencies use `file:` references for local development.
 | nice-react-tile | nice-react-styles | nice-react-flex, react, styled-components |
 | nice-react-scroll | (none) | react, styled-components |
 | nice-react-slider | (none) | react, styled-components |
-| nice-react-icon | nice-icons, nice-react-styles | react, styled-components |
+| nice-react-icon | nice-icons (bundled), nice-styles (required by the bundled nice-icons code), nice-react-styles | react, styled-components |
 | nice-react-button | nice-react-styles, nice-react-ink | nice-react-flex, nice-react-icon, react, styled-components |
 | nice-react-lightbox | nice-react-styles | react, react-dom, styled-components |
 | nice-react-image | nice-react-styles | react, react-dom, styled-components |
-| nice-react-tooltip | nice-react-styles | react, react-dom, styled-components |
+| nice-react-tooltip | nice-react-styles, nice-react-popover, nice-icons | react, react-dom, styled-components |
 | nice-react-form | nice-react-styles | react, react-dom, styled-components |
+| nice-react-popover | nice-react-styles | react, react-dom, styled-components |
+| nice-react-field | nice-react-styles, nice-react-ink | react, react-dom, styled-components |
+| nice-react-input | nice-react-styles, nice-react-field | react, react-dom, styled-components |
+| nice-react-select | nice-react-input, nice-react-icon, nice-react-styles | react, react-dom, styled-components |
+| nice-react-calendar | nice-react-input, nice-react-popover, nice-react-button, nice-react-icon, nice-react-styles | react, react-dom, styled-components |
 | nice-react-head | (none) | react |
 | nice-react-icon-vendor | lucide | nice-react-icon, react |
 | nice-react-image-vendor | (none) | nice-react-image, react |

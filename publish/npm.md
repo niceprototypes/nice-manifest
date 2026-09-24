@@ -25,7 +25,7 @@ nicely publish nice-react-styles --no-npm
 The `publish` command handles the full workflow:
 1. Accepts an array of package names (the packages with actual changes)
 2. Resolves the full dependency graph to find all affected packages
-3. Prompts for version bump type per changed package; auto-patches dependents
+3. Prompts for version bump type per changed package; dependents are classified by `classifyDependent` (`toolkit/src/publishing/dependents.js`): pure dependents auto-patch, dependents with `.nice/bump.md` entries join the prompt at their recommended level, never-published dependents are prompted as FIRST publishes at their local version
 4. **Build phase**: builds ALL packages in dependency order (slow, no OTP needed)
 5. **Publish phase**: swaps deps, prompts for OTP once, publishes all in rapid succession
 6. Restores `file:` refs for local development
@@ -121,7 +121,9 @@ After resolution, packages are split into two categories:
 | Category | Description | Version Bump |
 |----------|-------------|--------------|
 | **Changed** | Packages the user explicitly listed | Prompted (patch/minor/major) |
-| **Dependent** | Packages added by graph resolution | Auto-patched |
+| **Dependent** | Packages added by graph resolution, published, no bump entries | Auto-patched |
+| **Dependent, bump notes** | Graph-resolved, with unconsumed `.nice/bump.md` entries | Prompted; recommended level = highest entry |
+| **FIRST publish** | Never published (npm 404) — changed or dependent | Prompted; version = local version (e.g. 0.1.0); skipping it drops every package in the run that depends on it |
 
 ```
 Changed (user specified):
@@ -135,7 +137,7 @@ Dependents (auto-resolved):
   nice-react-tile         → auto patch (4.1.0 → 4.1.1)
 ```
 
-The user is only prompted for version bumps on packages they explicitly changed. Dependents are automatically patch-bumped since their only change is a rebuilt dependency.
+The user is prompted for packages they explicitly changed, for dependents that carry their own bump intent, and for any first publish. Only pure dependents (published, no bump entries — their only change is a rebuilt dependency) are patch-bumped automatically. Before 2026-09-24 every dependent was auto-patched, which would have shipped breaking changes as patches.
 
 ---
 
@@ -250,7 +252,7 @@ async function publish({ packages, publish: doPublish = true, dryRun = false, ot
 
 2. Display candidates:
      Changed packages → prompt for patch/minor/major
-     Dependent packages → display as "auto-patch" (no prompt)
+     Pure dependents → "auto-patch" (no prompt); dependents with bump notes and first publishes → prompted
 
 3. Bump versions
 
@@ -353,14 +355,19 @@ Passed to publisher as `publish: !options.noNpm`. There is no `--otp-window` fla
 
 ## Publish Order
 
-Bottom to top per dependency chain:
+Source of truth: `toolkit/registry.json` tiers (0-indexed). `nicely publish` builds and publishes in tier order via `sortByPublishOrder` (`toolkit/src/publishing/order.js`); tier 0 sorts first (fixed 2026-09-24 — previously `|| 99` sent tier 0 last). A dependency must sit in a strictly lower tier than its dependents.
 
-1. nice-styles, nice-icons, nice-toolkit, nice-vite-watcher
-2. nice-react-styles
-3. nice-react-flex, nice-react-ink
-4. nice-react-icon, nice-react-tile
-5. nice-react-button
-6. nice-react-scroll, nice-react-slider, nice-react-lightbox, nice-react-image, nice-react-input, nice-react-tooltip
+0. nice-styles, nice-icons, nice-toolkit, nice-svg-generator, nice-config-*, nice-vite-watcher
+1. nice-react-styles
+2. nice-react-flex, nice-react-ink, nice-react-popover
+3. nice-react-icon, nice-react-icon-vendor, nice-react-tile, nice-react-code, nice-react-tooltip, nice-react-field
+4. nice-react-button
+5. nice-react-scroll, nice-react-slider, nice-react-lightbox, nice-react-image, nice-react-image-vendor, nice-react-input, nice-react-head, nice-react-form
+6. nice-storybook-theme, nice-storybook-navigation, nice-react-select, nice-react-calendar
+
+Known same-tier cycles (pre-existing): nice-icons ↔ nice-styles / nice-svg-generator (tier 0), nice-react-icon ↔ nice-react-icon-vendor (tier 3), nice-react-image ↔ nice-react-image-vendor (tier 5).
+
+**New packages:** popover, field, select, calendar are local-only (no remote, never published) until the user approves publishing them.
 
 ---
 
@@ -386,7 +393,7 @@ Bottom to top per dependency chain:
 | nice-react-flex | nice-react-styles | react, react-dom, styled-components |
 | nice-react-ink | nice-react-styles | react, react-dom, styled-components |
 | nice-react-tile | nice-react-styles | **nice-react-flex**, react, react-dom, styled-components |
-| nice-react-icon | nice-icons, nice-react-styles | react, react-dom, styled-components |
+| nice-react-icon | nice-icons (bundled), nice-styles, nice-react-styles | react, react-dom, styled-components |
 
 ### Feature Layer
 
@@ -401,7 +408,17 @@ Bottom to top per dependency chain:
 | nice-react-scroll | — | react, react-dom, styled-components |
 | nice-react-slider | — | react, styled-components |
 | nice-react-lightbox | nice-react-styles | react, react-dom, styled-components |
-| nice-react-tooltip | nice-react-styles | react, react-dom, styled-components |
+| nice-react-tooltip | nice-react-styles, nice-react-popover, nice-icons | react, react-dom, styled-components |
+
+### Forms
+
+| Package | Runtime Deps | Peer Deps |
+|---------|--------------|-----------|
+| nice-react-popover | nice-react-styles | react, react-dom, styled-components |
+| nice-react-field | nice-react-styles, nice-react-ink | react, react-dom, styled-components |
+| nice-react-input | nice-react-styles, nice-react-field | react, react-dom, styled-components |
+| nice-react-select | nice-react-input, nice-react-icon, nice-react-styles | react, react-dom, styled-components |
+| nice-react-calendar | nice-react-input, nice-react-popover, nice-react-button, nice-react-icon, nice-react-styles | react, react-dom, styled-components |
 
 ---
 

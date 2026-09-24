@@ -147,8 +147,10 @@ folder.
 
 | Package | Status | Notes |
 |---------|--------|-------|
-| nice-react-input | Stub | Placeholder component (`<div>{children}</div>`, one prop). Exclude from audits until implementation begins. |
-| nice-react-image | Stub | No git repo or GitHub remote. Needs infrastructure setup before auditing. |
+| nice-react-popover | Local-only | New 2026-09-24 (forms plan). No remote, never published — audit the source; skip npm/remote checks until publishing is approved. |
+| nice-react-field | Local-only | Same as popover. |
+| nice-react-select | Local-only | Same as popover. |
+| nice-react-calendar | Local-only | Same as popover. |
 | nice-website-2023 | Legacy | Gatsby project, intentionally omitted |
 | nice-website-2024 | Legacy | Gatsby project, intentionally omitted |
 
