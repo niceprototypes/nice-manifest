@@ -37,7 +37,7 @@ import BasicStory from "./stories/Basic.story"
 import SizeStory from "./stories/Size.story"
 
 const meta = {
-  title: "React/Components/Button",
+  title: "Components/Forms/Button",
   component: Button,
   parameters: {
     layout: "padded",
@@ -270,8 +270,9 @@ React/
 │   ├── getToken
 │   └── setTokens
 ├── Components/
-│   ├── Button, Flex, Icon, Lightbox
-│   ├── Scroll, Slider, Tile, Ink
+│   ├── Forms/                  # grouped folder: Button, Input (sorted first)
+│   ├── Code, Flex, Icon, Image, Ink
+│   ├── Lightbox, Scroll, Slider, Tile, Tooltip
 └── Hooks/
     ├── useBreakpoint
     ├── useDevice
@@ -283,6 +284,8 @@ Configuration/
 ├── Jest
 └── Rollup
 ```
+
+**Grouped folders** are title segments, not directories: `Tokens/Colors/color` and `Components/Forms/Input` group pages in the sidebar while the files stay flat on disk (`stories/Tokens/generated/`, `stories/React/Components/Input/`). Each grouped folder needs a matching entry in `.storybook/preview.tsx` `storySort` ahead of the `"*"` wildcard — for Components, `["Forms", ["*", ["Docs", "Tokens", "*"]], "*", ["Docs", "Tokens", "*"]]` — or the nested Docs/Tokens ordering stops applying one level down. Form components (the Part C form slice: Input, Button, and future form packages) are titled `Components/Forms/{Component}`.
 
 Each section has an MDX docs page (e.g., `stories/Styles/Styles.mdx` with `<Meta title="Tokens" />`). Component/hook stories use a companion MDX file attached via `<Meta of={Stories} />` with `<Stories />` to render all stories inline.
 
