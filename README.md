@@ -232,6 +232,8 @@ Two artifact types exist today. Each has a fixed scope — do not mix them.
 | "audit report", "audit the …", "write up an audit" | `manifest/.reports/audit/{slug}.md` |
 | "research report", "research …", "look into … and write it up" | `manifest/.reports/research/{slug}.md` |
 
+**Topic folders.** When one subject accumulates multiple reports (an audit plus its fact-check, follow-up research, …), they move to a sibling topic folder `manifest/.reports/{topic}/`, and each file is named by its kind alone — the folder carries the topic, so no topic prefix in filenames. Current: `forms/` → `audit.md`, `fact-check.md`. New reports on an existing topic go into its folder.
+
 When the user asks for an **audit report**, the file goes in `manifest/.reports/audit/`. When the user asks for a **research report**, it goes in `manifest/.reports/research/`. Do not place these at the manifest root, under a package `.nice/`, or in a `manifest/reports/` folder (no such folder — the directory is dot-prefixed `.reports`). Pick the `{slug}` from the topic, kebab-case.
 
 ### What this convention does NOT cover
