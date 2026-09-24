@@ -2,8 +2,8 @@
 
 Each publishable Nice ecosystem package records pending semver intent in
 `.nice/bump.md` at the package root. Each entry's text doubles as a
-**commit subject**: `nicely --bump` appends an entry, you commit it with
-plain `git` alongside the change it describes, and `nicely --publish` later
+**commit subject**: `nicely bump` appends an entry, you commit it with
+plain `git` alongside the change it describes, and `nicely publish` later
 reads every entry to recommend a bump level and clears the file on a
 successful publish.
 
@@ -12,8 +12,8 @@ next to the code that changed, and neither the person committing nor the
 person publishing has to reconstruct what warranted the change.
 
 > The toolkit no longer wraps `git commit` — the old `nicely --commit` was
-> removed. Committing is plain `git`; `nicely --bump` only records intent and
-> `nicely --publish` makes its own version-bump commit.
+> removed. Committing is plain `git`; `nicely bump` only records intent and
+> `nicely publish` makes its own version-bump commit.
 
 ---
 
@@ -30,10 +30,10 @@ commit message:
 
 | Field | Meaning |
 |-------|---------|
-| `[YYYY-MM-DD HH:MM]` | Timestamp, in local time. Written automatically by `nicely --bump`. Direct edits should match the format. |
-| `✓` (legacy) | A consumed marker written by the removed `nicely --commit`. Still parsed for backward compatibility with older files and ignored by `nicely --publish`, but no longer written — new entries omit it. |
+| `[YYYY-MM-DD HH:MM]` | Timestamp, in local time. Written automatically by `nicely bump`. Direct edits should match the format. |
+| `✓` (legacy) | A consumed marker written by the removed `nicely --commit`. Still parsed for backward compatibility with older files and ignored by `nicely publish`, but no longer written — new entries omit it. |
 | `level` | `major` / `minor` / `patch`. Drives the version bump at publish time. |
-| `commit message` | Imperative, user-facing, self-contained. Use it verbatim as your `git` commit subject; `nicely --publish` also folds it into the release commit's narrative. |
+| `commit message` | Imperative, user-facing, self-contained. Use it verbatim as your `git` commit subject; `nicely publish` also folds it into the release commit's narrative. |
 
 Plain text was chosen over JSON because line-level merges rarely
 conflict and the file is trivially scannable with `cat`/`grep`. The
@@ -69,9 +69,9 @@ Two ways. Both are equivalent — pick whichever fits the moment.
 ### CLI
 
 ```bash
-nicely --bump major "Rename breakpoint identifiers"
-nicely --bump minor "Add useBreakpoint hook"
-nicely --bump patch "Re-export BREAKPOINT_* constants"
+nicely bump major "Rename breakpoint identifiers"
+nicely bump minor "Add useBreakpoint hook"
+nicely bump patch "Re-export BREAKPOINT_* constants"
 ```
 
 Run from the package root (or anywhere inside the package's tree — `nicely`
@@ -82,7 +82,7 @@ to `.nice/bump.md`, creating the `.nice/` folder if missing.
 
 Open `.nice/bump.md` in the editor and append a line. Same format —
 remember to include the `[YYYY-MM-DD HH:MM]` timestamp prefix so the
-entry sorts and displays consistently with `nicely --bump`-written entries.
+entry sorts and displays consistently with `nicely bump`-written entries.
 
 ### When to write an entry
 
@@ -110,7 +110,7 @@ stage your change plus the updated `.nice/bump.md` and commit with the
 entry's text as the subject:
 
 ```bash
-nicely --bump minor "Add useBreakpoint hook"   # append the entry
+nicely bump minor "Add useBreakpoint hook"   # append the entry
 git add -u .nice/bump.md                     # stage change + bump file
 git commit -m "Add useBreakpoint hook"       # entry text as the subject
 ```
@@ -119,7 +119,7 @@ git commit -m "Add useBreakpoint hook"       # entry text as the subject
   `.nice/bump.md` accumulates entries across commits and is only consumed
   at publish.
 - **Strip the level prefix** (`major:`/`minor:`/`patch:`) from the git
-  subject; it's bump intent for `--publish`, not commit metadata.
+  subject; it's bump intent for `publish`, not commit metadata.
 - **Ad-hoc commits** (typo fixes, config tweaks) that don't warrant a bump
   entry are just a normal `git commit` with no `.nice/bump.md` change.
 - **Multiple packages** — each `nice-*` package is its own repo; record an
@@ -129,7 +129,7 @@ git commit -m "Add useBreakpoint hook"       # entry text as the subject
 
 ## Reading entries at publish time
 
-`nicely --publish` reads each affected package's `.nice/bump.md`,
+`nicely publish` reads each affected package's `.nice/bump.md`,
 **ignoring the `✓` marker** so every entry contributes to the
 recommendation:
 
@@ -155,7 +155,7 @@ package so you can re-read the rationale before choosing.
 
 ## Publish commit message
 
-When `--publish` reaches its commit step, it concatenates the version
+When `publish` reaches its commit step, it concatenates the version
 line with the bump file's contents (via `composeCommitMessage`):
 
 ```
@@ -175,7 +175,7 @@ shipped in this version."
 
 ## Clearing entries
 
-On a successful publish, `nicely --publish` truncates `.nice/bump.md` to
+On a successful publish, `nicely publish` truncates `.nice/bump.md` to
 empty for each published package. The now-empty file is included in the
 version-bump commit that `nicely` writes automatically. The file is not
 deleted — its continued presence signals that the feature is in use for
@@ -183,7 +183,7 @@ that package.
 
 Clearing is exclusively a publish concern — ordinary `git` commits never
 touch the entries. If a publish fails partway through, the entries stay
-intact so the next `--publish` run picks up where the last left off.
+intact so the next `publish` run picks up where the last left off.
 
 ---
 
@@ -198,4 +198,4 @@ The entry's message should paraphrase the change in user-facing terms,
 not describe the git commit. Write for a future consumer reading
 release notes, not for another developer reading a diff. Same standard
 applies whether the entry is written during the work or appended later
-via `nicely --bump`.
+via `nicely bump`.

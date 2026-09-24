@@ -7,7 +7,7 @@ record that session logs used to provide is now carried by each package's
 the same commit as the work it describes.
 
 See [`../publish/bump-intent.md`](../publish/bump-intent.md) for the bump-file
-format and the `nicely --bump` (write entry) / `nicely --publish` (consume, commit,
+format and the `nicely bump` (write entry) / `nicely publish` (consume, commit,
 clear) workflow.
 
 ---
@@ -37,7 +37,7 @@ package's `.nice/bump.md`, kept distinct from the publishable commit-message
 entries (mistake blocks are internal memory, not release notes). They are safe
 to keep there: the `nicely` bump parser skips any line not in
 `[YYYY-MM-DD HH:MM] level: message` form, so blockquote mistake lines are
-ignored by `--bump` / `--publish` and never reach a commit message or version
+ignored by `bump` / `publish` and never reach a commit message or version
 calculation.
 
 ### Format

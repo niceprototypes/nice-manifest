@@ -37,28 +37,28 @@ These three operations target distinct layers and do not overlap. Each addresses
 
 | Command | Target | Reach for it when |
 |---------|--------|-------------------|
-| `nicely --clean` | each consumer's `node_modules/.cache` + `.vite`; also kills processes on discovered dev-server ports (parsed from `.env` `PORT=` and `package.json` `-p`/`--port` flags) | Dev server is serving stale code after a linked-package source change |
-| `nicely --dedupe` | duplicate singletons (react, styled-components, etc.) inside each linked package's `node_modules` | "Invalid hook call" or styled-components context mismatch |
-| `nicely --build-all` | walks registry tier order, runs `npm run build` in every linked nice-* package | Fresh clone; after `--dedupe`; after a foundation-package refactor |
-| `nicely --build-icons` | rebuilds only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order, resolved via the same reverse-dependency graph `--publish` uses. Auto-stops a concurrent dev watcher: if a running `nicely --dev`/`--watch` is detected (both rebuild the same dist and would race), it stops it first — the same reflex as the `--vite` port-kill — then builds. Pass `--no-kill` to build anyway. Also accepts `--convert [path]` (nice-svg-generator `.source` `.ai` → svg first; path = a folder or a single `.ai` file, omit for all) | Changed an SVG / icon asset and want a targeted build instead of a full `--build-all` |
+| `nicely clean` | each consumer's `node_modules/.cache` + `.vite`; also kills processes on discovered dev-server ports (parsed from `.env` `PORT=` and `package.json` `-p`/`--port` flags) | Dev server is serving stale code after a linked-package source change |
+| `nicely dedupe` | duplicate singletons (react, styled-components, etc.) inside each linked package's `node_modules` | "Invalid hook call" or styled-components context mismatch |
+| `nicely build all` | walks registry tier order, runs `npm run build` in every linked nice-* package | Fresh clone; after `dedupe`; after a foundation-package refactor |
+| `nicely build icons` | rebuilds only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order, resolved via the same reverse-dependency graph `publish` uses. Auto-stops a concurrent dev watcher: if a running `nicely develop` is detected (both rebuild the same dist and would race), it stops it first — the same reflex as the `--vite` port-kill — then builds. Pass `--no-kill` to build anyway. Also accepts `--convert [path]` (nice-svg-generator `.source` `.ai` → svg first; path = a folder or a single `.ai` file, omit for all) | Changed an SVG / icon asset and want a targeted build instead of a full `build all` |
 
-Common reset: `nicely --reset` (chains `--build-all → --dedupe → --clean`), then restart any dev server. The individual flags can also be run separately if you only need one.
+Common reset: `nicely reset` (chains `build all → dedupe → clean`), then restart any dev server. The individual commands can also be run separately if you only need one.
 
-`nicely --clean --no-kill` skips the port-kill phase (CI / scripted contexts).
+`nicely clean --no-kill` skips the port-kill phase (CI / scripted contexts).
 
 #### Linking / dev / publish
 
 | Command | Purpose |
 |---------|---------|
-| `nicely --dev` | Run dev scripts in all linked packages concurrently |
-| `nicely --watch` | Watch dist folders, trigger webpack/CRA recompilation |
-| `nicely --dev --watch` | Combined (recommended for CRA projects) |
-| `nicely --unlink` | Restore packages to npm versions |
-| `nicely --dedupe <path>` | Dedupe singletons in a specific package without linking |
-| `nicely --reset` | Chain `--build-all → --dedupe → --clean` (post-foundation-refactor recovery) |
-| `nicely --publish pkg1,pkg2` | Publish with automatic dependency cascade |
-| `nicely --publish --no-npm` | Bump, build, commit, push — skip npm publish |
-| `nicely --dry-run` | Preview changes without executing |
+| `nicely develop` | Rebuild + reload loop across linked packages (the common setup) |
+| `nicely develop --reload-only` | Reload trigger only, for an external rebuilder (was `--watch`) |
+| `nicely develop --no-reload` | Rebuild only, no reload trigger |
+| `nicely unlink` | Restore packages to npm versions |
+| `nicely dedupe <path>` | Dedupe singletons in a specific package without linking |
+| `nicely reset` | Chain `build all → dedupe → clean` (post-foundation-refactor recovery) |
+| `nicely publish pkg1 pkg2` | Publish with automatic dependency cascade |
+| `nicely publish --no-npm` | Bump, build, commit, push — skip npm publish |
+| `nicely <command> --dry-run` | Preview any mutating command without executing |
 
 ### Default Excluded Packages
 
@@ -73,10 +73,10 @@ Removes from linked packages to prevent duplicate instances:
 
 ```bash
 # Override defaults
-nicely --exclude react,react-dom ../my-package
+nicely link ../my-package --exclude react,react-dom
 
 # Add to defaults
-nicely --add-exclude @emotion/react ../my-package
+nicely link ../my-package --add-exclude @emotion/react
 ```
 
 ---
@@ -90,31 +90,31 @@ nicely --add-exclude @emotion/react ../my-package
 npm install
 
 # Once, anywhere
-nicely --build-all
+nicely build all
 ```
 
-The `prepare` hook is no longer wired into nice-* packages (see `manifest/.nice/reports/npm-install-breaks-consumers.md`). `npm install` in a consumer no longer rebuilds linked packages — `nicely --build-all` is the explicit replacement.
+The `prepare` hook is no longer wired into nice-* packages (see `manifest/.nice/reports/npm-install-breaks-consumers.md`). `npm install` in a consumer no longer rebuilds linked packages — `nicely build all` is the explicit replacement.
 
 ### After npm install in a linked package
 
 ```bash
-nicely --dedupe
+nicely dedupe
 ```
 
 ### After modifying package.json dependencies
 
 ```bash
 npm install
-nicely --dedupe
+nicely dedupe
 ```
 
 ### Dev server is serving stale code after a linked-package source change
 
 ```bash
-nicely --clean
+nicely clean
 ```
 
-Then restart the dev server. `--clean` kills the running process holding the port before wiping caches, so the next start picks up fresh state.
+Then restart the dev server. `clean` kills the running process holding the port before wiping caches, so the next start picks up fresh state.
 
 ### Developing with CRA/webpack
 
@@ -125,7 +125,7 @@ npm start
 
 Terminal 2:
 ```bash
-nicely --dev --watch
+nicely develop
 ```
 
 ### Developing with Vite
@@ -140,7 +140,7 @@ Cause: Multiple React instances from linked packages.
 
 Fix:
 ```bash
-nicely --dedupe
+nicely dedupe
 ```
 
 ---

@@ -293,23 +293,22 @@ Append a new entry by hand to `nice-toolkit/registry.json`, placing it in the ap
 
 | Command | Description |
 |---------|-------------|
-| `nicely --clean` | Wipe `node_modules/.cache` + `.vite` across every consumer; first kills any process bound to a dev-server port discovered from `.env` `PORT=` entries or `package.json` `-p`/`--port` flags. `--no-kill` to skip the kill phase. |
-| `nicely --dedupe` | Recursively clean singletons (react, styled-components, etc.) from all linked packages' `node_modules` |
-| `nicely --build-all` | Walk registry tier order and run `npm run build` in every linked nice-* package |
-| `nicely --build-icons` | Rebuild only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — targeted build after an SVG/icon change, resolved via the reverse-dependency graph. If a `nicely --dev`/`--watch` is running (it rebuilds the same dist and would race), prompts `[k]` stop-and-continue / `[c]` cancel; non-interactive shells cancel |
+| `nicely clean` | Wipe `node_modules/.cache` + `.vite` across every consumer; first kills any process bound to a dev-server port discovered from `.env` `PORT=` entries or `package.json` `-p`/`--port` flags. `--no-kill` to skip the kill phase. |
+| `nicely dedupe` | Recursively clean singletons (react, styled-components, etc.) from all linked packages' `node_modules` |
+| `nicely build all` | Walk registry tier order and run `npm run build` in every linked nice-* package |
+| `nicely build icons` | Rebuild only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — targeted build after an SVG/icon change, resolved via the reverse-dependency graph. If a `nicely develop` is running (it rebuilds the same dist and would race), prompts `[k]` stop-and-continue / `[c]` cancel; non-interactive shells cancel |
 
 **Linking / dev / publish**
 
 | Command | Description |
 |---------|-------------|
-| `nicely --dev` | Run dev scripts in all linked packages |
-| `nicely --watch` | Watch dist folders and trigger recompilation |
-| `nicely --dev --watch` | Combined (recommended for CRA/webpack) |
-| `nicely --unlink` | Restore packages to npm versions |
-| `nicely --dedupe <path>` | Clean singletons in a specific package without linking |
-| `nicely --publish pkg1,pkg2` | Publish with automatic dependency cascade |
-| `nicely --publish --no-npm` | Bump, build, commit, push — skip npm |
-| `nicely --publish --otp-window 45` | Custom OTP expiry window (default: 30s) |
+| `nicely develop` | Rebuild + reload loop across linked packages (the common setup) |
+| `nicely develop --reload-only` | Reload trigger only, for an external rebuilder (was `--watch`) |
+| `nicely develop --no-reload` | Rebuild only, no reload trigger |
+| `nicely unlink` | Restore packages to npm versions |
+| `nicely dedupe <path>` | Clean singletons in a specific package without linking |
+| `nicely publish pkg1 pkg2` | Publish with automatic dependency cascade |
+| `nicely publish --no-npm` | Bump, build, commit, push — skip npm |
 
 ### Default Excluded Packages
 
@@ -361,7 +360,7 @@ import { viteWatcher, getSourceAliases } from "nice-vite-watcher"
 | Project Type | Tool | Usage |
 |--------------|------|-------|
 | Vite/Storybook | nice-vite-watcher | Plugin in vite.config.ts |
-| CRA/webpack | `nice-toolkit --dev --watch` (or `nicely --dev --watch`) | CLI in separate terminal |
+| CRA/webpack | `nicely develop` | CLI in separate terminal |
 
 ---
 
@@ -566,7 +565,7 @@ Package.json:
 All configuration packages use `file:` references for interdependencies. After modifying dependencies, run:
 
 ```bash
-node ../nice-toolkit/nice-toolkit --dedupe
+nicely dedupe
 ```
 
 This removes duplicate React/styled-components from linked packages, preventing "Invalid hook call" errors.

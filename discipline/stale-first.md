@@ -17,9 +17,9 @@ When something that worked moments ago "just broke" — a link, token, style, im
 | # | Suspect | Tell | Fix |
 |---|---------|------|-----|
 | 1 | Stale browser tab | worked seconds ago, no logic changed | hard-reload (Cmd-Shift-R) |
-| 2 | Stale dev server / Vite dep cache (`?v=hash`) | you just renamed / moved a file | `nicely --clean` |
-| 3 | Un-rebuilt linked package | consumer sees old `dist/` | `nicely --build-all` (or `--build-icons`) |
-| 4 | Duplicate singleton after a dep change | multiple React / styled-components instances | `nicely --dedupe` |
+| 2 | Stale dev server / Vite dep cache (`?v=hash`) | you just renamed / moved a file | `nicely clean` |
+| 3 | Un-rebuilt linked package | consumer sees old `dist/` | `nicely build all` (or `build icons`) |
+| 4 | Duplicate singleton after a dep change | multiple React / styled-components instances | `nicely dedupe` |
 | 5 | **The input never arrives** | "X isn't changing / updating / applying" | **log the value at the boundary** |
 | 6 | Your own uncommitted diff | you edited anything this session | `git diff` |
 | 7 | The call site | is the prop / arg actually passed? | read the caller |
@@ -70,7 +70,7 @@ If your own account has a piece that does not fit ("the one thing I can't explai
 
 1. Did this work recently with the same code?
 2. Did I just rename / move / build something?
-3. Have I ruled out the tab and the `nicely --clean` / `--dedupe` / `--build-all` triad?
+3. Have I ruled out the tab and the `nicely clean` / `dedupe` / `build all` triad?
 
 If 1–2 are "yes" and 3 is "no" → **check freshness before reading code.**
 

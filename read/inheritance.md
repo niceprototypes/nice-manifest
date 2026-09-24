@@ -139,13 +139,13 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 **Exports:** CLI commands `nice-toolkit` (long form) and `nicely` (short alias).
 
 **Key Commands:**
-- `--clean`: Kill dev-server ports (discovered from each consumer's `.env` / package.json) and wipe `node_modules/.cache` + `.vite` across the workspace
-- `--dedupe`: Recursively clean singletons (react, styled-components, etc.) from linked packages' `node_modules`
-- `--build-all`: Walk registry tier order, run `npm run build` in every linked nice-* package (replaces the `prepare` hook that was removed from package.json files)
-- `--build-icons`: Rebuild only `nice-icons` and its transitive dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — the targeted subset of `--build-all` for an SVG/icon-asset change. Affected set resolved via the same reverse-dependency graph `--publish` uses.
-- `--reset`: Chain `--build-all → --dedupe → --clean` in sequence. Use after refactors that touch foundation packages (e.g. token renames, type narrowing in nice-styles).
-- `--dev`: Run dev scripts in all linked packages concurrently
-- `--unlink`: Restore packages to npm versions
+- `clean`: Kill dev-server ports (discovered from each consumer's `.env` / package.json) and wipe `node_modules/.cache` + `.vite` across the workspace
+- `dedupe`: Recursively clean singletons (react, styled-components, etc.) from linked packages' `node_modules`
+- `build all`: Walk registry tier order, run `npm run build` in every linked nice-* package (replaces the `prepare` hook that was removed from package.json files)
+- `build icons`: Rebuild only `nice-icons` and its transitive dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — the targeted subset of `build all` for an SVG/icon-asset change. Affected set resolved via the same reverse-dependency graph `publish` uses.
+- `reset`: Chain `build all → dedupe → clean` in sequence. Use after refactors that touch foundation packages (e.g. token renames, type narrowing in nice-styles).
+- `develop`: Rebuild + reload loop across linked packages (`--reload-only` / `--no-reload` split the two halves)
+- `unlink`: Restore packages to npm versions
 
 ---
 

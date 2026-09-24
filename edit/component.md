@@ -640,7 +640,7 @@ For local development, all nice-* package interdependencies use `file:` referenc
 
 ### After Modifying Dependencies
 
-Run `node ../nice-toolkit/nice-toolkit --dedupe` from the consuming project to remove duplicate React/styled-components from linked packages.
+Run `nicely dedupe` from the consuming project to remove duplicate React/styled-components from linked packages.
 
 ---
 
@@ -741,7 +741,7 @@ Canonical scripts per package class. Each script must be both (a) appropriate fo
 
 **Forbidden everywhere:**
 
-- `"prepare": "npm run build"` — npm runs `prepare` on every `file:` install in every consumer, cascading into a full rebuild of every linked package on every `npm i` in every project. `prepublishOnly` covers the publish path; `nicely --build-all` covers the explicit workspace rebuild. See `manifest/.nice/reports/npm-install-breaks-consumers.md`. Exception: `nice-configuration` carries `prepare` by deliberate choice (its `dist/` is committed, so this rebuilds it on install); no other package opts in.
+- `"prepare": "npm run build"` — npm runs `prepare` on every `file:` install in every consumer, cascading into a full rebuild of every linked package on every `npm i` in every project. `prepublishOnly` covers the publish path; `nicely build all` covers the explicit workspace rebuild. See `manifest/.nice/reports/npm-install-breaks-consumers.md`. Exception: `nice-configuration` carries `prepare` by deliberate choice (its `dist/` is committed, so this rebuilds it on install); no other package opts in.
 - Convenience aliases like `build:watch`, `test:watch`, `test:coverage`, `lint:fix`, `clean`, `build:types`. These add maintenance surface for marginal value.
 
 **Non-component package classes** (these don't follow the component template; the canonical sets below are the documented variant per class):

@@ -7,22 +7,22 @@ Bump decisions are driven by per-package `.nice/bump.md` files. See
 
 ```bash
 # Publish all changed packages (interactive prompts for version bumps and OTP)
-nicely --publish
+nicely publish
 
 # Publish specific packages
-nicely --publish nice-styles,nice-react-styles
+nicely publish nice-styles nice-react-styles
 
 # Preview what would be published
-nicely --publish --dry-run
+nicely publish --dry-run
 
 # Bump and build without publishing to npm
-nicely --publish --no-npm
+nicely publish --no-npm
 
 # Bump, build, and skip npm (e.g., only push to GitHub)
-nicely --publish nice-react-styles --no-npm
+nicely publish nice-react-styles --no-npm
 ```
 
-The `--publish` command handles the full workflow:
+The `publish` command handles the full workflow:
 1. Accepts an array of package names (the packages with actual changes)
 2. Resolves the full dependency graph to find all affected packages
 3. Prompts for version bump type per changed package; auto-patches dependents
@@ -33,7 +33,7 @@ The `--publish` command handles the full workflow:
 
 ---
 
-## Dependency Cascade (`--publish` graph resolution)
+## Dependency Cascade (`publish` graph resolution)
 
 ### Problem
 
@@ -46,7 +46,7 @@ When the user specifies changed packages, the tool automatically resolves which 
 #### Input
 
 ```
-nicely --publish nice-react-styles,nice-react-button
+nicely publish nice-react-styles nice-react-button
 ```
 
 This means: "I made changes to nice-react-styles and nice-react-button."
@@ -345,18 +345,9 @@ for (const p of toPublish) {
 ```js
 // New flags
 options.noNpm = hasFlag(args, '--no-npm')
-options.otpWindow = parseInt(getArg(args, '--otp-window') || '30', 10)
 ```
 
-```bash
-# Custom OTP window (default: 30 seconds)
-nicely --publish --otp-window 20
-
-# Longer window for slower connections
-nicely --publish --otp-window 45
-```
-
-Passed to publisher as `publish: !options.noNpm, otpWindow: options.otpWindow`.
+Passed to publisher as `publish: !options.noNpm`. There is no `--otp-window` flag: the OTP is held and reused until npm rejects it, then re-prompted (`toolkit/src/publishing/otp.js`).
 
 ---
 

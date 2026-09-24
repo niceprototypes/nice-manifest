@@ -2,7 +2,7 @@
 
 ## nice-vite-watcher
 
-Vite plugin for hot-reloading linked packages. Use this instead of `nice-toolkit --watch` for Vite projects.
+Vite plugin for hot-reloading linked packages. Use this instead of `nicely develop --reload-only` for Vite projects.
 
 ### Installation
 
