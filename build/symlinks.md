@@ -2,26 +2,25 @@
 
 ## file: References
 
-All nice-* interdependencies use `file:` references for local development:
+nice-* interdependencies are linked locally through `file:` **devDependencies**; the published contract is a caret **peer** range:
 
 ```json
 {
-  "dependencies": {
-    "nice-styles": "file:../styles"
-  },
   "peerDependencies": {
+    "nice-styles": "^17.1.0",
     "react": ">=19.2.0"
   },
   "devDependencies": {
-    "nice-configuration": "file:../configuration"
+    "nice-styles": "file:../styles",
+    "nice-config-rollup": "file:../config-rollup"
   }
 }
 ```
 
-**Rules:**
-- `dependencies`: Use `file:` for all nice-* packages
-- `peerDependencies`: Keep semver ranges (consumers provide)
-- `devDependencies`: Use `file:` for nice-configuration and for local testing of peerDependencies
+**Rules** (full policy: `edit/component.md` → Local Development Dependencies):
+- `dependencies`: no nice-* packages
+- `peerDependencies`: every runtime nice-* package, `^<current local version>`; rewritten to `^<new version>` at publish when that package is in the same run
+- `devDependencies`: `file:` link for each nice-* peer, plus the `nice-config-*` packages
 
 ---
 

@@ -609,22 +609,20 @@ The base configuration includes:
 
 ## Local Development Dependencies
 
-For local development, all nice-* package interdependencies use `file:` references instead of npm semver ranges. This enables live changes to propagate through the dependency chain.
+A `nice-react-*` package never lists a nice-* package in `dependencies`. Every runtime nice-* package it imports is a **peer** (caret on that package's current local version) **and** a `file:` **devDependency** (so local builds and tests resolve it and changes propagate). One copy of each nice-* package per app — required for the shared-state packages (`nice-styles`' token registry, `nice-react-styles`' context) and applied uniformly to sibling components. Policy since 2026-09-25; see `publish/npm.md` → Dependency declaration policy.
 
 ### Pattern
 
 ```json
 {
-  "dependencies": {
-    "nice-styles": "file:../styles",
-    "nice-react-styles": "file:../react-styles"
-  },
   "peerDependencies": {
-    "nice-react-flex": ">=1.0.0",
+    "nice-react-styles": "^15.0.1",
+    "nice-react-flex": "^7.0.1",
     "react": ">=19.2.0"
   },
   "devDependencies": {
-    "nice-configuration": "file:../configuration",
+    "nice-config-rollup": "file:../config-rollup",
+    "nice-react-styles": "file:../react-styles",
     "nice-react-flex": "file:../react-flex"
   }
 }
@@ -632,11 +630,11 @@ For local development, all nice-* package interdependencies use `file:` referenc
 
 ### Rules
 
-1. **Runtime dependencies** (`dependencies`): Use `file:` for all nice-* packages
-2. **Peer dependencies** (`peerDependencies`): Keep semver ranges (consumers provide these)
-3. **Dev dependencies** (`devDependencies`):
-   - Use `file:` for `nice-configuration`
-   - Add `file:` references for any nice-* peerDependencies (for local testing)
+1. **`dependencies`**: no nice-* packages.
+2. **`peerDependencies`**: every nice-* package imported at runtime, as `^<current local version>` — never `>=`. `nicely publish` rewrites in-run peers to `^<new version>` at publish and restores them after.
+3. **`devDependencies`**: `file:` links for every nice-* peer, plus the `nice-config-*` build packages.
+4. **Bundled packages** (rollup `bundlePackages`, e.g. `nice-icons` inside `nice-react-icon`): devDependency only — their code and types ship inside the bundle.
+5. **Optional plugins** (icon/image vendor pairs): the base lists the vendor as an optional peer (`peerDependenciesMeta`); the vendor lists the base as a required peer plus a `file:` dev link.
 
 ### After Modifying Dependencies
 

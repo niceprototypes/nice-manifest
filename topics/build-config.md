@@ -126,7 +126,7 @@ export default createConfiguration({
 | `output` | `{}` | Custom output config (merged) |
 | `plugins` | `null` | Override default plugins |
 | `additionalExternals` | `[]` | Extra packages to externalize |
-| `bundlePackages` | `[]` | nice-* packages to bundle |
+| `bundlePackages` | `[]` | nice-* packages to bundle — inlined into both the JS bundle and the `.d.ts` bundle (`dts({ includeExternal: bundlePackages })`, config-rollup `b9eed46`), so a bundled package stays a devDependency and consumers never need it installed |
 | `dts` | `true` | Generate declaration bundle |
 | `dtsInput` | `'dist/types/index.d.ts'` | Declaration input path |
 
