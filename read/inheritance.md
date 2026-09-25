@@ -389,13 +389,14 @@ Designed as one unit, shipped as separate packages (plan: `manifest/.reports/for
 
 | Package | Tier | Depends on (nice-*) | Exports | Status |
 |---|---|---|---|---|
+| nice-react-list | 2 | react-styles | `List`, `ListItem`: core generic list — start/end slots, `<hr>` dividers between items (inside `<li aria-hidden role=presentation>`), `scrollable`, visual selected/active/disabled; all HTML attributes pass through (no listbox API — higher layers add role/aria) | local-only 0.1.0 |
 | nice-react-popover | 2 | react-styles | `Popover` (portal, anchor positioning, Escape/outside dismiss, focus return), `computeAnchorPosition` | local-only 0.1.0 |
 | nice-react-field | 3 | react-styles, react-ink | `Field`, `Fieldset`, `useField`, `FieldContext`, `mergeDescribedBy` (order: description, error, consumer; deduped) | local-only 0.1.0 |
 | nice-react-input | 5 | react-styles, react-field | `Input`: wrapper chrome around `as="input"\|"select"\|"textarea"`, `ref`, `start`/`end` slots, `width` (character scale), token colour props, `useField` wiring, 16px font floor | unpublished major pending |
-| nice-react-select | 6 | react-input, react-icon, react-styles | `Select`: native select via `<Input as="select">`, `options` / children, placeholder, chevron | local-only 0.1.0 |
+| nice-react-select | 6 | react-input, react-list, react-popover, react-icon, react-styles | `Select`: default = WAI-ARIA select-only combobox (read-only Input `role=combobox` + Popover + List as listbox, option start/end slots, typeahead, hidden input for forms); `native` prop renders the platform `<select>` through `<Input as="select">` | local-only 0.1.0 |
 | nice-react-calendar | 6 | react-input, react-popover, react-button, react-icon, react-styles | `Calendar` (ARIA grid, locale week start, RTL-aware keys), `DateField` (picker-only; hidden ISO input) — dates are ISO `YYYY-MM-DD` strings, never `Date` | local-only 0.1.0 |
 
-Component tokens: `input.json` (size, spacing, radius, border, width, fontSize, focusRing, backgroundColor, borderColor), `popover.json`, `field.json`, `select.json`, `calendar.json` in `nice-styles/src/tokens/components/`. Locale/direction for JS: `useLocale()` from nice-react-styles.
+Component tokens: `input.json` (size, spacing, radius, border, width, fontSize, focusRing, backgroundColor, borderColor), `popover.json`, `field.json`, `select.json`, `calendar.json`, `list.json` in `nice-styles/src/tokens/components/`. Locale/direction for JS: `useLocale()` from nice-react-styles.
 
 ---
 
@@ -462,7 +463,8 @@ All nice-* interdependencies use `file:` references for local development.
 | nice-react-popover | nice-react-styles | react, react-dom, styled-components |
 | nice-react-field | nice-react-styles, nice-react-ink | react, react-dom, styled-components |
 | nice-react-input | nice-react-styles, nice-react-field | react, react-dom, styled-components |
-| nice-react-select | nice-react-input, nice-react-icon, nice-react-styles | react, react-dom, styled-components |
+| nice-react-list | nice-react-styles | react, react-dom, styled-components |
+| nice-react-select | nice-react-input, nice-react-list, nice-react-popover, nice-react-icon, nice-react-styles | react, react-dom, styled-components |
 | nice-react-calendar | nice-react-input, nice-react-popover, nice-react-button, nice-react-icon, nice-react-styles | react, react-dom, styled-components |
 | nice-react-head | (none) | react |
 | nice-react-icon-vendor | lucide | nice-react-icon, react |

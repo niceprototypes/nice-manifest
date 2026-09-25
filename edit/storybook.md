@@ -4,6 +4,46 @@ This document outlines the file structure and patterns for component stories in 
 
 ---
 
+## Component docs pattern (current — follow this)
+
+Reference implementations: `stories/React/Components/Button/` and the Forms components (`Input`, `Select`, `Calendar`, `DateField`, `Field`, restructured 2026-09-25, storybook `cb6279b`). Every component uses the same three pieces; no page is hand-laid-out.
+
+**1. Example data — `{Component}/examples/index.tsx` (+ `examples.types.ts`)**
+- One export per facet, `{component}{Facet}`: `{ name, description, variants, default?, preview(item), code(item) }` with `satisfies ComponentExample`. `description` is a plain string; `code(item)` returns the snippet shown beside the preview.
+- `{component}Examples` — object of all facets; key order is page order.
+- `{component}ExampleList = Object.values({component}Examples)`.
+- Stateful demos are small components in the same file. (Button's data lives in `src/dataTables/data/tables/componentDemoTable/`; Forms keep theirs in the component folder — both are valid, keep one per component.)
+
+**2. Main page — `{Component}.mdx`**, in this order:
+```mdx
+<Meta title="Components/{Group}/{Component}" />
+<StoryHeader title="…" description="one sentence" repos={[…]} />   {/* repos only if the package has a git remote */}
+<NewLines count={3} />
+<Install package="react-{name}" />
+<NewLines />
+```jsx import + minimal usage ```
+<NewLines count={3} />
+<ComponentDemoTable examples={{component}ExampleList} />
+<NewLines count={3} />
+## Guide
+```
+The Guide section follows the **Scenario style** (`stories/Scenarios/*.mdx`): plain Markdown paragraphs, fenced code blocks for anything longer than one line, Markdown tables for keyboard maps, and one `<Callout>` for the key takeaway. No `<Ink color="light">` prose blocks, no inline-HTML `<code>` runs, no `HorizontalRule`, no hand-escaped template strings for prose-level examples, one heading level (`## Guide`, `###` inside if needed).
+
+**3. Prop pages — `{Prop}.mdx`, one line of content:**
+```mdx
+<Meta title="Components/{Group}/{Component}/{prop}" />
+<ComponentExampleStory example={{component}Examples.{prop}} />
+```
+Keep Meta titles stable — they are the page ids other pages and sequences link to.
+
+**Gotchas:** props discriminated on a boolean (e.g. Select `native`) — branch the JSX per variant (`native={boolean}` does not type-check); Select `children` must be an array, not a Fragment; wide previews (Calendar) need their own width handling — the demo cell is 16em.
+
+**New packages in stories:** Vite resolves registry packages marked `sourceAliasable` through source aliases, but `tsc` does not — add every package a story imports to storybook's `package.json` (`file:../…`) and relink, or the typecheck reports TS2307.
+
+> The sections below describe the older `<Story variables>` / `stories/*.story.tsx` pattern. It is **legacy** — kept for reference until remaining pages are migrated; do not use it for new pages.
+
+---
+
 ## Directory Structure
 
 Each component story follows this structure:

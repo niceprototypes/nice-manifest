@@ -149,6 +149,7 @@ folder.
 |---------|--------|-------|
 | nice-react-popover | Local-only | New 2026-09-24 (forms plan). No remote, never published — audit the source; skip npm/remote checks until publishing is approved. |
 | nice-react-field | Local-only | Same as popover. |
+| nice-react-list | Unpublished | GitHub remote since 2026-09-24 (niceprototypes/nice-react-list); not yet on npm — skip npm checks until first publish. |
 | nice-react-select | Local-only | Same as popover. |
 | nice-react-calendar | Local-only | Same as popover. |
 | nice-website-2023 | Legacy | Gatsby project, intentionally omitted |

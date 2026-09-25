@@ -357,9 +357,11 @@ Passed to publisher as `publish: !options.noNpm`. There is no `--otp-window` fla
 
 Source of truth: `toolkit/registry.json` tiers (0-indexed). `nicely publish` builds and publishes in tier order via `sortByPublishOrder` (`toolkit/src/publishing/order.js`); tier 0 sorts first (fixed 2026-09-24 — previously `|| 99` sent tier 0 last). A dependency must sit in a strictly lower tier than its dependents.
 
+**Dependency declaration policy (2026-09-25).** A `nice-react-*` package declares each runtime nice-* package as a **peer** (caret on the dependency's current local version, e.g. `"nice-react-styles": "^15.0.1"`) **plus** a `file:../x` **devDependency** for local builds — never as a regular dependency. Shared-state packages (`nice-styles`, `nice-react-styles`) and every sibling component a package renders follow this, so an app installs one copy of each. Exceptions: `nice-react-icon`'s bundled `nice-icons` is dev-only; vendor pairs (icon↔icon-vendor, image↔image-vendor) keep mutual peers with caret ranges. At publish, `nicely publish` rewrites every nice-* peer that is **in the same run** to `^<its newVersion>` alongside the `file:` → semver swap, and restores the source ranges before the version commit (`toolkit/src/publishing/deps.js` → `rewriteDepsForPublish`). The dependency graph counts `file:` deps/devDeps **and** nice-* peers as edges (`graph.js` → `collectLocalDeps`). Known gap: if a dependency in the run fails its build/publish, dependents already rewritten to `^newVersion` still publish.
+
 0. nice-styles, nice-icons, nice-toolkit, nice-svg-generator, nice-config-*, nice-vite-watcher
 1. nice-react-styles
-2. nice-react-flex, nice-react-ink, nice-react-popover
+2. nice-react-flex, nice-react-ink, nice-react-popover, nice-react-list
 3. nice-react-icon, nice-react-icon-vendor, nice-react-tile, nice-react-code, nice-react-tooltip, nice-react-field
 4. nice-react-button
 5. nice-react-scroll, nice-react-slider, nice-react-lightbox, nice-react-image, nice-react-image-vendor, nice-react-input, nice-react-head, nice-react-form
@@ -367,7 +369,7 @@ Source of truth: `toolkit/registry.json` tiers (0-indexed). `nicely publish` bui
 
 Known same-tier cycles (pre-existing): nice-icons ↔ nice-styles / nice-svg-generator (tier 0), nice-react-icon ↔ nice-react-icon-vendor (tier 3), nice-react-image ↔ nice-react-image-vendor (tier 5).
 
-**New packages:** popover, field, select, calendar are local-only (no remote, never published) until the user approves publishing them.
+**New packages:** popover, field, list, select, calendar are local-only (no remote, never published) until the user approves publishing them.
 
 ---
 
@@ -417,7 +419,8 @@ Known same-tier cycles (pre-existing): nice-icons ↔ nice-styles / nice-svg-gen
 | nice-react-popover | nice-react-styles | react, react-dom, styled-components |
 | nice-react-field | nice-react-styles, nice-react-ink | react, react-dom, styled-components |
 | nice-react-input | nice-react-styles, nice-react-field | react, react-dom, styled-components |
-| nice-react-select | nice-react-input, nice-react-icon, nice-react-styles | react, react-dom, styled-components |
+| nice-react-list | nice-react-styles | react, react-dom, styled-components |
+| nice-react-select | nice-react-input, nice-react-list, nice-react-popover, nice-react-icon, nice-react-styles | react, react-dom, styled-components |
 | nice-react-calendar | nice-react-input, nice-react-popover, nice-react-button, nice-react-icon, nice-react-styles | react, react-dom, styled-components |
 
 ---
