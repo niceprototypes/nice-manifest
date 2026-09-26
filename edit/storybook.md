@@ -27,7 +27,7 @@ Reference implementations: `stories/React/Components/Button/` and the Forms comp
 <NewLines count={3} />
 ## Guide
 ```
-The Guide section follows the **Scenario style** (`stories/Scenarios/*.mdx`): plain Markdown paragraphs, fenced code blocks for anything longer than one line, Markdown tables for keyboard maps, and one `<Callout>` for the key takeaway. No `<Ink color="light">` prose blocks, no inline-HTML `<code>` runs, no `HorizontalRule`, no hand-escaped template strings for prose-level examples, one heading level (`## Guide`, `###` inside if needed).
+The Guide section follows the **Scenario style** (`stories/Scenarios/*.mdx`): plain Markdown paragraphs, fenced code blocks for anything longer than one line, Markdown tables for keyboard maps, and one `<Callout>` for the key takeaway. No `<Ink color="light">` prose blocks, no inline-HTML `<code>` runs, no `Line` dividers, no hand-escaped template strings for prose-level examples, one heading level (`## Guide`, `###` inside if needed).
 
 **3. Prop pages — `{Prop}.mdx`, one line of content:**
 ```mdx
