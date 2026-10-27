@@ -402,7 +402,7 @@ Applied for both `as="img"` and `as="div"` rendering paths via the shared style 
 
 ## Forms (nice-ui form slice)
 
-Designed as one unit, shipped as separate packages (plan: `manifest/.reports/forms/plan.md`). Input is the field chrome every text-like control overloads; derived packages extend `InputAs{Input|Select|Textarea}Props` and render through `<Input as=…>`, never restyling the chrome. Registry tiers are authoritative for build/publish order (`toolkit/registry.json`); the layer diagram above predates them.
+Designed as one unit, shipped as separate packages. Input is the field chrome every text-like control overloads; derived packages extend `InputAs{Input|Select|Textarea}Props` and render through `<Input as=…>`, never restyling the chrome. Registry tiers are authoritative for build/publish order (`toolkit/registry.json`); the layer diagram above predates them.
 
 | Package | Tier | Depends on (nice-*) | Exports | Status |
 |---|---|---|---|---|

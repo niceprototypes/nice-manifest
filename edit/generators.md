@@ -2,7 +2,7 @@
 
 Standards for code that **produces** code, CSS, or data: build-time generators (`nice-styles/scripts/*`, icon/source generators, `nice-config-exports`) and the runtime emitters they share logic with (`nice-styles/src/utilities/css/*`, `generateTokenCSS`). Inline comment rules live in [`comments.md`](comments.md); this file covers structure, documentation, and tests.
 
-Evidence base: [`.reports/research/token-system-comparables.md`](../.reports/research/token-system-comparables.md) (Style Dictionary, Terrazzo, Primer, Polaris, Carbon, Panda, Chakra, Tamagui).
+Evidence base: token-system comparables, summary in [`backlog.md` → Facts to keep](../backlog.md#facts-to-keep) (Style Dictionary, Terrazzo, Primer, Polaris, Carbon, Panda, Chakra, Tamagui).
 
 ---
 

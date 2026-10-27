@@ -6,7 +6,7 @@ This document outlines the file structure and patterns for component stories in 
 
 ## Component docs pattern (current — follow this)
 
-Reference implementations: `stories/React/Components/Button/` and the Forms components (`Input`, `Select`, `Calendar`, `DateField`, `Field`, restructured 2026-09-25, storybook `cb6279b`). Every component uses the same four pieces; no page is hand-laid-out. Piece 4 (lifecycle story) exists on Select, Form, List and Popover so far — rollout: `../.reports/nice-ui-hardening/plan.md` → Phase 7.
+Reference implementations: `stories/React/Components/Button/` and the Forms components (`Input`, `Select`, `Calendar`, `DateField`, `Field`, restructured 2026-09-25, storybook `cb6279b`). Every component uses the same four pieces; no page is hand-laid-out. Piece 4 (lifecycle story) exists on Select, Form, List and Popover so far — to be replaced by Playground stories (`../backlog.md` #12).
 
 **1. Example data — `{Component}/examples/index.tsx` (+ `examples.types.ts`)**
 - One export per facet, `{component}{Facet}`: `{ name, description, variants, default?, preview(item), code(item) }` with `satisfies ComponentExample`. `description` is a plain string; `code(item)` returns the snippet shown beside the preview.

@@ -3,7 +3,7 @@
 Single entry for an AI agent joining the Nice platform cold: build an app on nice-* packages, reuse components, or add one the Nice way. Links into the manifest; does not restate it.
 
 > **Load order:** `../discipline/` (always-on Core, wins every conflict) → `../README.md` (discovery index) → this file → topic files on demand.
-> **Verified:** Quickstart run end-to-end 2026-10-15 in a throwaway app outside `~/nice` (`tsc --noEmit`, `vite build`, `vite` dev, headless screenshot). Trial notes: `../.reports/agent-platform/status.md`.
+> **Verified:** Quickstart run end-to-end 2026-10-15 in a throwaway app outside `~/nice` (`tsc --noEmit`, `vite build`, `vite` dev, headless screenshot).
 
 ---
 
