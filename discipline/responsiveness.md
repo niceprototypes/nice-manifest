@@ -11,10 +11,9 @@ effort to task size outrank thoroughness.
   interrupt, correct, or stop you. This is the single worst failure mode; it is
   forbidden regardless of how well-specified the delegated work is.
 
-- **Do not delegate small or mechanical work to subagents.** Renames, import
-  fixes, moves, and edits across a known file list are done inline. Reserve
-  subagents for genuinely large *parallel* exploration you cannot hold in one
-  context — and even then, background only.
+- **Delegate above the threshold, not below it.** A task needing > ~3 tool
+  calls or > ~2 files of edits goes to a background subagent; smaller edits
+  are done inline. See `manager.md`.
 
 - **Never go more than ~3 tool calls without a visible progress line.** If a step
   will take a while, say so first, then report as you go. Silence reads as a hang.

@@ -22,6 +22,7 @@ nice-manifest/
 ├── README.md                      # THIS FILE - entry point, quick reference
 ├── discipline/                    # HIGHEST-PRIORITY behavioral rules — read first
 │   ├── README.md                  # Index
+│   ├── manager.md                 # Manager mode: top-level agent delegates to background subagents; brief template, status block
 │   ├── responsiveness.md          # Never go unresponsive; no foreground subagents; match effort to task size
 │   ├── grounding.md               # Never present a guess as fact: verify before claiming, tag evidence, never invent typed values; a causal chain is tagged separately from the facts under it, and static reading cannot establish a cause
 │   ├── refactor-safety.md         # Keep every intermediate save compiling during refactors
@@ -70,7 +71,7 @@ nice-manifest/
 "Read the manifest" does **not** mean read all 40+ files. It means **load the always-on Core, then lazy-load topic files on demand.** The Core carries *awareness* of everything; topic bodies are fetched only when the task touches them.
 
 ### Core — always loaded
-- **`discipline/`** — every behavioral rule (grounding, scope, communication, stale-first, refactor-safety, responsiveness, offboarding). Applied to all work, always.
+- **`discipline/`** — every behavioral rule (manager, grounding, scope, communication, stale-first, refactor-safety, responsiveness, offboarding). Applied to all work, always.
 - **This `README.md`** — the discovery index: the File Tree (every file + one-line purpose), "Reading Order by Task", "Package Layers", and the "Config Surfaces" catalog below.
 
 ### Topics — loaded on demand
@@ -183,7 +184,7 @@ For a change scoped to one foundation package, `nicely build icons` rebuilds jus
 
 ## Mandatory Prerequisites
 
-1. **Read all source files before editing.** No Claude instance may modify a nice-* package without first reading every source file in that package. Trace import chains from the entry point to verify which files the build actually uses. Duplicate or dead files exist — editing the wrong copy wastes time and produces silent failures.
+1. **Read the relevant source before editing.** The agent doing the edit reads the files named in its brief's FILES plus the import chain of the symbols it edits. Trace import chains from the entry point to verify which files the build actually uses. Duplicate or dead files exist — editing the wrong copy wastes time and produces silent failures.
 
    **Scope of this rule:** it licenses reading *the package you are editing*, and it is a floor on preparation — not a warrant for unbounded search. It does **not** authorize reading outward across packages to build a theory. Which package you are entitled to edit is decided by `discipline/stale-first.md` (check order + Gate A), before this rule applies. Reading is not free: a wrong diagnosis assembled from correctly-read files is the most expensive failure in this workspace's history, and it always begins as diligent reading.
 

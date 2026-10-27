@@ -8,7 +8,8 @@ Behavioral rules for AI instances working in this ecosystem. These are not phase
 
 | File | Contents |
 |------|----------|
-| `responsiveness.md` | Never go unresponsive. No foreground subagents (`run_in_background: true` always); don't delegate small/mechanical work; emit progress every ~3 tool calls; match effort to task size. |
+| `manager.md` | Manager mode. The top-level agent announces, delegates work above the threshold to background subagents, briefs in a fixed template, reports a ≤4-line status block (delegations, accepted/rejected reports, measured tokens), requires Storybook Playground + passing story test evidence before "done", and accepts or rejects reports without redoing them. Does not apply to `ROLE: Nice subagent`. |
+| `responsiveness.md` | Never go unresponsive. No foreground subagents (`run_in_background: true` always); delegate above ~3 tool calls or ~2 files, inline below; emit progress every ~3 tool calls; match effort to task size. |
 | `grounding.md` | Never present a guess as fact. Verify before claiming; tag every factual claim `[verified]`/`[inferred]`/`[guess]`; never invent a typed/enumerated value (read the registry); no scope creep. Merges the former verification + disclosure + typed-values rules. |
 | `refactor-safety.md` | Every save must compile — both directions. **Adding:** define the referent (prop, export, token, file) fully before any consumer references it. **Removing:** delete every reference before the import/definition. State the edit order before the first edit. The manifest's most-violated rule. |
 | `offboarding.md` | Before finishing a unit of work, reconcile every new discrepancy your change opened between the manifest and the package. The per-change, self-reviewed subset of the manifest audit. |
