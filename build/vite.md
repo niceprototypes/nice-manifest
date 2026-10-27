@@ -109,33 +109,23 @@ export default defineConfig({
 
 ## Storybook Integration
 
+Storybook gets this setup from `nice-config-vite` (`config-vite/README.md`), which reads the
+linked packages from the toolkit registry and wires `viteWatcher` + `getSourceAliases` when
+`liveLinks` is on:
+
 ```ts
 // .storybook/main.ts
-import { viteWatcher, getSourceAliases } from 'nice-vite-watcher'
-
-const linkedPackages = {
-  'nice-react-button': '../nice-react-button',
-}
+import { mergeConfig } from "vite"
+import { createNiceViteConfig } from "nice-config-vite"
 
 const config: StorybookConfig = {
-  framework: '@storybook/react-vite',
-  viteFinal: async (config) => {
-    config.plugins = [
-      ...(config.plugins || []),
-      viteWatcher({
-        packages: linkedPackages,
-        verbose: true,
-      }),
-    ]
-    config.resolve = config.resolve || {}
-    config.resolve.alias = {
-      ...(config.resolve.alias || {}),
-      ...getSourceAliases(linkedPackages, Object.keys(linkedPackages)),
-    }
-    return config
-  },
+  framework: "@storybook/react-vite",
+  viteFinal: async (config) =>
+    mergeConfig(config, createNiceViteConfig({ appRoot: resolve(__dirname, ".."), liveLinks: true })),
 }
 ```
+
+Chrome extensions (CRXJS) use `nice-config-crxjs` on top of it (`config-crxjs/README.md`).
 
 ---
 

@@ -128,7 +128,7 @@ website-viveka`. `audit all consumers` runs it for every project below.
 - **Idiomatic usage over inlined logic** — the project reaches for the ecosystem
   service instead of re-implementing it. Examples: hand-rolled `data-theme` toggling
   where the inverse-color dimension (`getToken(group, undefined, { inverse: true })`) now exists; manual `var(--np--…)`
-  strings where `getConstant` / `getCssConstant` belong; bespoke responsive code the
+  strings where `getToken` (registered tokens) or `getConstant` / `getConstantKey` (names outside the registry) belong; bespoke responsive code the
   breakpoint helpers already cover.
 - **Consumer patterns** — the `src/nice/` wrapper convention, provider composition
   order, `file:` / semver dependency correctness, and `setTokens` override placement
@@ -152,6 +152,7 @@ folder.
 | nice-react-list | Unpublished | GitHub remote since 2026-09-24 (niceprototypes/nice-react-list); not yet on npm — skip npm checks until first publish. |
 | nice-react-select | Local-only | Same as popover. |
 | nice-react-calendar | Local-only | Same as popover. |
+| nice-react-dialog | Local-only | New 2026-10-14. Same as popover. |
 | nice-website-2023 | Legacy | Gatsby project, intentionally omitted |
 | nice-website-2024 | Legacy | Gatsby project, intentionally omitted |
 

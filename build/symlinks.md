@@ -39,7 +39,7 @@ These three operations target distinct layers and do not overlap. Each addresses
 | `nicely clean` | each consumer's `node_modules/.cache` + `.vite`; also kills processes on discovered dev-server ports (parsed from `.env` `PORT=` and `package.json` `-p`/`--port` flags) | Dev server is serving stale code after a linked-package source change |
 | `nicely dedupe` | duplicate singletons (react, styled-components, etc.) inside each linked package's `node_modules` | "Invalid hook call" or styled-components context mismatch |
 | `nicely build all` | walks registry tier order, runs `npm run build` in every linked nice-* package | Fresh clone; after `dedupe`; after a foundation-package refactor |
-| `nicely build icons` | rebuilds only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order, resolved via the same reverse-dependency graph `publish` uses. Auto-stops a concurrent dev watcher: if a running `nicely develop` is detected (both rebuild the same dist and would race), it stops it first — the same reflex as the `--vite` port-kill — then builds. Pass `--no-kill` to build anyway. Also accepts `--convert [path]` (nice-svg-generator `.source` `.ai` → svg first; path = a folder or a single `.ai` file, omit for all) | Changed an SVG / icon asset and want a targeted build instead of a full `build all` |
+| `nicely build icons` | rebuilds only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order, resolved via the same reverse-dependency graph `publish` uses. Auto-stops a concurrent dev watcher: if a `nicely develop` is running (both rebuild the same dist and would race; its watchers are recorded in `{workspace}/.nice/develop.pids`), it stops it first — the same reflex as the `--vite` port-kill — then builds. Pass `--no-kill` to build anyway. Also accepts `--convert [path]` (nice-svg-generator `.source` `.ai` → svg first; path = a folder or a single `.ai` file, omit for all) | Changed an SVG / icon asset and want a targeted build instead of a full `build all` |
 
 Common reset: `nicely reset` (chains `build all → dedupe → clean`), then restart any dev server. The individual commands can also be run separately if you only need one.
 
@@ -49,12 +49,13 @@ Common reset: `nicely reset` (chains `build all → dedupe → clean`), then res
 
 | Command | Purpose |
 |---------|---------|
-| `nicely develop` | Rebuild + reload loop across linked packages (the common setup) |
+| `nicely develop` | Rebuild + reload loop across linked packages (the common setup). Watchers start dependencies first: each waits for its nice-* dependencies' first build (so it never reads their types mid-write); a failed, exited or timed-out dependency still releases its dependents. Shows a live tree (♥ building with its elapsed time and newest step, ✓ ready with build time and `dist/` size, ⚠ warnings, ✗ errors pinned until fixed; reload count); `--verbose` lists build steps and keeps finished ones in the scrollback; `--raw` prints every watcher line instead. Watchers stop with it on any exit, `kill -9` included; leftover groups are recorded in `{workspace}/.nice/develop.pids` and stopped on the next start. Stopping warns about packages left without their build output (`main` missing) |
+| `nicely develop --stop` | Stops every recorded watcher and the `nicely develop` that owns it |
 | `nicely develop --reload-only` | Reload trigger only, for an external rebuilder (was `--watch`) |
 | `nicely develop --no-reload` | Rebuild only, no reload trigger |
 | `nicely unlink` | Restore packages to npm versions |
 | `nicely dedupe <path>` | Dedupe singletons in a specific package without linking |
-| `nicely reset` | Chain `build all → dedupe → clean` (post-foundation-refactor recovery) |
+| `nicely reset` | Chain `build all → dedupe → clean` (post-foundation-refactor recovery). Stops a running `nicely develop` first |
 | `nicely publish pkg1 pkg2` | Publish with automatic dependency cascade |
 | `nicely publish --no-npm` | Bump, build, commit, push — skip npm publish |
 | `nicely <command> --dry-run` | Preview any mutating command without executing |

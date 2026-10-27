@@ -61,7 +61,7 @@ import { setTokens } from "nice-react-styles"
 
 setTokens({
   breakpoints: { laptop: 1100, desktop: 1800 },
-  fontSize: { base: { phone: "16px", "laptop+": "20px" } },
+  fontSize: { base: { "phone+": "16px", "laptop+": "20px" } },
 })
 ```
 

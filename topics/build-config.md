@@ -10,63 +10,41 @@ The Nice ecosystem has three types of configuration packages:
 
 | Category | Package | Purpose |
 |----------|---------|---------|
-| **Shareable Configs** | nice-configuration | TypeScript, Rollup, Jest configurations |
+| **Shareable Configs** | nice-config-typescript, nice-config-rollup, nice-config-jest, nice-config-exports, nice-config-eslint, nice-config-prettier, nice-config-vite, nice-config-crxjs | One package per tool (`~/nice/config-*`) |
 | **CLI Tools** | nice-toolkit | Local package linking and conflict resolution |
 | **Build Plugins** | nice-vite-watcher | Vite plugin for linked package hot-reload |
 
 ---
 
-## nice-configuration
+## nice-config-* packages
 
-Central repository for shared build tool configurations. All nice-react-* packages extend these configs.
+Shared build tool configurations, one package per tool (directory `~/nice/config-{tool}`). All nice-react-* packages extend these configs. They replaced the former single `nice-configuration` package; its subpaths map as below.
 
-### Structure
+### Packages and exports
 
-```
-nice-configuration/
-├── src/
-│   ├── rollup/
-│   │   ├── config.js           # createConfiguration(), isNiceExternal, createExternals
-│   │   └── index.js            # Re-exports
-│   ├── typescript/
-│   │   ├── base.json           # Base TypeScript config
-│   │   └── react.json          # Extends base with JSX support
-│   └── jest/
-│       ├── react.js            # React/TypeScript Jest config
-│       └── css-mock.js         # CSS import mock
-├── package.json
-└── README.md
-```
+| Package (directory) | Exports | Former `nice-configuration` subpath |
+|---|---|---|
+| nice-config-typescript (`config-typescript/`) | `./base` (`base.json`), `./react` (`react.json`) | `./typescript/base`, `./typescript/react` |
+| nice-config-rollup (`config-rollup/`) | `.` → `src/index.js` (`config.js`: `createConfiguration()`; `externals.js`: `isNiceExternal`, `createExternals`) | `./rollup` |
+| nice-config-jest (`config-jest/`) | `./react` (`src/react.js`), `./css-mock` (`src/css-mock.js`) | `./jest/react`, `./jest/css-mock` |
+| nice-config-exports (`config-exports/`) | `.` → `dist/index.js`, `./schema.json`; bin `nice-generate-exports` → `dist/cli.js` | `./exports`, `./exports/schema.json` |
+| nice-config-eslint (`config-eslint/`) | `.` → `index.js` | — |
+| nice-config-prettier (`config-prettier/`) | `.` → `index.js` | — |
+| nice-config-vite (`config-vite/`) | `.` → `src/index.js` (`createNiceViteConfig`) | — |
+| nice-config-crxjs (`config-crxjs/`) | `.` → `src/index.js` | — |
 
-### Subpath Exports
-
-```json
-{
-  "exports": {
-    "./rollup": "./src/rollup/index.js",
-    "./typescript/base": "./src/typescript/base.json",
-    "./typescript/react": "./src/typescript/react.json",
-    "./jest/react": "./src/jest/react.js",
-    "./jest/css-mock": "./src/jest/css-mock.js",
-    "./exports": "./dist/exports/index.js",
-    "./exports/schema.json": "./src/exports/schema.json"
-  },
-  "bin": {
-    "nice-generate-exports": "./dist/exports/cli.js"
-  }
-}
-```
+Each package's own `README.md` documents its options.
 
 ### Export Format Rationale
 
-| Subpath | Format | Reason |
+| Package | Format | Reason |
 |---------|--------|--------|
-| `./typescript/*` | `.json` | TypeScript `extends` requires a JSON file path |
-| `./jest/*` | `.js` (default export) | Jest config expects a default-exported object |
-| `./rollup` | `.js` (named exports) | Consuming configs call factory functions by name |
-| `./exports` | `.js` (compiled from TS) | Application logic with validation — TypeScript source, compiled to dist/ |
+| nice-config-typescript | `.json` | TypeScript `extends` requires a JSON file path |
+| nice-config-jest | `.js` (default export) | Jest config expects a default-exported object |
+| nice-config-rollup | `.js` (named exports) | Consuming configs call factory functions by name |
+| nice-config-exports | `.js` (compiled from TS) | Application logic with validation — TypeScript source, compiled to dist/ |
 
-### Export Generator (`./exports`)
+### Export Generator (nice-config-exports)
 
 CLI and programmatic API for generating `src/index.ts` in component packages from a declarative `package.exports.json` config. Written in TypeScript, compiled to `dist/exports/`.
 
@@ -75,7 +53,7 @@ nice-generate-exports .          # generate src/index.ts from package.exports.js
 npm run generate-exports         # same, via package script
 ```
 
-Source: `src/exports/` (TypeScript). Output: `dist/exports/` (compiled JS). Build: `npm run build` runs `tsc -p tsconfig.exports.json`.
+Source: `config-exports/src/` (TypeScript). Output: `config-exports/dist/` (compiled JS). Build: `npm run build` runs `tsc -p tsconfig.json`.
 
 See `edit/component.md` → "package.exports.json" for the config schema and field reference.
 
@@ -86,7 +64,7 @@ Extend via standard `extends` field:
 ```json
 // tsconfig.json
 {
-  "extends": "nice-configuration/typescript/react",
+  "extends": "nice-config-typescript/react",
   "compilerOptions": {
     "outDir": "dist",
     "declarationDir": "dist/types"
@@ -106,7 +84,7 @@ Factory function pattern with sensible defaults:
 
 ```js
 // rollup.config.js
-import { createConfiguration } from "nice-configuration/rollup"
+import { createConfiguration } from "nice-config-rollup"
 
 export default createConfiguration()
 
@@ -129,14 +107,16 @@ export default createConfiguration({
 | `bundlePackages` | `[]` | nice-* packages to bundle — inlined into both the JS bundle and the `.d.ts` bundle (`dts({ includeExternal: bundlePackages })`, config-rollup `b9eed46`), so a bundled package stays a devDependency and consumers never need it installed |
 | `dts` | `true` | Generate declaration bundle |
 | `dtsInput` | `'dist/types/index.d.ts'` | Declaration input path |
+| `clean` | `true` | After each build, delete the files in `dist/` it did not write (stale declarations from an earlier file layout). `dist/` is never emptied, so a stopped watcher or a parallel dependent build still finds the previous build. A failed build prunes nothing |
 
 **Default Plugins:**
 - `@rollup/plugin-node-resolve` (browser: true)
 - `@rollup/plugin-commonjs`
 - `@rollup/plugin-typescript`
 - `rollup-plugin-dts` (declaration bundling)
+- `nice-prune-stale-output` (with `clean`; appended to a `plugins` override too)
 
-Peer-dependency externalization is handled inline by `createExternals` (see `src/rollup/externals.js`), which reads the consumer's `package.json` peerDependencies. No plugin needed.
+Peer-dependency externalization is handled inline by `createExternals` (see `config-rollup/src/externals.js`), which reads the consumer's `package.json` peerDependencies. No plugin needed.
 
 **Watch Mode Settings:**
 
@@ -173,7 +153,7 @@ Re-export pattern for Jest:
 
 ```js
 // jest.config.js
-export { default } from "nice-configuration/jest/react"
+export { default } from "nice-config-jest/react"
 ```
 
 **Included Settings:**
@@ -296,13 +276,14 @@ Append a new entry by hand to `nice-toolkit/registry.json`, placing it in the ap
 | `nicely clean` | Wipe `node_modules/.cache` + `.vite` across every consumer; first kills any process bound to a dev-server port discovered from `.env` `PORT=` entries or `package.json` `-p`/`--port` flags. `--no-kill` to skip the kill phase. |
 | `nicely dedupe` | Recursively clean singletons (react, styled-components, etc.) from all linked packages' `node_modules` |
 | `nicely build all` | Walk registry tier order and run `npm run build` in every linked nice-* package |
-| `nicely build icons` | Rebuild only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — targeted build after an SVG/icon change, resolved via the reverse-dependency graph. If a `nicely develop` is running (it rebuilds the same dist and would race), prompts `[k]` stop-and-continue / `[c]` cancel; non-interactive shells cancel |
+| `nicely build icons` | Rebuild only `nice-icons` + its dependents (`nice-react-icon`, `nice-react-icon-vendor`, `nice-react-button`) in tier order — targeted build after an SVG/icon change, resolved via the reverse-dependency graph. If a `nicely develop` is running (it rebuilds the same dist and would race; its watchers are recorded in `{workspace}/.nice/develop.pids`), stops it first. Pass `--no-kill` to build anyway |
 
 **Linking / dev / publish**
 
 | Command | Description |
 |---------|-------------|
-| `nicely develop` | Rebuild + reload loop across linked packages (the common setup) |
+| `nicely develop` | Rebuild + reload loop across linked packages (the common setup). Watchers start dependencies first: each waits for its nice-* dependencies' first build (so it never reads their types mid-write); a failed, exited or timed-out dependency still releases its dependents. Shows a live tree (♥ building with its elapsed time and newest step, ✓ ready with build time and `dist/` size, ⚠ warnings, ✗ errors pinned until fixed; reload count); `--verbose` lists build steps and keeps finished ones in the scrollback; `--raw` prints every watcher line instead. Watchers stop with it on any exit, `kill -9` included; leftover groups are recorded in `{workspace}/.nice/develop.pids` and stopped on the next start. Stopping warns about packages left without their build output (`main` missing) |
+| `nicely develop --stop` | Stops every recorded watcher and the `nicely develop` that owns it |
 | `nicely develop --reload-only` | Reload trigger only, for an external rebuilder (was `--watch`) |
 | `nicely develop --no-reload` | Rebuild only, no reload trigger |
 | `nicely unlink` | Restore packages to npm versions |
@@ -581,7 +562,7 @@ All `nice-react-*` packages must follow these canonical patterns. Deviations req
 **Standard:**
 
 ```js
-import { createConfiguration } from 'nice-configuration/rollup'
+import { createConfiguration } from 'nice-config-rollup'
 
 export default createConfiguration()
 ```
@@ -589,7 +570,7 @@ export default createConfiguration()
 **With bundled packages:**
 
 ```js
-import { createConfiguration } from 'nice-configuration/rollup'
+import { createConfiguration } from 'nice-config-rollup'
 
 export default createConfiguration({
   bundlePackages: ['nice-icons']
@@ -599,7 +580,7 @@ export default createConfiguration({
 **With custom plugins (escape hatch only):**
 
 ```js
-import { createConfiguration } from 'nice-configuration/rollup'
+import { createConfiguration } from 'nice-config-rollup'
 import svgr from '@svgr/rollup'
 // ... other imports
 
@@ -624,7 +605,7 @@ export default createConfiguration({
 
 ```json
 {
-  "extends": "nice-configuration/typescript/react",
+  "extends": "nice-config-typescript/react",
   "compilerOptions": {
     "outDir": "dist",
     "declarationDir": "dist/types"
@@ -660,7 +641,7 @@ export default createConfiguration({
 ### Canonical jest.config.js
 
 ```js
-export { default } from "nice-configuration/jest/react"
+export { default } from "nice-config-jest/react"
 ```
 
 ---
@@ -678,7 +659,7 @@ No packages currently deviate. (nice-react-icon's custom rollup plugins are a *j
 | nice-react-icon | `target: es5`, `jsx: react`, `noEmit: true`, `moduleResolution: node` |
 | nice-react-flex | `target: ES2018`, `jsx: react`, `moduleResolution: node`, redundant strict options |
 
-**Normalization:** Extend `nice-configuration/typescript/react`, use standard output paths.
+**Normalization:** Extend `nice-config-typescript/react`, use standard output paths.
 
 ### Jest Config Status
 
@@ -689,6 +670,8 @@ Verified 2026-05-20.
 | nice-react-icon | 1 | present (canonical) |
 | nice-react-button | 2 | present (canonical) |
 | nice-react-input | 1 | present (canonical) |
+| nice-react-ink | 1 | present (canonical, added 2026-10-15) |
+| nice-react-tile | 1 | present (canonical, added 2026-10-15) |
 | all other nice-* packages | 0 | absent — no action required |
 
 **Rule:** `jest.config.js` is only added when test files exist in `src/`. A config without tests adds maintenance surface for no behavior. When the first test is added to a package, also add `jest.config.js` (canonical one-liner below) and the `"test": "jest"` script.
@@ -700,7 +683,7 @@ Verified 2026-05-20.
 | nice-styles | `test/*.test.ts` — artifact snapshots, runtime fixture snapshots, `getToken` behavior table (verified 2026-09-15) | `tsx --test` |
 
 ```js
-export { default } from "nice-configuration/jest/react"
+export { default } from "nice-config-jest/react"
 ```
 
 ---

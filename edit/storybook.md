@@ -6,7 +6,7 @@ This document outlines the file structure and patterns for component stories in 
 
 ## Component docs pattern (current — follow this)
 
-Reference implementations: `stories/React/Components/Button/` and the Forms components (`Input`, `Select`, `Calendar`, `DateField`, `Field`, restructured 2026-09-25, storybook `cb6279b`). Every component uses the same three pieces; no page is hand-laid-out.
+Reference implementations: `stories/React/Components/Button/` and the Forms components (`Input`, `Select`, `Calendar`, `DateField`, `Field`, restructured 2026-09-25, storybook `cb6279b`). Every component uses the same four pieces; no page is hand-laid-out. Piece 4 (lifecycle story) exists on Select, Form, List and Popover so far — rollout: `../.reports/nice-ui-hardening/plan.md` → Phase 7.
 
 **1. Example data — `{Component}/examples/index.tsx` (+ `examples.types.ts`)**
 - One export per facet, `{component}{Facet}`: `{ name, description, variants, default?, preview(item), code(item) }` with `satisfies ComponentExample`. `description` is a plain string; `code(item)` returns the snippet shown beside the preview.
@@ -23,6 +23,8 @@ Reference implementations: `stories/React/Components/Button/` and the Forms comp
 <NewLines />
 ```jsx import + minimal usage ```
 <NewLines count={3} />
+<LifecycleStory steps={{component}LifecycleSteps} render={render{Component}Lifecycle} />   {/* piece 4 */}
+<NewLines count={3} />
 <ComponentDemoTable examples={{component}ExampleList} />
 <NewLines count={3} />
 ## Guide
@@ -35,6 +37,13 @@ The Guide section follows the **Scenario style** (`stories/Scenarios/*.mdx`): pl
 <ComponentExampleStory example={{component}Examples.{prop}} />
 ```
 Keep Meta titles stable — they are the page ids other pages and sequences link to.
+
+**4. Lifecycle story — `Lifecycle.mdx`** (`Components/{Group}/{Component}/lifecycle`), also embedded on the main page after the usage block. Required for every UI component, besides the prop pages.
+- What: the real component, driven automatically through its UX lifecycle (e.g. rest → selected → disabled → invalid), looping. Shared helper `src/components/LifecycleStory` (`steps` + `render`); steps and the render function live in `examples/index.tsx` as `{component}LifecycleSteps` / `render{Component}Lifecycle`.
+- How a state is reached: props or controlled state only — never synthetic DOM events. A state with no controlling prop (CSS `:hover` / `:focus-visible`, internal `open`) is left out and listed as missing controllability in the plan, not faked.
+- Timing: each step is held for a `lifecycleStep` token variant (`src/nice/tokens.ts`, `base` / `long`); a step picks a variant name, never a number of ms.
+- The helper renders the demo region `inert` with `pointer-events: none` (no pointer or keyboard interaction), and labels the current state in a caption under it. With `prefers-reduced-motion: reduce` it does not advance: it shows the first step and lists every step's label.
+- Reference: `stories/React/Components/Select/Lifecycle.mdx`.
 
 **Gotchas:** props discriminated on a boolean (e.g. Select `native`) — branch the JSX per variant (`native={boolean}` does not type-check); Select `children` must be an array, not a Fragment; wide previews (Calendar) need their own width handling — the demo cell is 16em.
 

@@ -2,6 +2,8 @@
 
 This document maps the dependency relationships between the Nice Prototypes packages. Each is its own repository; the layers below describe which packages depend on which, not a shared build or a single tree.
 
+Versions in headings and dependency ranges: each `package.json` on disk, 2026-10-15. Authoritative tier order: `toolkit/registry.json`.
+
 ---
 
 ## Layered Architecture Overview
@@ -53,7 +55,7 @@ Dependencies run in one direction only: a package may depend on packages in the 
 │───────────────────────────────────────│
 │  nice-styles                          │
 │  nice-icons                           │
-│  nice-configuration                   │
+│  nice-config-*                        │
 │  nice-toolkit                         │
 │  nice-vite-watcher                    │
 └───────────────────────────────────────┘
@@ -63,7 +65,7 @@ Dependencies run in one direction only: a package may depend on packages in the 
 
 ## Foundation Layer
 
-### nice-styles (v4.1.5)
+### nice-styles (v17.1.0)
 
 **Role:** Core design token system - the root of all styling inheritance
 
@@ -98,7 +100,7 @@ Dependencies run in one direction only: a package may depend on packages in the 
 
 ---
 
-### nice-icons (v1.2.1)
+### nice-icons (v4.0.0)
 
 **Role:** SVG icon asset library
 
@@ -119,20 +121,17 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ---
 
-### nice-configuration (v1.0.0)
+### nice-config-* (split configuration packages)
 
-**Role:** Shared build tool configuration
+**Role:** Shared build tool configuration, one package per tool (`~/nice/config-*`)
 
-**Exports:**
-- Rollup configuration: `./rollup`
-- TypeScript configs: `./typescript/base`, `./typescript/react`
-- Jest configs: `./jest/react`, `./jest/css-mock`
+**Packages (version on disk):** `nice-config-typescript` 1.0.0 (`./base`, `./react`), `nice-config-rollup` 1.0.0 (`createConfiguration`), `nice-config-jest` 1.0.0 (`./react`, `./css-mock`), `nice-config-exports` 1.0.1 (`nice-generate-exports`), `nice-config-eslint` 1.0.0, `nice-config-prettier` 1.0.0, `nice-config-vite` 0.1.0, `nice-config-crxjs` 0.1.0. Exports and options: [`topics/build-config.md`](../topics/build-config.md).
 
 **Inheritors:** All nice-react-* packages (devDependency)
 
 ---
 
-### nice-toolkit (v2.1.0)
+### nice-toolkit (v5.0.0)
 
 **Role:** Development utility for local package linking and conflict resolution
 
@@ -149,7 +148,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ---
 
-### nice-vite-watcher (v0.1.0)
+### nice-vite-watcher (v0.1.4)
 
 **Role:** Vite plugin for hot-reloading linked packages
 
@@ -161,12 +160,12 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ## Context Layer
 
-### nice-react-styles (v3.0.0)
+### nice-react-styles (v15.0.1)
 
 **Role:** Bridge between nice-styles tokens and React components
 
 **Dependencies:**
-- `nice-styles` (4.1.5)
+- `nice-styles` (^17.1.0, peer)
 
 **Peer Dependencies:**
 - `react` (>=19.2.0)
@@ -177,7 +176,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 **Exports:**
 - Component: `StylesProvider`, `FontLoader` (internal to StylesProvider's font-loading path), `Theme` (pins a subtree to a theme via `data-theme`).
-- React wrapper: `setTokens()` — calls `generateTokenCSS` + `injectTokenCSS` from nice-styles. Returns nothing; CSS is injected synchronously at call time.
+- React wrapper: `setTokens()` — calls `generateTokenCSS` + `injectTokenCSS` from nice-styles; CSS is injected synchronously at call time. Returns `getToken` typed for the core tokens plus the map (`export const getToken = setTokens(map)`).
 - React HOC + hook: `withBreakpoints`, `useBreakpoint`.
 - Device/theme detection (opt-in, folded into `StylesProvider`): the `detectDevice` prop runs an internal `useDeviceDetection` hook once and publishes device state through context, read via `useDevice(mobileUserAgents?)` → `{ userAgent, mobileUserAgents, isMobile }`; the `detectTheme` prop publishes `{ theme }` (follows OS `prefers-color-scheme`), read via `useTheme()`. Both default `false` and are inert when off — `useDevice()` → `{ userAgent: "", mobileUserAgents: MOBILE_USER_AGENTS, isMobile: false }`, `useTheme()` → `DEFAULT_THEME` — registering no resize / media-query listener. `isMobile` is true when `userAgent` matches an entry of `mobileUserAgents` (the default `MOBILE_USER_AGENTS`, overridable per call) OR a touch + small-screen / debug signal fires.
 - Type: `Breakpoints<T>` (React-prop responsive shape).
@@ -198,7 +197,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ## Utility Layer
 
-### nice-react-flex (v1.2.0)
+### nice-react-flex (v7.0.1)
 
 **Role:** Responsive flexbox layout component
 
@@ -217,7 +216,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ---
 
-### nice-react-ink (v4.1.1)
+### nice-react-ink (v8.0.3)
 
 **Role:** Semantic ink component
 
@@ -235,7 +234,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ---
 
-### nice-react-tile (v3.2.0)
+### nice-react-tile (v14.0.0)
 
 **Role:** Responsive grid/tile layout component
 
@@ -243,7 +242,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 - `nice-react-styles`
 
 **Peer Dependencies:**
-- `nice-react-flex` (>=1.0.0)
+- `nice-react-flex` (^7.0.1)
 - `react`, `react-dom`, `styled-components`
 
 **Exports:**
@@ -252,7 +251,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ---
 
-### nice-react-scroll (v2.1.0)
+### nice-react-scroll (v2.2.2)
 
 **Role:** Performance-optimized scroll management
 
@@ -268,7 +267,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ---
 
-### nice-react-slider (v0.1.0)
+### nice-react-slider (v0.5.5)
 
 **Role:** Animated vertical slider component
 
@@ -285,12 +284,12 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ## Feature Layer
 
-### nice-react-icon (v2.1.2)
+### nice-react-icon (v8.0.3)
 
 **Role:** Flexible icon component with built-in icons
 
 **Dependencies:**
-- `nice-icons` (^1.1.0)
+- `nice-icons` (devDependency `file:../icons`; SVGs bundled into dist)
 - `nice-react-styles`
 
 **Peer Dependencies:**
@@ -306,18 +305,18 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ---
 
-### nice-react-button (v3.2.5)
+### nice-react-button (v9.1.3)
 
 **Role:** Accessible, themable button component
 
 **Dependencies:**
 - `nice-react-styles`
-- `nice-react-ink` (>=4.0.0)
+- `nice-react-ink` (^8.0.3)
 
 **Peer Dependencies:**
-- `nice-react-flex` (>=1.0.0)
-- `nice-react-icon` (>=2.0.0)
-- `nice-react-ink` (>=4.0.0)
+- `nice-react-flex` (^7.0.1)
+- `nice-react-icon` (^8.0.3)
+- `nice-react-ink` (^8.0.3)
 - `react`, `react-dom`, `styled-components`
 
 **Exports:**
@@ -326,7 +325,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ---
 
-### nice-react-lightbox (v0.2.0)
+### nice-react-lightbox (v3.0.0)
 
 **Role:** Fullscreen image lightbox with portal rendering
 
@@ -342,7 +341,7 @@ Categories today: `base/` (core UI icons) and `brands/` (product/brand logos). T
 
 ---
 
-### nice-react-image
+### nice-react-image (v3.0.2)
 
 **Role:** Image component with two rendering modes (`as="img"` / `as="div"` background-image) and optional token-based border
 
@@ -365,7 +364,7 @@ Applied for both `as="img"` and `as="div"` rendering paths via the shared style 
 
 ---
 
-### nice-react-tooltip (v0.1.0)
+### nice-react-tooltip (v0.1.2)
 
 **Role:** Tooltip wrapper — wraps any element and shows an inverse-themed bubble on hover or click
 
@@ -383,6 +382,24 @@ Applied for both `as="img"` and `as="div"` rendering paths via the shared style 
 
 ---
 
+### nice-react-dialog (v0.1.0, local-only)
+
+**Role:** Controlled modal on the native `<dialog>` (`showModal()`, top layer — no portal, no z-index)
+
+**Dependencies:**
+- `nice-react-styles`
+
+**Peer Dependencies:**
+- `react`, `styled-components`
+
+**Exports:**
+- Component: `Dialog`
+- Types: `DialogProps`, `DialogOpenType`, `DialogOnCloseType`, `DialogTitleType`, `DialogDescriptionType`, `DialogActionsType`, `DialogCloseOnBackdropClickType`, `DialogRefType`, `DialogThemeType`
+
+**Notes:** Props: `open`, `onClose`, `title` (h2, `aria-labelledby`), `description` (p, `aria-describedby`), `children`, `actions`, `closeOnBackdropClick` (default true), `id`, `ref`, `theme`. Escape = native `cancel`, prevented, calls `onClose`; an unrequested native close also calls `onClose`. Focus returns to the element focused before open; `<html>` overflow locked while open. No component-token file — styled from module tokens only; width and `::backdrop` stay on UA defaults until `dialog.*` tokens exist.
+
+---
+
 ## Forms (nice-ui form slice)
 
 Designed as one unit, shipped as separate packages (plan: `manifest/.reports/forms/plan.md`). Input is the field chrome every text-like control overloads; derived packages extend `InputAs{Input|Select|Textarea}Props` and render through `<Input as=…>`, never restyling the chrome. Registry tiers are authoritative for build/publish order (`toolkit/registry.json`); the layer diagram above predates them.
@@ -392,7 +409,7 @@ Designed as one unit, shipped as separate packages (plan: `manifest/.reports/for
 | nice-react-list | 2 | react-styles | `List`, `ListItem`: core generic list — start/end slots, `<hr>` dividers between items (inside `<li aria-hidden role=presentation>`), `scrollable`, visual selected/active/disabled; all HTML attributes pass through (no listbox API — higher layers add role/aria) | local-only 0.1.0 |
 | nice-react-popover | 2 | react-styles | `Popover` (portal, anchor positioning, Escape/outside dismiss, focus return), `computeAnchorPosition` | local-only 0.1.0 |
 | nice-react-field | 3 | react-styles, react-ink | `Field`, `Fieldset`, `useField`, `FieldContext`, `mergeDescribedBy` (order: description, error, consumer; deduped) | local-only 0.1.0 |
-| nice-react-input | 5 | react-styles, react-field | `Input`: wrapper chrome around `as="input"\|"select"\|"textarea"`, `ref`, `start`/`end` slots, `width` (character scale), token colour props, `useField` wiring, 16px font floor | unpublished major pending |
+| nice-react-input | 5 | react-styles, react-field | `Input`: wrapper chrome around `as="input"\|"select"\|"textarea"`, `ref`, `start`/`end` slots, `width` (character scale), token colour props, `useField` wiring, 16px font floor | 3.0.2 on disk; unpublished major pending |
 | nice-react-select | 6 | react-input, react-list, react-popover, react-icon, react-styles | `Select`: default = WAI-ARIA select-only combobox (read-only Input `role=combobox` + Popover + List as listbox, option start/end slots, typeahead, hidden input for forms); `native` prop renders the platform `<select>` through `<Input as="select">` | local-only 0.1.0 |
 | nice-react-calendar | 6 | react-input, react-popover, react-button, react-icon, react-styles | `Calendar` (ARIA grid, locale week start, RTL-aware keys), `DateField` (picker-only; hidden ISO input) — dates are ISO `YYYY-MM-DD` strings, never `Date` | local-only 0.1.0 |
 
@@ -447,7 +464,7 @@ All nice-* interdependencies use `file:` references for local development.
 |---------|---------------------|-------------------|
 | nice-styles | (none) | (none) |
 | nice-icons | (none) | (none) |
-| nice-configuration | rollup plugins | (none) |
+| nice-config-rollup | rollup plugins | rollup, tslib, typescript |
 | nice-react-styles | nice-styles | react, styled-components |
 | nice-react-flex | nice-react-styles | react, styled-components |
 | nice-react-ink | nice-react-styles | react, styled-components |
@@ -460,6 +477,7 @@ All nice-* interdependencies use `file:` references for local development.
 | nice-react-image | nice-react-styles | react, react-dom, styled-components |
 | nice-react-tooltip | nice-react-styles, nice-react-popover, nice-icons | react, react-dom, styled-components |
 | nice-react-form | nice-react-styles | react, react-dom, styled-components |
+| nice-react-dialog | nice-react-styles | react, styled-components |
 | nice-react-popover | nice-react-styles | react, react-dom, styled-components |
 | nice-react-field | nice-react-styles, nice-react-ink | react, react-dom, styled-components |
 | nice-react-input | nice-react-styles, nice-react-field | react, react-dom, styled-components |
@@ -541,7 +559,7 @@ const size: ComponentTypes.Size = "base"
 
 ## Build Configuration Inheritance
 
-All packages extend shared build config from `nice-configuration` — `typescript/react` for tsconfig, `createConfiguration()` from `rollup` for the bundle. Full standards, options, and per-package deviations: [`topics/build-config.md`](../topics/build-config.md).
+All packages extend shared build config from the `nice-config-*` packages — `nice-config-typescript/react` for tsconfig, `createConfiguration()` from `nice-config-rollup` for the bundle, `nice-config-jest/react` for Jest. Full standards, options, and per-package deviations: [`topics/build-config.md`](../topics/build-config.md).
 
 ---
 
@@ -549,7 +567,7 @@ All packages extend shared build config from `nice-configuration` — `typescrip
 
 | Category | Packages | Purpose |
 |----------|----------|---------|
-| **Foundation** | nice-styles, nice-icons, nice-configuration | Zero-dependency base assets |
+| **Foundation** | nice-styles, nice-icons, nice-config-* | Zero-dependency base assets |
 | **Dev Tools** | nice-toolkit, nice-vite-watcher | Development utilities |
 | **Context** | nice-react-styles | React/styled-components bridge |
 | **Layout** | nice-react-flex, nice-react-tile | Flexbox/grid layout |

@@ -29,6 +29,10 @@ nice-manifest/
 │   ├── scope.md                   # Do exactly what was asked — no unrequested rewrites/abstractions/extra files
 │   ├── communication.md           # No sycophancy/lecturing/unsolicited caveats; announce long or hanging ops
 │   └── stale-first.md             # Diagnosis order, all 10 steps: stale state → input arrives? → own diff → call site → file → package → foundation (gated). Gate A: cross-file diagnoses need a runtime observation. Gate B: an unexplained anomaly stops you
+├── agents/                        # AGENT ENTRY POINT — cold-start: quickstart, architecture map, catalog, checklists
+│   ├── README.md                  # Quickstart (verified app scaffold), composition rules, new-component + verification checklists, pitfalls
+│   ├── catalog.json               # GENERATED component catalog: props, states, token addresses, story ids
+│   └── scripts/generate-catalog.mjs  # Regenerates catalog.json from package sources (read-only)
 ├── read/                          # UNDERSTANDING existing systems
 │   ├── README.md                  # Index
 │   ├── inheritance.md             # Package hierarchy, dependency graph, layers
@@ -80,7 +84,7 @@ When a build/config-related package misbehaves, a config doc exists; you do not 
 
 | Surface | Where it lives | Read |
 |---------|----------------|------|
-| Shared build config | `nice-configuration` → `typescript/`, `rollup/`, `jest/` subpaths (lint/prettier pending alignment) | `topics/build-config.md` |
+| Shared build config | `nice-config-*` packages (`~/nice/config-*`): `nice-config-typescript`, `nice-config-rollup`, `nice-config-jest`, `nice-config-exports`, `nice-config-vite`, `nice-config-crxjs`, `nice-config-eslint`, `nice-config-prettier` (lint/prettier pending alignment) | `topics/build-config.md` |
 | Per-package config files | each package's `tsconfig.json`, `rollup.config.js`, `jest.config.js`, `.eslintrc`, `.prettierrc` | `topics/build-config.md`; `README.md` → Alignment Principle |
 | Vite / dev server / watcher | `nice-vite-watcher`; storybook `.storybook/main.ts` | `build/vite.md`, `build/symlinks.md` |
 | Cache / singleton / build triad | `nicely clean` / `dedupe` / `build all` | `build/symlinks.md`, `discipline/stale-first.md` |
@@ -94,7 +98,7 @@ Two packages are designated as the canonical reference implementations for the e
 | Role | Package | Audit Target |
 |------|---------|--------------|
 | React component packages | **nice-react-ink** | All `nice-react-*` component packages (Button, Icon, Flex, Tile, Image, Slider, Lightbox, Input, Scroll, etc.) |
-| Configuration / CLI / build-plugin packages | **nice-toolkit** | nice-configuration, nice-vite-watcher, and similar tooling packages |
+| Configuration / CLI / build-plugin packages | **nice-toolkit** | nice-config-* packages, nice-vite-watcher, and similar tooling packages |
 
 When the standard bearer itself needs to change, that is a deliberate, separate decision — not something to fold into a normalization audit.
 
@@ -115,7 +119,7 @@ Application  →  nice-storybook, nice-website-2025
 Feature      →  nice-react-button
 Utility      →  nice-react-flex, nice-react-ink, nice-react-tile, nice-react-icon
 Context      →  nice-react-styles
-Foundation   →  nice-styles, nice-icons, nice-configuration
+Foundation   →  nice-styles, nice-icons, nice-config-*
 ```
 
 ### Export Rules
@@ -158,6 +162,8 @@ For a change scoped to one foundation package, `nicely build icons` rebuilds jus
 
 | Task | Read First |
 |------|------------|
+| New agent / build an app on Nice | `agents/README.md` |
+| Find a component, its props or tokens | `agents/catalog.json` |
 | New component package | `read/inheritance.md` → `edit/component.md` |
 | New story | `edit/storybook.md` |
 | Build config issue | `topics/build-config.md` |
@@ -171,6 +177,7 @@ For a change scoped to one foundation package, `nicely build icons` rebuilds jus
 | Writing implementation logic | `edit/comments.md` |
 | Writing or restructuring a generator / emitter | `edit/generators.md` → `edit/comments.md` |
 | Compressing PNG assets | `build/image-compressor.md` |
+| Remixer page mapping (nice-browser) | `~/nice/browser/chrome/remixer/manifest/README.md` |
 
 ---
 
@@ -190,16 +197,16 @@ Every `nice-*` package is its own repository — independently versioned, indepe
 
 That independence is structural. Consistency is deliberate, and has to be maintained rather than inherited: there is no implicit reason for any two packages to drift on shared tooling — TypeScript version, build config, lint rules, or shared library versions — so treat divergence as a defect to fix, not a per-package choice.
 
-**Rule:** Anything shared belongs in `nice-configuration` (or another foundation package). Every consuming package uses that resource at the same version. If one package needs to drift, the change is made in `nice-configuration` first and propagated to all consumers in the same operation.
+**Rule:** Anything shared belongs in the matching `nice-config-*` package (or another foundation package). Every consuming package uses that resource at the same version. If one package needs to drift, the change is made in that `nice-config-*` package first and propagated to all consumers in the same operation.
 
 **Currently in scope for alignment:**
 
 | Resource | Source | Target | Status |
 |----------|--------|--------|--------|
-| TypeScript version | each package's `devDependencies` | `^6.0.0` (matches nice-configuration) | in-progress — pilot in react-lightbox first |
-| TypeScript config | each package's `tsconfig.json` | `extends "nice-configuration/typescript/react"` | partial — see deviations in `topics/build-config.md` |
-| Rollup config | each package's `rollup.config.js` | `nice-configuration/rollup → createConfiguration()` | partial — see deviations in `topics/build-config.md` |
-| Jest config | each package's `jest.config.js` | `nice-configuration/jest/react` | partial — most packages missing |
+| TypeScript version | each package's `devDependencies` | `^6.0.0` (matches the `>=6.0.0` peer of nice-config-typescript / nice-config-rollup) | in-progress — pilot in react-lightbox first |
+| TypeScript config | each package's `tsconfig.json` | `extends "nice-config-typescript/react"` | partial — see deviations in `topics/build-config.md` |
+| Rollup config | each package's `rollup.config.js` | `nice-config-rollup → createConfiguration()` | partial — see deviations in `topics/build-config.md` |
+| Jest config | each package's `jest.config.js` | `nice-config-jest/react` | partial — most packages missing |
 | Lint config | each package's `.eslintrc.cjs` | TBD — currently inconsistent | not yet aligned |
 | Prettier config | each package's `.prettierrc` | TBD — currently inconsistent | not yet aligned |
 
@@ -208,7 +215,7 @@ That independence is structural. Consistency is deliberate, and has to be mainta
 - `website-2025` — CRA 5 pins TypeScript to 4.9.5 and provides its own build pipeline. Treat as out-of-band until CRA is replaced.
 - Justified per-package deviations are listed in `topics/build-config.md → Justified Exceptions`. New deviations require an entry in that table.
 
-**Decision principle:** before adding a new dev dep or config to one package, check whether it belongs in `nice-configuration`. If it does, add it there first.
+**Decision principle:** before adding a new dev dep or config to one package, check whether it belongs in a `nice-config-*` package. If it does, add it there first.
 
 ---
 

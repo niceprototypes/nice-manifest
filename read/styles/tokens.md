@@ -78,21 +78,24 @@ ComponentPrefix     // "button" | "icon" | "tile" | "ink" (auto-generated)
 
 | Group | CSS Name | Items |
 |-------|----------|-------|
-| `animationDuration` | `animation-duration` | base, slow |
-| `animationEasing` | `animation-easing` | base |
-| `backgroundColor` | `background-color` | base, dark, success, warning, error, link (+ `$inverse` — see Inverse Colors) |
-| `backgroundSize` | `background-size` | contain, cover, fill, none, scale-down |
-| `borderColor` | `border-color` | base, dark, darker |
-| `borderRadius` | `border-radius` | smaller, small, base, large, larger |
-| `borderWidth` | `border-width` | base, large |
+| `animationDuration` | `animation-duration` | faster, fast, base, slow, slower |
+| `animationEasing` | `animation-easing` | base, linear, ease-in, ease-out, ease |
+| `backgroundColor` | `background-color` | base, raised, success, highlight, warning, error, link (+ themed: night; `$inverse` — see Inverse Colors) |
+| `backgroundSize` | `background-size` | base, contain, cover, fill, none, scale-down |
+| `borderColor` | `border-color` | base, subtle, strong, stronger, success, highlight, warning, error, link (+ themed: night; `$inverse` — see Inverse Colors) |
+| `borderRadius` | `border-radius` | none, smaller, small, base, large, larger |
+| `borderWidth` | `border-width` | none, smaller, small, base, large, larger |
 | `boxShadow` | `box-shadow` | base, large |
-| `size` | `size` | smaller, small, base, large, larger |
+| `brandColor` | `brand-color` | base, secondary |
+| `color` | `color` | base, light, lighter, lightest, disabled, link, success, highlight, warning, error (+ themed: night; `$inverse` — see Inverse Colors) |
 | `fontFamily` | `font-family` | base, code, heading |
-| `fontSize` | `font-size` | smaller, small, base, large, larger |
+| `fontSize` | `font-size` | smaller, small, base, large, larger (+ per breakpoint) |
 | `fontWeight` | `font-weight` | light, base, medium, semibold, bold, extrabold, black |
-| `color` | `color` | base, light, lighter, lightest, disabled, link, success, warning, error (+ `$inverse` — see Inverse Colors) |
 | `gap` | `gap` | none, smaller, small, base, large, larger |
-| `lineHeight` | `line-height` | condensed, base, expanded |
+| `letterSpacing` | `letter-spacing` | tight, base, wide, wider |
+| `lineHeight` | `line-height` | single, condensed, base, expanded |
+| `size` | `size` | smaller, small, base, large, larger |
+| `strokeWidthScale` | `stroke-width-scale` | base (+ themed: night) |
 | `zIndex` | `z-index` | base, low, medium, high, higher |
 
 ---
@@ -183,11 +186,9 @@ nice-styles/src/tokens/
 ├── breakpoints.json             ← breakpoint pixel thresholds (separate concern)
 └── components/
     ├── button.json              ← per-component base + $themes (alt themes inline)
+    ├── dialog.json
     ├── icon.json
-    ├── image.json
-    ├── input.json
-    ├── lightbox.json
-    ├── tile.json
+    ├── …                        ← one per component prefix (ComponentPrefix lists them)
     └── ink.json
 ```
 
@@ -260,6 +261,25 @@ Themes are emitted last in `dist/tokens.css`, so on overlap (a token overridden 
   ```
 
   Each `$breakpoints` / `$themes` entry is partial — only the paths that differ from the base. A `night` theme is special (it is the OS dark default, see Theme Architecture); any other `$themes` name and every `$breakpoints` name validate against the base tree and emit pin / `min-width` overrides.
+
+**Interaction-state variants.** A component token can carry the interaction states as variants of its group: `base` (rest), `hover`, `focus` (keyboard, `:focus-visible`), `active` (pressed). Add them only to interactive components and only for the tokens that need them — most components are not interactive, so there is no blanket coverage. The unset states reference `base`, so a project overrides only the state it changes:
+
+```json
+"icon": {
+  "color": {
+    "base": "currentColor",
+    "hover": "var(--np--button--icon--color)",
+    "focus": "var(--np--button--icon--color)",
+    "active": "var(--np--button--icon--color)"
+  }
+}
+```
+
+```ts
+setTokens({ button: { icon: { color: { hover: { day: "#333", night: "#fff" } } } } })
+```
+
+The component applies them with mutually exclusive state selectors (active > focus > hover > rest; a disabled component shows base only), and a per-instance prop for the same property (Button's `iconColor`) is emitted after the token rules, so the prop beats the token. Reference: `button.icon.color` and react-button's `stateRules`. `focusRing` stays its own group (the focus ring is a separate visual, not a state of another token). Nested component overrides of any depth are accepted by `setTokens` / `generateTokenCSS`: the component's own token tree decides which nodes are groups.
 
 Adding a new component package = drop one `components/{prefix}.json`. The build picks it up automatically via filename glob — no script edits.
 
@@ -439,10 +459,10 @@ getToken("brandColor", "primary")                        // "var(--np--brand-col
 
 ### setTokens — Register + Generate CSS
 
-Registers app-level token overrides and custom tokens in the runtime registry, and sets breakpoint thresholds. Injects the generated CSS synchronously at call time; returns nothing. Call it once at module load (typically in `src/nice/tokens.ts`) and import that file for its side effect from your app entry.
+Registers app-level token overrides and custom tokens in the runtime registry, and sets breakpoint thresholds. Injects the generated CSS synchronously at call time and returns `getToken`, typed (`TypedGetToken`, `react-styles/src/services/setTokens/setTokens.types.ts`) to accept the core token groups and variants plus every group and variant the map registers — custom groups, variants added to existing groups, and component groups addressed as `{prefix}.{group}`. Same function as the plain `getToken` at runtime; only the accepted names widen. Call it once at module load (typically in `src/nice/tokens.ts`), export the returned getter, and import that file from your app entry.
 
 ```ts
-import { setTokens, getToken } from "nice-react-styles"
+import { setTokens } from "nice-react-styles"
 
 const AppTokenMap = {
   // Breakpoint thresholds (reserved key) — applied before the rest of the map
@@ -460,8 +480,9 @@ const AppTokenMap = {
   },
 } as const
 
-setTokens(AppTokenMap)
-export { getToken }
+export const getToken = setTokens(AppTokenMap)
+
+getToken("brandColor", "primary")   // typed: the core brandColor group plus the map's primary variant
 ```
 
 **`breakpoints` key:** `tablet` / `laptop` / `desktop` pixel floors (`Partial<BreakpointValues>`). Validated (positive, ascending; `phone` and unknown names throw), applied before the rest of the map, and re-emits the breakpoint cascade plus every earlier `setTokens` stylesheet at the new thresholds. See [breakpoints.md](breakpoints.md#customizing--runtime).
@@ -629,9 +650,11 @@ One reader, `scripts/shared/readTokenSources.ts`, reads and validates the source
 
 | Script | Maps the model to |
 |--------|-------------------|
-| `scripts/generateTokens/` (`writeData.ts`) | `src/generated/tokensData.ts`, `themeTokensData.ts`, `breakpointTokensData.ts`, `inverseTokensData.ts`, `componentTokensData.ts`, `componentBreakpointTokensData.ts`, `breakpointsData.ts` |
+| `scripts/generateTokens/` (`writeData.ts`) | `src/generated/tokensData.ts`, `themeTokensData.ts`, `breakpointTokensData.ts`, `inverseTokensData.ts`, `componentTokensData.ts`, `componentBreakpointTokensData.ts`, `componentNightTokensData.ts`, `breakpointsData.ts` |
 | `scripts/generateTypes/` (`writeTypes.ts`) | `src/generated/types.ts` |
 | `scripts/generateCss/` (`writeCss.ts`) | `dist/tokens.css`, `dist/css/{group}.css`, `dist/breakpoints.css`, `dist/breakpoints.custom-media.css` |
+
+`writeCss.ts` runs `validateVarReferences` (`scripts/css/validate.ts`) on the assembled `tokens.css` before writing it: a `var(--np--X)` whose `--np--X` is declared nowhere in that file throws, listing each missing name and its referencing declarations.
 
 Model splits: groups that appear in any `$themes` entry are themed (`themes.day`), the rest are `core`; `night` is `themes.night` and every other theme is `themes.extras` (components split the same way); each `$inverse` sub-module becomes `inverse.day` / `inverse.night`. `generateTokens` writes `themeTokensData.ts` as `{ day, night }`.
 
@@ -654,10 +677,12 @@ When calling `setTokens()` from nice-react-styles, variant values can be one of 
 Detected by `isStyleValue("breakpoint", value)` — every key is a breakpoint key: bare (`phone`, exact band), `+` (up), or `-` (down).
 
 ```ts
-{ gap: { base: { phone: "24px", "laptop+": "32px" } } }
+{ gap: { base: { "phone+": "24px", "laptop+": "32px" } } }
 ```
 
 Keys spanning every viewport (`phone+`, `desktop-`) land in `:root`; every other key is emitted in its `@media` block, least to most specific.
+
+**Pitfall — uncovered bands.** A bare key sets only its own band, so `{ phone: "24px", "laptop+": "32px" }` leaves tablet with no value; start from `phone+` (or end with `desktop-`) so every band is covered.
 
 ### Theme-aware (theme object)
 
@@ -669,13 +694,22 @@ Detected by `isStyleValue("theme", value)` — an object that is not a breakpoin
 
 Generates semantic variable + `--day` / `--night` primitives + `prefers-color-scheme` media query + `[data-theme]` pins (extra themes get their own pin).
 
+**Partial theme values.** A theme object may set only `day` or only `night`. `generateTokenCSS` completes it first (`completeThemeValue`), filling the missing shipped theme from the token's own values in the registry seed: a themed token's other theme, a component alias's core primitive (`var(--np--color--night)`), or a theme-independent value repeated. So overriding one theme never changes the other:
+
+```ts
+setTokens({ logo: { color: { base: { day: "red" } } } })
+// day → red; night keeps var(--np--color--night)
+```
+
+A token the sources don't define has nothing to fill from, so a custom token still needs `day`. Component tokens with a `$themes.night` override are seeded `{ day, night }` (from `componentNightTokensData.ts`) so their night value is available here.
+
 ### Mixed Example
 
 ```ts
 setTokens({
   gap: {
     none: "0",                                  // static
-    base: { phone: "24px", laptop: "32px" },    // responsive
+    base: { "phone+": "24px", "laptop+": "32px" },  // responsive
   },
   headerColor: {
     base: { day: "#000", night: "#fff" },       // mode-aware

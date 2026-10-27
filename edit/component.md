@@ -251,6 +251,7 @@ export const DEFAULT_SIZE = "base"
 - Co-located with the component file (e.g., `Button.types.ts` alongside `Button.tsx` in the component folder)
 - All prop types abstracted as `{Component}{PropName}Type` - never hardcode types like `boolean` or `string` directly in props
 - Uses declaration merging with default export for type namespace
+- Allowed prop values are not restated in READMEs: the generated `manifest/agents/catalog.json` (`agents/scripts/generate-catalog.mjs`) resolves each `{Component}Props` member's union; READMEs name the type alias and point to the catalog. Aliases imported from nice-styles stay unresolved in the catalog (`nice-styles/src/generated/types.ts`)
 
 #### Type Naming Convention
 
@@ -421,32 +422,18 @@ import type { ButtonProps } from "./types"
 - No logic in this file, only imports and default export
 - Exception: React components use default export per convention
 
-#### `className` prop — required for every visual component
+#### `className` prop — only when a consumer needs it
 
-Every nice-react-* component that renders any DOM **must** accept an optional `className?: string` prop and forward it to the rendered root element. Non-visual components (pure context providers like `ScrollProvider`, hook-only packages with no rendered output) are exempt.
+Do not add `className` by default. Add an optional `className?: string` (forwarded to the rendered root element) only when a consumer needs to scope its own CSS into that component — e.g. `<Theme name="day" className="nice-storybook">`, which storybook's `preview-docs.css` targets. **Why:** the user does not use `className`; a prop with no consumer is redundancy. Components that already have it (Ink, Tile, Button, Icon, Image, Input, Flex, Lightbox, LightboxCaption, Slider, FadeOnScroll, Sticky, SectionLinks, StickySection, Theme, …) keep it; removing it is a separate, explicit decision.
 
 ```tsx
-// In {Component}.types.ts — declare on the public props
-export interface ComponentProps {
-  // …other props
-  /** CSS class name applied to the root element */
-  className?: string
-}
+// When needed — in {Component}.types.ts
+/** CSS class name applied to the root element */
+className?: string
 
-// In {Component}.tsx — destructure and forward to the rendered root
-const Component: React.FC<ComponentProps> = ({ className, …rest }) => (
-  <StyledRoot className={className} …rest />
-)
+// In {Component}.tsx — forward to the rendered root (whichever root a branching component returns)
+const Component: React.FC<ComponentProps> = ({ className, …rest }) => <StyledRoot className={className} …rest />
 ```
-
-For components with multiple rendering branches (e.g. Image's `as="img" | "div" | renderImage`), forward `className` to whichever root is returned.
-
-Why this is required:
-- Consumers need a stable hook for cascading their own CSS scope into a nice subtree. Examples: `<Theme name="day" className="nice-storybook">` lets `preview-docs.css` scope storybook overrides to `.nice-storybook` rather than relying on broad selectors; an app might add `className="my-page-section"` to a Tile to apply page-specific tweaks.
-- Without `className`, consumers fall back to ancestor selectors or DOM IDs — both brittle.
-- The class lands alongside whatever styled-components emits, so component-internal styling is unaffected.
-
-This rule applies retroactively — any visual component missing `className` is a bug. The current set covers Ink, Tile, Button, Icon, Image, Input, Flex, Lightbox, LightboxCaption, Slider, FadeOnScroll, Sticky, SectionLinks, StickySection, and Theme.
 
 #### Theme prop — wrap-in-Theme standard (required for visual components)
 
@@ -739,7 +726,7 @@ Canonical scripts per package class. Each script must be both (a) appropriate fo
 
 **Forbidden everywhere:**
 
-- `"prepare": "npm run build"` — npm runs `prepare` on every `file:` install in every consumer, cascading into a full rebuild of every linked package on every `npm i` in every project. `prepublishOnly` covers the publish path; `nicely build all` covers the explicit workspace rebuild. See `manifest/.nice/reports/npm-install-breaks-consumers.md`. Exception: `nice-configuration` carries `prepare` by deliberate choice (its `dist/` is committed, so this rebuilds it on install); no other package opts in.
+- `"prepare": "npm run build"` — npm runs `prepare` on every `file:` install in every consumer, cascading into a full rebuild of every linked package on every `npm i` in every project. `prepublishOnly` covers the publish path; `nicely build all` covers the explicit workspace rebuild. See `manifest/.nice/reports/npm-install-breaks-consumers.md`. No package carries `prepare` (the last three — react-tile, react-flex, nice-config-exports — were removed 2026-10-15; config-exports commits a `dist/` that rebuilds byte-identical, so it needs no install-time build).
 - Convenience aliases like `build:watch`, `test:watch`, `test:coverage`, `lint:fix`, `clean`, `build:types`. These add maintenance surface for marginal value.
 
 **Non-component package classes** (these don't follow the component template; the canonical sets below are the documented variant per class):
@@ -748,7 +735,7 @@ Canonical scripts per package class. Each script must be both (a) appropriate fo
 |---|---|---|
 | `nice-styles` (foundation) | bespoke generator pipeline | `clean` + `build:tokens` + `build:types` + `build:css` + `build:ts` + `build:post` chained from `build`; `dev` runs them in `--watch` mode; `prepublishOnly` (build + test) for the publish chain; `test` (`tsx --test test/*.test.ts`) and `test:update` (rewrites snapshots — the one allowed test alias, required by the snapshot workflow in `edit/generators.md`). |
 | `nice-icons` (foundation) | gen script | `build`, `dev` (with `--watch`), `prepublishOnly`. No `prepare`. |
-| `nice-configuration` (foundation/CLI) | `tsc` | `build`, `prepublishOnly`, `prepare` (deliberate exception — see "Forbidden everywhere" note below). |
+| `nice-config-*` (foundation/config) | per package (`tsc` for config-exports) | `build` where there is one, `prepublishOnly`. No `prepare`. |
 | `nice-vite-watcher` (plugin) | `tsup` | `build`, `dev`, `prepublishOnly`. No `prepare`. |
 | `nice-toolkit` (CLI) | no build | `test` (smoke). |
 

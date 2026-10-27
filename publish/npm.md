@@ -363,7 +363,7 @@ Source of truth: `toolkit/registry.json` tiers (0-indexed). `nicely publish` bui
 
 0. nice-styles, nice-icons, nice-toolkit, nice-svg-generator, nice-config-*, nice-vite-watcher
 1. nice-react-styles
-2. nice-react-flex, nice-react-ink, nice-react-popover, nice-react-list
+2. nice-react-flex, nice-react-ink, nice-react-popover, nice-react-list, nice-react-dialog
 3. nice-react-icon, nice-react-icon-vendor, nice-react-tile, nice-react-code, nice-react-tooltip, nice-react-field
 4. nice-react-button
 5. nice-react-scroll, nice-react-slider, nice-react-lightbox, nice-react-image, nice-react-image-vendor, nice-react-input, nice-react-head, nice-react-form
@@ -371,7 +371,7 @@ Source of truth: `toolkit/registry.json` tiers (0-indexed). `nicely publish` bui
 
 Known same-tier cycles (pre-existing): nice-icons ↔ nice-styles / nice-svg-generator (tier 0), nice-react-icon ↔ nice-react-icon-vendor (tier 3), nice-react-image ↔ nice-react-image-vendor (tier 5).
 
-**New packages:** popover, field, list, select, calendar are local-only (no remote, never published) until the user approves publishing them.
+**New packages:** popover, field, list, select, calendar, dialog are local-only (no remote, never published) until the user approves publishing them.
 
 ---
 
@@ -413,6 +413,7 @@ Known same-tier cycles (pre-existing): nice-icons ↔ nice-styles / nice-svg-gen
 | nice-react-slider | — | react, styled-components |
 | nice-react-lightbox | nice-react-styles | react, react-dom, styled-components |
 | nice-react-tooltip | nice-react-styles, nice-react-popover, nice-icons | react, react-dom, styled-components |
+| nice-react-dialog | nice-react-styles | react, styled-components |
 
 ### Forms
 
